@@ -403,3 +403,10 @@ z menu, nie wszystkie mają podane aktualne”*.
   Do wysyłki kodów potrzebna skrzynka na domenie (SMTP); rekordów MX nie ruszamy.
   Czeka na usera: gdzie jest poczta szamanie.pl (hosting, „podam później”) i zgoda na start panelu. Potem start
   na gałęzi `feat/panel` (osobny worktree, Pull Request do `main`), pierwszy lokal testowy: Kwadrat.
+
+### 26.10 — panel właściciela, ustalenia z czarn-57 (czarn-46)
+- Panel powstaje na gałęzi `feat/panel` w worktree `D:\APLIKACJE\inne\szamanie-panel` (podgląd :3001). Na main wejdzie po review w PR, nie w dzisiejszym wdrożeniu.
+- **Migracja 6 w `schemat.mjs` należy do panelu.** Nowe migracje na main tylko po uzgodnieniu numeru.
+- `robots.ts`: `Disallow: /panel` (już na main).
+- Po scaleniu do `/opt/szamanie/.env` dochodzą: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_HASLO, SMTP_OD. Trzeba je też dopisać do szablonu w `przygotuj-serwer.sh`.
+- Po scaleniu w polityce prywatności dopisać akapit o panelu: e-mail, imię i telefon właściciela przy przejęciu lokalu oraz ciasteczko sesji. Oznacza to też zmianę zdania „bez ciasteczek”.
