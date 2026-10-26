@@ -388,3 +388,8 @@ z menu, nie wszystkie mają podane aktualne”*.
 - Repozytorium git założyła czarn-57: dcfc1c7, `.gitattributes` eol=lf, README. Moje wczorajsze zmiany SEO i wdrożenia weszły w pierwszy commit.
 - b5950c2: `deploy/wdroz.sh` pakuje kod bez `.git`. W `deploy/*.sh` i Dockerfile nie ma znaków CR, więc pliki na serwer jadą z LF.
 - Od teraz każda zmiana idzie jako commit (`git add -A && git commit`). Push robi czarn-57, kiedy będzie adres repo na GitHubie.
+- **Panel właściciela (user, 26.10):** „będziemy musieli zrobić logowanie dla właścicieli restauracji — będą mieli
+  własny dashboard”. To etap 2. Propozycja: konta e-mail + hasło (scrypt z node:crypto, sesje w SQLite, ciasteczko
+  httpOnly), przejęcie lokalu przez „To Twój lokal?” z ręczną weryfikacją przez admina (telefon na numer lokalu),
+  zmiany właściciela zapisywane do `poprawki`/`menu` z autorem, po zapisie odświeżenie strony lokalu (cacheTag).
+  Do decyzji usera: sposób logowania, skrzynka do wysyłki maili (reset hasła), co jest za darmo, a co w abonamencie.
