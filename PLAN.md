@@ -410,3 +410,6 @@ z menu, nie wszystkie mają podane aktualne”*.
 - `robots.ts`: `Disallow: /panel` (już na main).
 - Po scaleniu do `/opt/szamanie/.env` dochodzą: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_HASLO, SMTP_OD. Trzeba je też dopisać do szablonu w `przygotuj-serwer.sh`.
 - Po scaleniu w polityce prywatności dopisać akapit o panelu: e-mail, imię i telefon właściciela przy przejęciu lokalu oraz ciasteczko sesji. Oznacza to też zmianę zdania „bez ciasteczek”.
+- 26.10, próbny build main (2d20110): przeszedł. Audyt: 59 adresów bez błędów, zostały 3 za długie tytuły. Na produkcji /favicon.ico, /wp-login.php i /.env dają czyste 404 bez błędów. InvariantError „did not produce a static shell” jest tylko w dev.
+- d3c5910: dodany `src/app/favicon.ico` (16/32/48 px z icon.png, 7 KB), więc /favicon.ico zwraca 200 zamiast 26 KB strony 404. Tytuł lokalu o tej samej nazwie w tej samej miejscowości ma krótką ulicę („Sikorskiego 7a”).
+- PR #1 (panel, https://github.com/czarnymwkp/szamanie/pull/1): mój plik StronaFrazy dostał jedną linię (link do cennika dostawy tylko dla http), sprawdzone, OK. Commity 2d20110 i d3c5910 czekają lokalnie na push (u czarn-46 push zablokowany).
