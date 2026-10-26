@@ -393,3 +393,6 @@ z menu, nie wszystkie mają podane aktualne”*.
   httpOnly), przejęcie lokalu przez „To Twój lokal?” z ręczną weryfikacją przez admina (telefon na numer lokalu),
   zmiany właściciela zapisywane do `poprawki`/`menu` z autorem, po zapisie odświeżenie strony lokalu (cacheTag).
   Do decyzji usera: sposób logowania, skrzynka do wysyłki maili (reset hasła), co jest za darmo, a co w abonamencie.
+  User dopisał: właściciele „będą mogli edytować menu, dodawać promocje itd.”. Promocje to nowa tabela (od–do, dni
+  tygodnia, godziny, np. „Wtorek: druga pizza -50%”). Przy obniżce ceny trzeba pokazać najniższą cenę z 30 dni
+  (dyrektywa Omnibus), więc razem z edycją menu zapisujemy historię cen.
