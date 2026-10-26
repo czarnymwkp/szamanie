@@ -8,7 +8,8 @@ import { bezPolskich } from "@/lib/slug.mjs";
 
 type Lokal = { slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
 
-export default function ListaLokali({ lokale }: { lokale: Lokal[] }) {
+/** Lista lokali z wyszukiwarką; `prefiks` — dokąd prowadzi wiersz (zgłoszenie albo, dla admina, panel lokalu). */
+export default function ListaLokali({ lokale, prefiks = "/panel/przejmij/" }: { lokale: Lokal[]; prefiks?: string }) {
   const [fraza, setFraza] = useState("");
   const f = bezPolskich(useDeferredValue(fraza).trim());
   const wyniki = f
@@ -25,13 +26,12 @@ export default function ListaLokali({ lokale }: { lokale: Lokal[] }) {
           onChange={(e) => setFraza(e.target.value)}
           placeholder="Nazwa lokalu albo ulica"
           className={`${pole} pl-11`}
-          autoFocus
         />
       </label>
       <ul className={`${kartaRamka} divide-y divide-obrys`}>
         {wyniki.slice(0, 60).map((l) => (
           <li key={l.slug}>
-            <Link href={`/panel/przejmij/${l.slug}`} className="flex items-center gap-3 px-5 py-3.5 transition hover:bg-krem">
+            <Link href={`${prefiks}${l.slug}`} className="flex items-center gap-3 px-5 py-3.5 transition hover:bg-krem">
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-extrabold">{l.nazwa}</span>
                 <span className="block truncate text-sm text-tekst-2">

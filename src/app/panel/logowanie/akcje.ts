@@ -41,5 +41,9 @@ export async function logowanie(_: StanLogowania, formData: FormData): Promise<S
     console.error("[panel] wysyłka kodu:", blad);
     return { krok: "email", email, blad: "Nie udało się wysłać maila. Spróbuj za chwilę." };
   }
+  // lokalny podgląd bez skrzynki pocztowej: kod na ekranie (na serwerze — nigdy, tam bez SMTP jest tylko w logach)
+  if (process.env.NODE_ENV === "development" && !process.env.SMTP_HOST) {
+    return { krok: "kod", email, info: `Podgląd lokalny bez poczty — Twój kod: ${wynik.kod}` };
+  }
   return { krok: "kod", email, info: ponownie ? "Wysłaliśmy nowy kod." : undefined };
 }

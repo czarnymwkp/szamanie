@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { pobierzLokale } from "@/lib/lokale";
 import { linkTelefonu } from "@/lib/nazwy";
 import { wymagajAdmina } from "@/lib/panel/konta";
+import ListaLokali from "../dodaj/ListaLokali";
 import { odbierzDostep, rozpatrzZgloszenie } from "./akcje";
 
 export const metadata: Metadata = { title: "Administracja" };
@@ -51,6 +52,14 @@ export default async function Admin() {
       )
       .all() as { konto: number; email: string; rola: string; lokal: number; nazwa: string; slug: string }[]
   ).map((d) => ({ ...d }));
+  const wszystkie = (
+    db.prepare("SELECT slug, nazwa, adres, miejscowosc FROM lokale ORDER BY nazwa COLLATE NOCASE").all() as {
+      slug: string;
+      nazwa: string;
+      adres: string | null;
+      miejscowosc: string | null;
+    }[]
+  ).map((l) => ({ ...l }));
   const nowe = zgloszenia.filter((z) => z.status === "nowe");
   const stare = zgloszenia.filter((z) => z.status !== "nowe");
 
@@ -120,6 +129,11 @@ export default async function Admin() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-black">Panel dowolnego lokalu</h2>
+        <ListaLokali lokale={wszystkie} prefiks="/panel/" />
       </section>
 
       {stare.length > 0 && (
