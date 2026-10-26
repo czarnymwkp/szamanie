@@ -396,3 +396,8 @@ z menu, nie wszystkie mają podane aktualne”*.
   User dopisał: właściciele „będą mogli edytować menu, dodawać promocje itd.”. Promocje to nowa tabela (od–do, dni
   tygodnia, godziny, np. „Wtorek: druga pizza -50%”). Przy obniżce ceny trzeba pokazać najniższą cenę z 30 dni
   (dyrektywa Omnibus), więc razem z edycją menu zapisujemy historię cen.
+  **Logowanie (user, 26.10): Google, Apple albo e-mail.** Plan: własne sesje w SQLite + biblioteka `arctic`
+  (OAuth Google/Apple), konta łączone po adresie e-mail. E-mail = 6-cyfrowy kod (na telefonie lepszy niż link,
+  bo link otwiera się w przeglądarce aplikacji pocztowej). Google: darmowy klient OAuth w tym samym projekcie
+  Google Cloud co Places API. Apple: wymaga Apple Developer Program (99 USD/rok), więc dopiero po Google i e-mailu.
+  Do wysyłki kodów potrzebna skrzynka na domenie (SMTP); rekordów MX nie ruszamy.
