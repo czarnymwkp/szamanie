@@ -1,12 +1,14 @@
 import { generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { NextRequest } from "next/server";
+import { connection, type NextRequest } from "next/server";
 import { klientGoogle, opcjeCiasteczka } from "@/lib/panel/google";
 import { bezpiecznyCel } from "@/lib/panel/konta";
 
 // Start logowania przez Google: stan (ochrona przed CSRF) i weryfikator PKCE w ciasteczkach na 10 minut.
 export async function GET(zadanie: NextRequest) {
+  // zawsze przy żądaniu: bez tego build zapisałby przekierowanie na stałe (np. gdy klucza Google jeszcze nie ma)
+  await connection();
   const google = klientGoogle(zadanie);
   if (!google) redirect("/panel/logowanie");
 

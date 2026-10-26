@@ -5,7 +5,7 @@ import { karta, komunikatOk } from "@/components/panel/style";
 import { db } from "@/lib/db";
 import { lokaleKonta, wymagajKonta } from "@/lib/panel/konta";
 
-export const metadata: Metadata = { title: "Twoje lokale" };
+export const metadata: Metadata = { title: { absolute: "Twoje lokale · Panel lokalu" } };
 
 export default async function Panel({ searchParams }: PageProps<"/panel">) {
   const konto = await wymagajKonta();
