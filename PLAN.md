@@ -401,3 +401,5 @@ z menu, nie wszystkie mają podane aktualne”*.
   bo link otwiera się w przeglądarce aplikacji pocztowej). Google: darmowy klient OAuth w tym samym projekcie
   Google Cloud co Places API. Apple: wymaga Apple Developer Program (99 USD/rok), więc dopiero po Google i e-mailu.
   Do wysyłki kodów potrzebna skrzynka na domenie (SMTP); rekordów MX nie ruszamy.
+  Czeka na usera: gdzie jest poczta szamanie.pl (hosting, „podam później”) i zgoda na start panelu. Potem start
+  na gałęzi `feat/panel` (osobny worktree, Pull Request do `main`), pierwszy lokal testowy: Kwadrat.
