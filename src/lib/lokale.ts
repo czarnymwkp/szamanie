@@ -28,6 +28,7 @@ export type Lokal = {
   // płatne pakiety aktywne dzisiaj
   promowany: boolean;
   galeria: boolean;
+  promocja: string | null; // tytuł pierwszej trwającej promocji (z panelu lokalu) — na karcie na liście
 };
 
 /** Udogodnienia z OSM (scripts/import-osm.mjs → cechy), poprawek (npm run popraw) i menu (dania wege). */
@@ -95,7 +96,10 @@ export async function pobierzLokale(): Promise<Lokal[]> {
       `SELECT l.id, l.slug, l.nazwa, l.typ, l.kuchnie, l.lat, l.lon, l.gmina, l.miejscowosc, l.adres,
               l.telefon, l.www, l.facebook, l.instagram, l.email, l.menu_url, l.cechy,
               l.godziny, l.dostawa, l.na_wynos, l.opis, l.szablon,
-              ${aktywny("top")} AS promowany, ${aktywny("galeria")} AS galeria
+              ${aktywny("top")} AS promowany, ${aktywny("galeria")} AS galeria,
+              (SELECT p.tytul FROM promocje p WHERE p.lokal_id = l.id AND p.aktywna = 1 AND p.usunieto IS NULL
+                 AND (p.od_dnia IS NULL OR p.od_dnia <= @dzis) AND (p.do_dnia IS NULL OR p.do_dnia >= @dzis)
+               ORDER BY p.kolejnosc, p.id LIMIT 1) AS promocja
        FROM lokale l WHERE l.ukryty = 0`,
     )
     .all({ dzis: dzisiaj() }) as Wiersz[];

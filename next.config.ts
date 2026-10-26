@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
       },
       { source: "/lawinfo/contact", destination: "/dla-lokali", permanent: true },
       { source: "/lawinfo/:strona*", destination: "/", permanent: true },
-      { source: "/login", destination: "/dla-lokali", permanent: true },
+      { source: "/login", destination: "/panel/logowanie", permanent: true },
     ];
   },
   turbopack: {
