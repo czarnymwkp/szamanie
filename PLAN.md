@@ -383,3 +383,8 @@ z menu, nie wszystkie mają podane aktualne”*.
   Repo **prywatne** (PLAN.md z notatkami biznesowymi, drzewo Parkowej bez potwierdzonej zgody). Od teraz zamiast
   kopii folderów w `szamanie-kopie` wystarczy commit przed dużą zmianą. `gh` nie jest zainstalowany; push przez
   Git Credential Manager (przy pierwszym logowaniu otwiera się przeglądarka).
+
+### 26.10 — repo git (czarn-46)
+- Repozytorium git założyła czarn-57: dcfc1c7, `.gitattributes` eol=lf, README. Moje wczorajsze zmiany SEO i wdrożenia weszły w pierwszy commit.
+- b5950c2: `deploy/wdroz.sh` pakuje kod bez `.git`. W `deploy/*.sh` i Dockerfile nie ma znaków CR, więc pliki na serwer jadą z LF.
+- Od teraz każda zmiana idzie jako commit (`git add -A && git commit`). Push robi czarn-57, kiedy będzie adres repo na GitHubie.
