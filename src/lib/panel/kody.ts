@@ -10,8 +10,12 @@ const WAZNOSC_MIN = 10;
 const PROB = 5;
 const PRZERWA_S = 60;
 const KODOW_NA_GODZINE_Z_IP = 10;
+// 6 cyfr i 5 prób na kod: limit kodów na adres ogranicza zgadywanie do ~30 prób na godzinę
+const KODOW_NA_GODZINE_NA_ADRES = 6;
+const GODZINA_MS = 60 * 60 * 1000;
 
 const wysylkiZIp = new Map<string, number[]>();
+const wysylkiNaAdres = new Map<string, number[]>();
 
 const hashKodu = (email: string, kod: string) => skrot(`${email}:${kod}`);
 
@@ -21,8 +25,11 @@ export type WynikWysylki = { kod: string } | { blad: string; juzWyslany?: boolea
 export function nowyKod(emailSurowy: string, ip: string): WynikWysylki {
   const email = normalizujEmail(emailSurowy);
   const teraz = Date.now();
-  const ostatnie = (wysylkiZIp.get(ip) ?? []).filter((t) => teraz - t < 60 * 60 * 1000);
-  if (ostatnie.length >= KODOW_NA_GODZINE_Z_IP) return { blad: "Za dużo prób. Spróbuj ponownie za godzinę." };
+  const ostatnie = (wysylkiZIp.get(ip) ?? []).filter((t) => teraz - t < GODZINA_MS);
+  const naAdres = (wysylkiNaAdres.get(email) ?? []).filter((t) => teraz - t < GODZINA_MS);
+  if (ostatnie.length >= KODOW_NA_GODZINE_Z_IP || naAdres.length >= KODOW_NA_GODZINE_NA_ADRES) {
+    return { blad: "Za dużo prób. Spróbuj ponownie za godzinę." };
+  }
 
   const poprzedni = db.prepare("SELECT wyslano FROM kody_logowania WHERE email = ?").get(email) as
     | { wyslano: string }
@@ -38,6 +45,7 @@ export function nowyKod(emailSurowy: string, ip: string): WynikWysylki {
        wyslano = excluded.wyslano`,
   ).run(email, hashKodu(email, kod), new Date(teraz + WAZNOSC_MIN * 60 * 1000).toISOString());
   wysylkiZIp.set(ip, [...ostatnie, teraz]);
+  wysylkiNaAdres.set(email, [...naAdres, teraz]);
   return { kod };
 }
 
