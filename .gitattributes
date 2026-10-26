@@ -1,0 +1,3 @@
+# Wszystko z końcami linii LF — skrypty deploy/*.sh i Dockerfile muszą działać na serwerze (Linux),
+# a Git na Windowsie ma core.autocrlf=true.
+* text=auto eol=lf

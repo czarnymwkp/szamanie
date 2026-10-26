@@ -1,0 +1,184 @@
+# Si! Włoska, Kraśnik — menu i strefy dostawy przepisane ze strony lokalu.
+źródło: https://www.siwloska.pl/images/Si_menu_a4_2026_2.pdf
+sprawdzono: 2026-10-25
+
+== DOSTAWA ==
+źródło: https://www.siwloska.pl/dostawy-restauracja-wloska-z-wloskim-jedzeniem-krasnik.html
+sprawdzono: 2026-10-25
+Kraśnik Fabryczny = Kraśnik | 3 |
+Wyżnianka Kolonia = Wyżnianka-Kolonia | 5 | 40
+Budzyń | 5 | 40
+Wyżnianka / Wyżnica Kolonia = Wyżnianka, Wyżnica-Kolonia | 5 | 40
+Urzędów (Rankowskie, Mikuszewskie) = Rankowskie, Mikuszewskie | 7 | 50
+Kraśnik Stary = Kraśnik | 7 | 50
+Dąbrowa Bór = Dąbrowa-Bór | 7 | 50
+Lasy = Lasy | 7 | 50
+Suchynia = Suchynia | 7 | 50
+Dzierzkowice Rynek (Góry, Podwody, Terpentyna) = Dzierzkowice-Rynek, Dzierzkowice-Góry, Dzierzkowice-Podwody, Terpentyna | 12 | 70
+Kolejowa | 12 | 70
+Pasieka = Pasieka, Pasieka-Kolonia | 12 | 70
+Spławy Pierwsze = Spławy Pierwsze | 12 | 70
+Podlesie = Podlesie | 12 | 70
+Urzędów (Góry, Bęczyn) = Góry, Bęczyn | 12 | 70
+Stróża / Stróża Kolonia = Stróża, Stróża-Kolonia | 15 | 100
+Słodków Pierwszy / Słodków Drugi = Słodków Pierwszy, Słodków Drugi | 15 | 100
+Pułankowice = Pułankowice | 15 | 100
+Popkowice = Popkowice | 15 | 100
+Wierzbica = Wierzbica | 15 | 100
+Dzierzkowice (Wola, Zastawie) = Dzierzkowice-Wola, Dzierzkowice-Zastawie | 15 | 100
+Skorczyce = Skorczyce | 15 | 100
+Owczarnia = Owczarnia | 15 | 100
+Ostrów = Ostrów, Ostrów-Kolonia | 15 | 100
+Kowalin = Kowalin | 15 | 100
+Kolejowa (ul. Wapienna / ul. Pogodna) | 15 | 100
+
+== MENU ==
+## Przystawki
+Krem z włoskich pomidorów pelati | mozzarella, czosnek, cebula, bazylia, focaccia (3 kawałki) | 23 | wege
+Włoska zupa jajeczna | na rosole z kluseczkami jajeczno-parmezanowymi, natka pietruszki, focaccia (3 kawałki) | 23 | wege
+Focaccia | oliwa extra virgin, sól morska, rozmaryn | 23 | wege
+Focaccia z masłem czosnkowym | oliwa extra virgin, sól morska, domowe masło czosnkowe | 25 | wege
+Bruschetta | 3 grzanki z oliwą, świeże pomidory, bazylia, czosnek, oregano, krem balsamiczny, grana padano DOP | 28 | wege
+Burrata rossa | panierowana burrata na sosie pomidorowym, krem balsamiczny z Modeny, bazylia, focaccia (3 kawałki) | 37 | wege
+Burrata bianca | panierowana burrata na sosie śmietanowo-pistacjowym, kasztany w miodzie, focaccia (3 kawałki) | 39 | wege
+Scampi al aglio | 8 krewetek smażonych na maśle z czosnkiem i pietruszką w sosie winno-śmietanowym, sałaty, pomidorki koktajlowe, focaccia | 53 |
+Antipasto piccolo | talerz włoskich wędlin i serów z focaccią z rozmarynem, dla 2 osób | 62 |
+Antipasto grande | talerz włoskich wędlin i serów z podwójną focaccią z rozmarynem, dla 4 osób | 90 |
+
+## Dania Si!
+Lasagne z mięsem | ok. 350 g; makaron, sos boloński wołowo-wieprzowy, beszamel, grana padano DOP | 48 |
+Filetto alla boscaiola | ok. 250 g; kurczak na maśle z cebulką, kaparami, pieczarkami, pomidorkami w sosie pomidorowym; dodatek do wyboru: ziemniaki opiekane, puree, frytki lub gnocchi | 57 |
+Filetto alla gorgonzola | ok. 250 g; kurczak na maśle z gruszką i orzechami w sosie winno-śmietanowym z gorgonzolą DOP; dodatek do wyboru | 59 |
+Saltimbocca alla Romana | ok. 250 g; kurczak z szynką parmeńską, mozzarellą i szałwią w białym winie; dodatek do wyboru | 59 |
+
+## Pizza
+Margherita | pomidory San Marzano DOP, mozzarella, bazylia, grana padano DOP, oliwa extra virgin | 28 | wege
+Caprese | pomidory San Marzano DOP, świeży pomidor, mozzarella di bufala, oregano, oliwa, bazylia | 32 | wege
+Cotto | pomidory San Marzano DOP, mozzarella, włoska szynka cotto, grana padano DOP | 34 |
+Salame | pomidory San Marzano DOP, mozzarella, włoskie salami napoli | 34 |
+Mimoza | sos śmietanowy z Pecorino DOP, mozzarella, szynka cotto, kukurydza | 35 |
+Bufalina | pomidory San Marzano DOP, mozzarella, grana padano DOP, mozzarella di bufala, bazylia | 38 | wege
+Prosciutto e Funghi | pomidory San Marzano DOP, mozzarella, szynka cotto, pieczarki | 38 |
+Diavola | pomidory San Marzano DOP, mozzarella, spianata calabrese piccante, peperoncino, bazylia | 39 | ostre
+Nduja | pomidory San Marzano DOP, mozzarella, n’duja, mascarpone, bazylia | 39 | ostre
+Ortolana | pomidory San Marzano DOP, mozzarella, oliwki, grillowany bakłażan, pieczona papryka, oregano | 39 | wege
+Pollo Cipolla | pomidory San Marzano DOP, mozzarella, kurczak, czerwona cebula, oregano | 39 |
+Dolce Piccante | pomidory San Marzano DOP, mozzarella, spianata calabrese piccante, miód, czerwona cebula | 39 | ostre
+Inferno | pomidory San Marzano DOP, mozzarella, salami ventricina, pieczarki, peperoncino, jajko, czarny pieprz | 40 | ostre
+Milano | pomidory San Marzano DOP, mozzarella, salami milano, pieczona papryka, mascarpone | 40 |
+Ananas | pomidory San Marzano DOP, mozzarella, prosciutto crudo, ananas, rukola, czerwona cebula, grana padano DOP | 40 |
+Ventricina | pomidory San Marzano DOP, mozzarella, salami ventricina, czerwona cebula, mascarpone | 40 |
+Carbonara | sos śmietanowy z Pecorino DOP, mozzarella, guanciale, żółtko, czarny pieprz | 41 |
+Pollo | pomidory San Marzano DOP, mozzarella, kurczak, suszone pomidory, pesto bazyliowe | 41 |
+Miele | mozzarella, salami napoli, ricotta, miód, oregano, czerwona cebula | 41 |
+Capricciosa | pomidory San Marzano DOP, mozzarella, szynka cotto, karczochy, pieczarki, oliwki | 42 |
+Spinachi | pomidory San Marzano DOP, mozzarella, gorgonzola DOP, szpinak, czosnek, jajko, suszone pomidory | 42 | wege
+Salumi | pomidory San Marzano DOP, mozzarella, spianata calabrese piccante, salami ventricina, czerwona cebula, oregano | 43 | ostre
+Fantasia | oliwa extra virgin, prosciutto crudo, orzechy, gruszka, ser kozi | 43 |
+Calabria | pomidory San Marzano DOP, mozzarella, salami ventricina, burrata, miód, chilli | 44 | ostre
+Vesuvio | pizza zawijana: pomidory San Marzano DOP, mozzarella, gorgonzola DOP, gruszka, prosciutto crudo; osobno rukola, pomidorki, krem balsamiczny | 45 |
+Pollo Piccante | pomidory San Marzano DOP, mozzarella, kurczak, spianata calabrese piccante, czosnek, oregano | 45 | ostre
+Formaggi | sos śmietanowy z Pecorino DOP, mozzarella, ricotta, grana padano DOP, gorgonzola DOP, bazylia | 45 | wege
+Salsicia | pomidory San Marzano DOP, mozzarella, salsicia piccante, n’duja, mozzarella di bufala, rukola, pesto, chilli | 46 | ostre
+Mortadella | mozzarella, mortadela, stracciatella, pistacje, bazylia, krem balsamiczny lub pesto pistacjowe | 47 |
+Carne | pomidory San Marzano DOP, mozzarella, czosnek, spianata piccante, salami napoli, salami milano, oliwki | 47 |
+Parma | pomidory San Marzano DOP, mozzarella, prosciutto crudo, rukola, pomidorki koktajlowe, grana padano DOP | 47 |
+Tonno | pomidory San Marzano DOP, mozzarella, tuńczyk, kapary, pieczarki, czerwona cebula | 47 |
+Burrata | pomidory San Marzano DOP, mozzarella, prosciutto crudo, rukola, pomidorki, krem balsamiczny, burrata (panierowana +6 zł) | 49 |
+Scampi | pomidory San Marzano DOP, mozzarella, krewetki, czosnek, pomidorki koktajlowe, natka pietruszki | 49 |
+
+## Calzone
+Calzone Classico | pomidory San Marzano DOP, mozzarella, szynka cotto, pieczarki, oregano; osobno rukola, pomidorki, krem balsamiczny | 39 |
+Calzone Piccante | pomidory San Marzano DOP, ricotta, spianata calabrese piccante, mozzarella, czarny pieprz | 41 | ostre
+Calzone Funghi | pomidory San Marzano DOP, ricotta, mieszanka grzybów, pieczarki, mozzarella | 41 | wege
+Calzone Bolognese | sos pomidorowy, sos bolognese, mozzarella, pieczarki, czerwona papryka | 42 |
+
+## Dodatki do pizzy
+Sos do pizzy | oliwa extra virgin (bazyliowa, czosnkowa, ostra), sos czosnkowy, pomidorowy, pomidorowy ostry | 4 |
+Dodatek warzywny | | 5 | wege
+Dodatek serowy | | 6 | wege
+Dodatek mięsny | | 8 |
+Krewetki | 6 szt. | 14 |
+
+## Makarony
+Bucatini carbonara | ok. 150 g makaronu, guanciale, jajko, czarny pieprz, grana padano DOP | 41 |
+Rigatoni pollo | sos winno-pomidorowy z odrobiną śmietany, kurczak, suszone pomidory, bazylia, rukola, grana padano DOP | 42 |
+Ravioli spinaci e ricotta | pierożki z ricottą i szpinakiem na maśle z szałwią, grana padano DOP | 42 | wege
+Tagliatelle spinaci e pollo | sos winno-śmietanowy, kurczak, szpinak, czosnek, pomidorki, grana padano DOP | 43 |
+Bucatini bolognese | sos boloński wołowo-wieprzowy, grana padano DOP | 47 |
+Tagliatelle funghi con pollo | sos winno-śmietanowy, kurczak, grzyby leśne, pieczarki, czosnek, grana padano DOP | 47 |
+Rigatoni al fuoco | sos winno-pomidorowy, czerwona cebula, kurczak, n’duja, natka, grana padano DOP | 48 | ostre
+Tagliatelle al tartufo | sos śmietanowy, pasta truflowa, szynka cotto, stracciatella | 49 |
+Tagliatelle giallo mare | sos z żółtych pomidorów, wino, masło, 6 krewetek, czosnek, natka pietruszki | 54 |
+Spaghetti al nero di seppia con gamberi | czarne spaghetti, 6 krewetek, pomidorki, czosnek, szpinak, mascarpone, peperoncino | 58 |
+
+## Sałatki
+Insalata mista con pollo | dressing z pesto, sałaty, kurczak, czerwona cebula, suszone pomidory, słonecznik, focaccia | 37 |
+Insalata della casa | dressing balsamiczny, sałaty, gruszka, pieczona papryka, kurczak, słonecznik, mozzarella, focaccia | 37 |
+Insalata di mango | dressing miodowo-cytrusowy, sałaty, kurczak w glazurze miodowej, mango, papryka, orzechy, focaccia | 39 |
+Insalata cezar | sos cezar, sałata rzymska, grana padano DOP, grzanki, pomidorki, kurczak w sezamie, focaccia | 40 |
+Insalata di burrata e pollo | rukola i szpinak, burrata, pomidorki, cebula, kurczak w glazurze miodowej, pistacje, focaccia | 43 |
+Insalata con la pera | sałaty, pomidorki, orzechy, gorgonzola DOP, gruszka, pomarańcza, szynka parmeńska, focaccia | 45 |
+Insalata di capra | szpinak, kozi ser, pomidorki, kurczak w glazurze miodowej, granat, focaccia | 45 |
+Insalata di burrata balsamico | rukola i szpinak, burrata, pomidorki, szynka parmeńska, pistacje, krem balsamiczny, focaccia | 45 |
+Insalata scampi | 8 krewetek na maśle w białym winie, sałaty i rukola, pomidorki, czosnek, chili, focaccia | 55 |
+
+## Dla dzieci
+Frytki | ok. 200 g | 12 | wege
+Krem z włoskich pomidorów z kluseczkami | | 18 | wege
+Makaron penne w sosie pomidorowym | z parmezanem | 19 | wege
+Margheritka Tuptusia z szynką | pizza dla dzieci w kształcie króliczka | 20 |
+Makaron penne w sosie śmietanowym | z włoską szynką gotowaną | 20 |
+Gnocchi na masełku | z parmezanem | 20 | wege
+Nuggetsy z kurczaka z frytkami | ok. 150 g | 25 |
+Pizza alla Nutella Bambino | z nutellą, cukrem pudrem, wiórkami czekoladowymi i owocami | 28 | wege
+
+## Desery
+Cannolo | rurka z kremem z ricotty z wanilią i cytryną | 12 | wege
+Panna cotta | z musem owocowym i świeżymi owocami | 22 | wege
+Tarta pistacjowa | kruche ciasto z kremem pistacjowym i malinami | 26 | wege
+Fondant czekoladowy | z owocami, lodami waniliowymi i bitą śmietaną | 26 | wege
+Tiramisu | biszkopty z espresso i amaretto, krem mascarpone, kakao | 26 | wege
+
+## Napoje zimne
+Woda Kropla Beskidu | gazowana lub niegazowana | 0,33 l: 8; dzbanek 1 l: 13 |
+Sok Tymbark | jabłko, pomarańcza, czarna porzeczka | 0,33 l: 9; dzbanek 1 l: 15 |
+Coca-Cola, Mirinda, 7Up | 0,33 l | 10 |
+Pepsi Zero | 0,33 l | 10 |
+Lemonsoda / Mojitosoda / Orangesoda Crodo | włoskie napoje, 0,33 l | 10 |
+Si! 0% | autorskie napoje bezalkoholowe: mojito, orange, lemon | 14 |
+
+## Kawy i herbaty
+Espresso | | 7 |
+Espresso doppio | | 8 |
+Americano | | 10 |
+Kawa biała | americano z mlekiem | 12 |
+Cappuccino | | 12 |
+Caffe latte | | 12 |
+Ice caffe latte | espresso z zimnym mlekiem i lodem, syrop do wyboru | 12 |
+Orange espresso | espresso z sokiem pomarańczowym i lodem | 14 |
+Ice caffe latte Si! | z bitą śmietaną i posypką czekoladową | 16 |
+Herbata Richmont | kilkanaście smaków do wyboru | 12 |
+
+## Piwo
+Peroni | 0,33 l | 14 |
+Peroni Nastro Azzurro 0,0% | 0,33 l, bezalkoholowe | 14 |
+Moretti Limone | 0,33 l | 14 |
+Moretti IPA | 0,33 l | 16 |
+Heineken | 0,5 l | 12 |
+Heineken 0% | 0,5 l | 12 |
+Książęce | 0,5 l | 12 |
+Piwa Dziki Wschód | | 16 |
+
+## Drinki i alkohole
+Aperol Spritz / Aperol Spritz 0% | | 29 |
+Si! Spritz truskawkowy | prosecco z truskawkami | 29 |
+Mojito / Mojito 0% | | 29 |
+Hugo / Hugo 0% | | 29 |
+Anguria | 7UP, wódka, arbuz, mięta | 28 |
+Limone Tonic | tonik, wódka, sok z cytryny | 28 |
+Paloma | soda grejpfrutowa, rum, sok z cytryny | 28 |
+Cuba Libre | cola, rum, limonka | 28 |
+Jack Daniel's | | 40 ml: 18; 0,7 l: 160 |
+Ballantine's | | 40 ml: 18; 0,7 l: 160 |
+Stumbras | | 40 ml: 14; 0,5 l: 110 |

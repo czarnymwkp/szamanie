@@ -1,0 +1,38 @@
+# Na serwerze: /opt/szamanie/app (kod, podmieniany przy każdym wdrożeniu), /opt/szamanie/data (baza — zostaje),
+# /opt/szamanie/.env (ustawienia). Uruchamia deploy/wdroz.sh; ręcznie: cd /opt/szamanie/app && docker compose -f deploy/docker-compose.yml up -d --build
+name: szamanie
+
+services:
+  app:
+    build: ..
+    image: szamanie-app
+    restart: unless-stopped
+    env_file:
+      - path: ../../.env
+        required: false
+    volumes:
+      - ../../data:/app/data
+    # tylko dla Caddy (sieć wewnętrzna) i do podglądu z samego serwera: curl localhost:3000
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  # HTTPS z automatycznym certyfikatem Let's Encrypt dla szamanie.pl (www → bez www)
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMENA: ${DOMENA:-szamanie.pl}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

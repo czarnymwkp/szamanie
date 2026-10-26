@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env*
+!.env.production
+*.tsbuildinfo
+next-env.d.ts
+deploy
+# z data/ do obrazu idzie tylko kopia bazy (do buildu) — bez kandydatów zdjęć i plików WAL
+data/kandydaci
+data/kopie
+data/*.db-wal
+data/*.db-shm

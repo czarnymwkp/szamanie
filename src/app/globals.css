@@ -1,0 +1,266 @@
+@import "tailwindcss";
+
+/* Kolory z logo szamanie.pl. Pomarańcz #ff6400 na tła i akcenty; na tekst na białym — akcent-tekst (kontrast 4,9:1). */
+@theme {
+  --color-akcent: #ff6400;
+  --color-akcent-tekst: #c24a00;
+  --color-krem: #f5ebe1;
+  --color-tlo: #faf6f1;
+  --color-karta: #ffffff;
+  --color-tekst: #111111;
+  --color-tekst-2: #5f5852;
+  --color-obrys: #ece5dc;
+  --color-obrys-2: #d9d0c5;
+  --color-otwarte: #157a3a;
+  --color-zamkniete: #b42318;
+  /* Tekst na przyciskach w kolorze akcentu (motyw lokalu może mieć jasny akcent na ciemnym tle) */
+  --color-na-akcencie: #111111;
+  /* Ciemne sekcje strony głównej (z propozycji 3 „Tryb nocny”) */
+  --color-noc: #0e0e0e;
+  --color-noc-2: #181818;
+
+  --animate-wjazd: wjazd 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-unoszenie: unoszenie 6s ease-in-out infinite;
+  --animate-puls: puls 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-migotanie: migotanie 2.4s ease-in-out infinite;
+  --animate-kolysanie: kolysanie 0.5s ease-in-out;
+  --animate-rozwin: rozwin 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-obrot: obrot 10s linear infinite;
+  --animate-tasma: tasma 30s linear infinite;
+  --animate-wysun: wysun 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Okno wysuwane od dołu (lista do zamówienia). */
+@keyframes wysun {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes rozwin {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes obrot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tasma {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-grotesk: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+@keyframes wjazd {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes unoszenie {
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@keyframes puls {
+  80%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes migotanie {
+  50% {
+    opacity: 0.55;
+    transform: scale(0.8) rotate(15deg);
+  }
+}
+
+@keyframes kolysanie {
+  25% {
+    transform: rotate(-12deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes cien-naglowka {
+  to {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+    border-color: transparent;
+  }
+}
+
+/* Pinezka lokalu na mapie (Leaflet divIcon). */
+.pinezka {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--kolor, #ff6400);
+  border: 3px solid #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s;
+}
+.pinezka--wybrana {
+  background: #ff6400;
+  transform: rotate(-45deg) scale(1.05);
+  box-shadow: 0 0 0 6px rgba(255, 100, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Delikatny wzór kropek na kolorowych banerach lokali. */
+.wzor-kropki {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1.2px, transparent 1.4px);
+  background-size: 14px 14px;
+}
+
+/* Karty wyłaniają się przy przewijaniu, nagłówek dostaje cień po zjechaniu w dół.
+   Tylko w przeglądarkach z animacjami sterowanymi przewijaniem; pozostałe po prostu pokazują treść. */
+@supports (animation-timeline: view()) {
+  .pojawianie {
+    animation: wjazd linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+  .naglowek {
+    animation: cien-naglowka linear both;
+    animation-timeline: scroll();
+    animation-range: 0 80px;
+  }
+}
+
+/* Świetliki na banerze motywu lokalu (np. Pizzeria Parkowa — „pizzeria w parku”). Pozycja, rozmiar i tempo
+   każdego świetlika przychodzą w zmiennych z komponentu BanerSwietliki. */
+.swietlik {
+  position: absolute;
+  width: var(--r);
+  height: var(--r);
+  border-radius: 9999px;
+  background: #ffc46b;
+  box-shadow:
+    0 0 6px 2px rgba(255, 176, 64, 0.75),
+    0 0 18px 6px rgba(255, 140, 30, 0.25);
+  opacity: 0;
+  animation: swietlik var(--t) ease-in-out var(--d) infinite;
+}
+
+@keyframes swietlik {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.85;
+    transform: translate(var(--dx), var(--dy)) scale(1);
+  }
+  85% {
+    opacity: 0.15;
+  }
+}
+
+/* Plakietka „Dowóz” na karcie lokalu: autko podskakuje na drodze, za nim lecą smużki. */
+.dowoz-auto {
+  animation: dowoz-jazda 0.9s ease-in-out infinite;
+}
+.dowoz-auto::before,
+.dowoz-auto::after {
+  content: "";
+  position: absolute;
+  right: 100%;
+  height: 1.5px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: dowoz-smuga 0.9s linear infinite;
+}
+.dowoz-auto::before {
+  top: 35%;
+  width: 6px;
+}
+.dowoz-auto::after {
+  top: 62%;
+  width: 4px;
+  animation-delay: -0.45s;
+}
+
+@keyframes dowoz-jazda {
+  0%,
+  100% {
+    transform: translate(-1px, 0);
+  }
+  30% {
+    transform: translate(1px, -1.5px);
+  }
+  60% {
+    transform: translate(2px, 0);
+  }
+}
+
+@keyframes dowoz-smuga {
+  from {
+    transform: translateX(2px);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateX(-7px);
+    opacity: 0;
+  }
+}
+
+/* Przejście karty w nagłówek strony lokalu. */
+::view-transition-group(.morph) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-image-pair(.morph) {
+  animation-name: przez-rozmycie;
+}
+
+@keyframes przez-rozmycie {
+  30% {
+    filter: blur(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .pojawianie,
+  .naglowek {
+    animation: none !important;
+  }
+  .swietlik {
+    animation: none !important;
+    opacity: 0.6;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

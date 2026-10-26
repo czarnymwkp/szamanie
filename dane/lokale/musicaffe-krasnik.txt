@@ -1,0 +1,104 @@
+# MusiCaffe, Kraśnik (ul. Krasińskiego 11F) — menu przepisane ze strony lokalu.
+# Karta restauracji na stronie jest bez cen; ceny ma tylko pizza (osobna podstrona /pizza).
+# Pominięte: lista alkoholi (bez cen).
+źródło: https://www.musicaffe.pl/menu
+sprawdzono: 2026-10-25
+
+== MENU ==
+## Pizza | duża 37 cm, średnia 24 cm; dowóz 11:00–24:00, zamówienia do 22:30, doliczamy opakowanie
+Margarita | ser, sos, oregano | 24 cm: 19; 37 cm: 24 | wege
+Funghi | ser, sos, pieczarki, cebula | 24 cm: 20; 37 cm: 25 | wege
+Prosciutto | ser, sos, szynka | 24 cm: 21; 37 cm: 27 |
+Salami | ser, sos, salami | 24 cm: 21; 37 cm: 27 |
+Bella | ser, sos, salami, pomidory, czosnek | 24 cm: 22; 37 cm: 28 |
+Hawai | ser, sos, szynka, ananas | 24 cm: 22; 37 cm: 28 |
+Palermo | ser, sos, bekon, ogórek kiszony | 24 cm: 22; 37 cm: 28 |
+Wegetariana | ser, sos, brokuły, papryka, kukurydza | 24 cm: 22; 37 cm: 28 | wege
+Tomaso | ser, sos, boczek, cebula, papryka | 24 cm: 22; 37 cm: 28 |
+Chicken | ser, sos, pieczarki, kurczak | 24 cm: 22; 37 cm: 28 |
+Come Prima | ser, sos, pieczarki, szynka, kukurydza | 24 cm: 22; 37 cm: 28 |
+Siciliana | ser, sos, salami, pieczarki, papryka | 24 cm: 23; 37 cm: 30 |
+Roma | ser, sos, szynka, pomidory, pieczarki, cebula | 24 cm: 23; 37 cm: 30 |
+Peperoni | ser, sos, salami spianata, trzy rodzaje papryki, oliwki | 24 cm: 23; 37 cm: 30 | ostre
+Picante | ser, sos, salami, cebula, ostra papryka | 24 cm: 22; 37 cm: 30 | ostre
+A’la Kebab | ser, sos, pieczarki, kurczak, ostre przyprawy, sos pikantny | 24 cm: 24; 37 cm: 31 | ostre
+Specjale | ser, sos, pieczarki, szynka, włoski ser, mozzarella | 24 cm: 24; 37 cm: 31 |
+Serowa | sos, pięć rodzajów sera | 24 cm: 24; 37 cm: 31 | wege
+Grandiosa | ser, sos, tuńczyk, cebula, ostra papryka | 24 cm: 24; 37 cm: 31 | ostre
+Etna | ser, sos, salami, ser feta, czosnek, sos tabasco | 24 cm: 24; 37 cm: 31 | ostre
+Bolognese | ser, sos, wołowina mielona, cebula, papryka | 24 cm: 24; 37 cm: 32 |
+Bianca | crème fraîche, boczek, cebula | 24 cm: 26; 37 cm: 32 |
+Włoska | ser mozzarella, szynka parmeńska, pomidorki, rukola | 24 cm: 26; 37 cm: 34 |
+Firmowa | ser, sos, pieczarki, szynka, sos czosnkowy | 24 cm: 25; 37 cm: 33 | polecane
+Mexicana | ser, sos, wołowina, ostre przyprawy | 24 cm: 24; 37 cm: 33 | ostre
+California | ser, sos, chorizo, papryka, pieczarki, cebula | 24 cm: 25; 37 cm: 33 |
+Farmerska | ser, sos, bekon, pieczarki, papryka, czosnek, cebula | 24 cm: 25; 37 cm: 33 |
+Cztery pory roku | ser, sos, szynka, salami, papryka, kurczak; tylko duża | 37 cm: 33 |
+Dodatek mięsny albo ser | | 24 cm: 4; 37 cm: 5 |
+Dodatek warzywny | | 24 cm: 3; 37 cm: 4 | wege
+Sos | czosnkowy, koktajlowy, pomidorowy, łagodny albo pikantny | 24 cm: 4; 37 cm: 5 |
+
+## Przystawki na zimno
+Carpaccio z polędwicy wołowej | kapary, karczochy, suszone pomidory, parmezan | |
+Tatar z siekanej polędwicy wołowej | marynowany borowik, kapary, żółtko, emulsja lubczykowa, sezonowana słonina | |
+Śledź bałtycki | pieczony ziemniak, crème fraîche, sos miodowo-musztardowy, olej lniany | |
+Talerz sezonowanych serów i wędlin | na specjalne życzenie | |
+
+## Przystawki na ciepło
+Krewetki pikantne | chorizo, pomidory, kolendra, zioła | | ostre
+Wątróbki drobiowe | antonówka, maliny, konfitura z czerwonej cebuli, cydr lubelski | |
+Pieczone warzywa | papryka, cukinia, pomidor, szpinak, mleczko kokosowe | | wege
+
+## Zupy | do zup gorące bułeczki z pieca z masłem czosnkowym
+Zupa dnia | zapytaj kelnera | |
+Rosół na gęsinie | gęś zagrodowa, kluski lane, warzywa | |
+Grzybowa | grzyby leśne, śmietana, koperek | | wege
+
+## Makarony
+Penne a’la carbonara | boczek, żółtko, śmietana | |
+Tagliatelle ze złocistymi kurkami | świeże kurki, kurczak, śmietana | |
+Pappardelle z chorizo | pomidorki koktajlowe, chorizo, ser pecorino | |
+
+## Sałatki
+Sałatka grecka | papryka, pomidor, ogórek, ser feta, oliwa, ocet winny | | wege
+Sałatka Rodos | sałata, grillowany kurczak, suszony pomidor, ogórek, ser feta, szpinak, sos tzatziki | |
+Sałatka z lokalnym kozim serem | mix sałat, kozi ser, karmelizowana gruszka, vinegrette korzenny | | wege
+Sałatka tysiąca wysp | sałata, mozzarella, chrupiący bekon, kukurydza, pomidor, dressing koktajlowy | |
+
+## Dania główne
+Schabowy | schab ze świni puławskiej, puree albo frytki, coleslaw | |
+Polędwiczki wieprzowe sous-vide | kurki, puree, warzywa na ciepło | |
+Filet z kaczki | kopytka, karmelizowana gruszka, sos śliwkowy, żelki z pomarańczy | | polecane
+Pierś z kurczaka sielskiego nadziewana | puree, maślany demi-glace, glazurowane warzywa | |
+Pierogi z gęsiny | podgrzybki, mus jabłkowy, ser Bursztyn | |
+Sandacz | ziemniak, glazurowana marchewka, groszek cukrowy, sos estragonowy | |
+Dodatek | frytki, puree, ziemniaki, pomidory albo sałata sezonowa | |
+
+## Desery i lody
+Jabłecznik | lody waniliowe, słodka śmietana | |
+Sernik | biała czekolada, sos porzeczkowy | |
+Crème brûlée | wanilia, esencja z zielonej herbaty, owoce | |
+Puchar „Uśmiech losu” | 3 gałki lodów, owoce, bita śmietana, szczęśliwy los | |
+Puchar czekoladowo-nugatowy | 3 gałki lodów, bita śmietana, czekolada, orzechy | |
+
+## Kawa i herbata
+Espresso | | |
+Americano | | |
+Cappuccino | | |
+Caffe latte | także z syropem: waniliowym, ciasteczkowym, cynamonowym i innymi | |
+Kawa biała | | |
+Kawa po grecku | na zimno, kremowa: mleko, gałka lodów | |
+Herbata | czarna, zielona albo owocowa | |
+Gorąca czekolada | | |
+
+## Napoje
+Koktajl jogurtowy | truskawkowy albo jagodowy | |
+Grejpfrutowe marzenie | sok grejpfrutowy na lodzie z cytrusami | |
+Lemoniada | napój cytrynowy z miętą | |
+Frescato | sorbet mango albo truskawka | |
+Soki i nektary | 200 ml | |
+Napoje gazowane | | |
+Woda | 200 ml | |
+Piwo z beczki | Perła, Koźlak; 0,3 l albo 0,5 l | |
+Piwo grzane | z sokiem malinowym albo imbirowym, 0,5 l | | sezonowe
+Wino grzane | z przyprawami korzennymi, 100 ml | | sezonowe

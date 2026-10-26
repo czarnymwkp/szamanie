@@ -1,0 +1,92 @@
+# Pizzeria Golińska, Kraśnik (ul. Sikorskiego 2a) — menu przepisane ze strony lokalu.
+# Pominięte: bubble tea (strona podaje smaki bez cen).
+źródło: https://www.pizzeria-golinska.pl/menu-wloska-pizza-dania-obiadowe-na-wynos-domowe-obiady.html
+sprawdzono: 2026-10-25
+
+== MENU ==
+## Pizza | mała 32 cm, duża 50 cm; opakowanie małe 1 zł, duże 2 zł
+Margarita | sos pomidorowy, ser mozzarella, zioła | 32 cm: 27; 50 cm: 44 | wege
+Pieczara po nowemu | sos pomidorowy, ser mozzarella, pieczarki, cebula, szynka | 32 cm: 32; 50 cm: 52 |
+Sycylia | sos pomidorowy, ser mozzarella, papryka, szynka | 32 cm: 32; 50 cm: 52 |
+Wegetariańska | sos pomidorowy, ser mozzarella, pieczarki, cebula, papryka, oliwki, kukurydza, pomidor suszony | 32 cm: 34; 50 cm: 58 | wege
+Diabelska | sos pomidorowy, ser mozzarella, papryka, szynka, papryka pepperoni, tabasco, płatki chili | 32 cm: 34; 50 cm: 58 | ostre
+Wyborna | sos pomidorowy, ser mozzarella, szynka, ananas, kukurydza | 32 cm: 34; 50 cm: 58 |
+Wiejska | sos pomidorowy, ser mozzarella, cebula, pieczarki, boczek, kiełbasa | 32 cm: 35; 50 cm: 59 |
+Big Daddy | sos pomidorowy, ser mozzarella, pieczarki, papryka, szynka, oliwki, papryka pepperoni | 32 cm: 35; 50 cm: 59 |
+Firmowa | sos pomidorowy, ser mozzarella, pieczarki, cebula, szynka, por, pomidor | 32 cm: 35; 50 cm: 59 | polecane
+Farmerska | sos pomidorowy, ser mozzarella, pieczarki, szynka, ogórek konserwowy, czosnek | 32 cm: 35; 50 cm: 59 |
+Salami | sos pomidorowy, ser mozzarella, pieczarki, cebula, papryka, salami | 32 cm: 36; 50 cm: 60 |
+Własny wybór | sos pomidorowy, ser mozzarella, 1 składnik mięsny, 2 składniki warzywne | 32 cm: 36; 50 cm: 60 |
+Delikatna | sos pomidorowy, ser mozzarella, papryka, pieczarki, kurczak, pomidor suszony | 32 cm: 38; 50 cm: 62 |
+Gyros | sos czosnkowy, ser mozzarella, czerwona cebula, kurczak, kukurydza, ogórek konserwowy | 32 cm: 38; 50 cm: 62 |
+Coś na świeżo | sos pomidorowy, ser mozzarella, rukola, szynka parmeńska, pomidorki koktajlowe | 32 cm: 38; 50 cm: 62 |
+Na bogato | sos pomidorowy, ser mozzarella, 5 dowolnych składników | 32 cm: 40; 50 cm: 64 |
+Pizza pół na pół | sos pomidorowy, ser mozzarella, do 5 dowolnych składników na każdej połówce | 32 cm: 42; 50 cm: 65 |
+
+## Dodatki do pizzy
+Dodatek warzywny | cebula, pieczarki, papryka, oliwki, kukurydza, pomidor, pomidorki koktajlowe, pomidor suszony, czerwona cebula, por, czosnek, papryka pepperoni, ogórek | 32 cm: 4; 50 cm: 8 | wege
+Dodatek mięsny i ser | szynka, boczek, salami, kiełbasa, kurczak, ser mozzarella, ser fetina, rukola, składniki sezonowe | 32 cm: 6; 50 cm: 9 |
+Sos 50 ml | czosnkowy, ketchup, 1000 wysp, meksykański, słodko-pikantny, jogurtowo-ziołowy | 3 |
+
+## Shoarma, kubełki i sałatki
+Shoarma | mięso drobiowe z płyty grillowej, frytki, sałatka, bułka, sosy | 32 |
+Shoarma z serem | mięso drobiowe z płyty grillowej z żółtym serem, frytki, sałatka, bułka, sosy | 34 |
+Shoarma z warzywami | mięso drobiowe z płyty grillowej, smażone warzywa, frytki, sałatka, bułka, sosy | 34 |
+Kubełek Strips | 15 szt. filetów z kurczaka w łagodnej marynacie, frytki, sos | 60 |
+Kubełek Wings | 15 szt. skrzydełek z kurczaka w pikantnej marynacie, frytki, sos | 45 | ostre
+Frytki | | 8 | wege
+Pita | | 7 |
+Sałatka grecka | sałata lodowa, czerwona cebula, ogórek zielony, pomidorki koktajlowe, oliwki, ser fetina, sos vinegret | 25 | wege
+Sałatka grillowana | sałata lodowa, czerwona cebula, grillowany kurczak, grillowane pieczarki, grillowana papryka, kukurydza, sos jogurtowo-ziołowy | 32 |
+
+## Kawa
+Espresso | 30 ml | 7 |
+Kawa z ekspresu | 200 ml, czarna albo biała | 7 |
+Kawa parzona | 200 ml | 7 |
+Cappuccino | 200 ml | 9 |
+Latte | 250 ml | 10 |
+Syrop smakowy Monin | | 2 |
+
+## Herbata
+Herbata czarna | 200 ml | 5 |
+Herbata owocowa | 200 ml | 6 |
+Herbata zielona | 200 ml | 6 |
+Herbata liściasta | 200 ml | 7 |
+Dzbanek herbaty | 1,3 l | 18 |
+Herbata zimowa | czarna z syropami, suszonymi owocami i przyprawami rozgrzewającymi | 0,5 l: 15; 1,3 l: 25 | sezonowe
+Herbata owocowa rozgrzewająca | z owocami świeżymi, suszonymi i mrożonymi | 0,5 l: 15; 1,3 l: 25 | sezonowe
+
+## Lemoniady i napoje
+Lemoniada | smaki u obsługi albo na tablicy przy barze | 300 ml: 9; 1 l: 19 |
+Lemoniada jesienna | | 300 ml: 10 | sezonowe
+Pepsi | | 200 ml: 8; 500 ml: 10; 850 ml: 12 |
+Mirinda | | 200 ml: 8; 850 ml: 12 |
+7 Up | | 200 ml: 8; 850 ml: 12 |
+Lipton | | 200 ml: 8; 850 ml: 12 |
+Sok Toma | jabłkowy, pomarańczowy, porzeczkowy, multiwitamina, grejpfrut | 200 ml: 7; 330 ml: 9 |
+Woda Krystaliczne Źródło | gazowana albo niegazowana | 0,3 l: 6; 0,5 l: 8 |
+Tymbark | 200 ml | 6 |
+
+## Piwo
+Żywiec z beczki | | 300 ml: 9,50; 500 ml: 10,50 |
+Warka z beczki | | 300 ml: 8,50; 500 ml: 9,50 |
+Królewskie z beczki | | 300 ml: 8,50; 500 ml: 9,50 |
+Żywiec / Żywiec 0% | butelka | 500 ml: 11,50 |
+Warka | butelka | 500 ml: 11 |
+Leżajsk | butelka | 500 ml: 10,50 |
+Heineken / Heineken 0% | butelka | 500 ml: 12,50 |
+Żywiec Lekki, Porter, IPA, APA | | 12,50 |
+Warka Radler / Warka Strong | | 11,50 |
+Desperados | Original, Red albo Strawberry | 10,50 |
+
+## Drinki
+Malinowa Rozkosz | puree malinowe, wódka, syrop hibiskus i cytryna, woda gazowana, 7 Up | 25 |
+Słodziutka Truskaweczka | wódka, syrop truskawkowy, mrożone truskawki, 7 Up | 21 |
+Różowy Pomarańcz | wino truskawkowe, sok pomarańczowy | 21 |
+Moscow Mule | wódka, piwo, sok imbirowy | 21 |
+Bison Frappe | wódka, sok jabłkowy, 7 Up, cynamon | 10,50 |
+Piwna Lemoniada | piwo, syrop Monin, 7 Up | 19 |
+Wykwintne Trio | białe wino, syropy Monin, 7 Up, owoce | 23 |
+Aperol Fizz | Aperol, wódka, syrop Monin, woda gazowana | 23 |
+Malinowa Rozkosz 0% | puree malinowe, syrop hibiskus i cytryna, woda gazowana, 7 Up | 22 |
+Tropikalny Żar 0% | sok pomarańczowy, syrop blue curaçao, woda gazowana | 19 |

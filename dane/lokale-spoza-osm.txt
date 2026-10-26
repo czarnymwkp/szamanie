@@ -1,0 +1,21 @@
+# Lokale, których nie ma w OpenStreetMap — dopisane ręcznie. Wczytanie: npm run dodaj
+# Format: opis na górze scripts/dodaj.mjs. Dane tylko z własnych stron lokali (nie z Google Maps ani z katalogów).
+
+== Mały Bar PIZZA ==
+# 25.10.2026: wg usera już nie istnieje — w bazie ukryty (ukryty = 1); npm run dodaj go nie odkrywa
+# w OSM jest w tym miejscu punkt bez nazwy (node 1471182606, fast_food/burger)
+źródło: https://malybarpizza.eatbu.com/?lang=pl (strona lokalu, sprawdzono 2026-10-25)
+typ: fast_food
+kuchnie: pizza, kebab, burger
+gmina: gm. Urzędów
+miejscowość: Urzędów
+adres: Rynek 9
+współrzędne: 50.9933444, 22.1428658
+telefon: +48 605 037 119
+www: https://malybarpizza.eatbu.com
+facebook: https://www.facebook.com/MalyBarPizza/
+menu: https://cdn.website.dish.co/media/75/32/2638965/May-Bar-PIZZA-Menu.pdf
+godziny: Mo off; Tu-Su 10:00-23:00
+dostawa: tak
+na wynos: tak
+opis: Pizza, kebab, burgery, zapiekanki i hot-dogi przy Rynku w Urzędowie.

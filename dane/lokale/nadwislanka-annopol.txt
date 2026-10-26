@@ -1,0 +1,74 @@
+# Nadwiślanka, Annopol — menu przepisane z systemu zamówień lokalu (link ze strony nadwislanka-annopol.eatbu.com).
+źródło: https://nadwislanka.order.app.hd.digital/menus
+sprawdzono: 2026-10-25
+
+== MENU ==
+## Pizza
+Margherita | sos, mozzarella | 32 cm: 30; 42 cm: 37 | wege
+Capricciosa | sos, mozzarella, szynka, pieczarki | 32 cm: 33; 42 cm: 41 |
+La Gondola | sos, mozzarella, szynka, pieczarki, papryka, cebula | 32 cm: 35; 42 cm: 45 |
+Italiana | sos, mozzarella, szynka, bekon, papryka, kukurydza, cebula | 32 cm: 35; 42 cm: 45 |
+Vegetariana | sos, mozzarella, pieczarki, papryka, cebula, kukurydza | 32 cm: 35; 42 cm: 45 | wege
+Hawajska | sos, mozzarella, szynka, ananas, kukurydza | 32 cm: 35; 42 cm: 43 |
+Chłopska | sos, mozzarella, kiełbasa żywiecka, bekon, cebula, ogórek konserwowy | 32 cm: 36; 42 cm: 47 |
+Drakula | sos, mozzarella, salami, pieczarki, papryka chilli, czosnek | 32 cm: 37; 42 cm: 47 | ostre
+Gyros | sos, mozzarella, gyros, pieczarki, cebula | 32 cm: 37; 42 cm: 47 |
+Parmeńska | sos, mozzarella, szynka parmeńska, suszone pomidory, rukola | 32 cm: 38; 42 cm: 47 |
+Calzone | pizza w kształcie pieroga: sos, mozzarella, szynka, bekon, pieczarki, cebula, kukurydza | 32 cm: 37; 42 cm: 47 |
+Fantazja | sos, mozzarella + 4 dowolnie wybrane składniki | 32 cm: 38; 42 cm: 47 |
+Ale jaja! | sos, mozzarella, bekon, cebula, jajko sadzone, świeży szczypior | 32 cm: 38; 42 cm: 46 |
+Garażowa | sos, mozzarella, pieczarki, bekon, szynka, pepperoni, papryka | 32 cm: 38; 42 cm: 48 |
+Grecka | sos, mozzarella, feta, bekon, pomidorki koktajlowe, cebula, oliwki | 32 cm: 38; 42 cm: 48 |
+Tonno | sos, mozzarella, tuńczyk, czerwona cebula, papryka, kukurydza | 32 cm: 38; 42 cm: 48 |
+Capperi | sos, mozzarella, kapary, bekon, salami, cebula, żurawina, ser feta | 32 cm: 42; 42 cm: 49 |
+
+## Sałatki
+Sałatka Cezar | mix sałat, pomidory, grzanki, pierś z kurczaka, parmezan, sos | 25 |
+Sałatka grecka | mix sałat, ogórek, pomidory, oliwki, ser feta, czerwona cebula, sos | 25 | wege
+Sałatka parmeńska | mix sałat, szynka parmeńska, pomidory, mozzarella, pestki słonecznika i dyni, sos | 25 |
+
+## Kebab i dania z kurczakiem
+Kebab danie | z frytkami i surówką | kurczak: 25; wołowina: 27 |
+Kebab w bułce | | kurczak: 28; wołowina / baranina: 30 |
+Tortilla mała | | kurczak: 19; wołowina / baranina: 22 |
+Tortilla duża | | kurczak: 24; wołowina / baranina: 27 |
+Kapsalon | mięso, frytki, mix sałat | kurczak: 25; wołowina: 27 |
+Stripsy z kurczaka z frytkami | | 25 |
+
+## Burgery
+Burger wieprzowy | | 30 |
+Burger wołowy | | 35 |
+Chicken Burger | | 30 |
+Vege Burger | | 30 | wege
+
+## Zestawy | burger, frytki, Coca-Cola 0,5 l
+Zestaw z burgerem wieprzowym | | 47 |
+Zestaw z burgerem wołowym | | 50 |
+Zestaw z Chicken Burgerem | | 47 |
+Zestaw z Vege Burgerem | | 47 | wege
+Happy Menu | zestaw dla dzieci: nuggetsy, frytki, lizak, zabawka niespodzianka (przy zamówieniu podaj płeć dziecka) | 30 |
+
+## Zapiekanki i frytki
+Zapiekanka | | 13 |
+Frytki | | małe 100 g: 8; duże 200 g: 12 | wege
+
+## Napoje
+Woda mineralna niegazowana | | 300 ml: 5 |
+Woda Perlage | gazowana albo niegazowana | 0,7 l: 6 |
+Coca-Cola | w butelce | 12 |
+Fanta | w butelce | 12 |
+Sprite | w butelce | 12 |
+Mirinda | w butelce | 12 |
+Ice Tea | | 0,5 l: 8 |
+Tymbark | jabłko-mięta, jabłko-arbuz, jabłko-kiwi, cytryna-mięta | 0,5 l: 8 |
+Red Bull | | 14 |
+Tiger | | 14 |
+Black | | 14 |
+
+## Piwo bezalkoholowe
+Żywiec | | 0,5 l: 10 |
+Warka Radler 0% | | 7 |
+Lech Free | | 0,5 l: 10 |
+Lech Free owocowy | | 0,33 l: 8; 0,5 l: 10 |
+Heineken | | 0,5 l: 11 |
+Desperados Virgin | | 0,4 l: 11 |

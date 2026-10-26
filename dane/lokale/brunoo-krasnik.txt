@@ -1,0 +1,57 @@
+# Brunoo, Kraśnik — menu przepisane ze strony lokalu.
+źródło: https://brunoo.pl/menu
+sprawdzono: 2026-10-25
+
+== MENU ==
+## Burgery
+Classic Brunoo | bułka z sezamem, wołowina, sałata, pomidor, czerwona cebula, pikle, sos sambal mayo, ketchup | 35 |
+Cheese Brunoo | bułka z sezamem, wołowina, cheddar, sałata, pomidor, czerwona cebula, pikle, sos sambal mayo, ketchup | 38 |
+Double Brunoo | bułka z sezamem, 2 × wołowina, 2 × cheddar, karmelizowana cebula, pikle, sos sambal mayo, ketchup | 48 |
+Chicken Brunoo | bułka z sezamem, kurczak, cheddar, sałata, pikle, sos sambal mayo, ketchup | 38 |
+Smash Brunoo | bułka ziemniaczana, wołowina, cheddar, karmelizowana cebula, pikle, sos sambal mayo | 36 |
+Double Smash Brunoo | bułka ziemniaczana, 2 × wołowina, 2 × cheddar, karmelizowana cebula, pikle, sos sambal mayo | 42 |
+Triple Smash Brunoo | bułka ziemniaczana, 3 × wołowina, 3 × cheddar, karmelizowana cebula, pikle, sos sambal mayo | 48 |
+
+## Kanapki i tosty
+Beef Sandwich Brunoo | ciabatta, mix sałat, wołowina, pomidor, cebula, sos sambal mayo, sos czosnkowy | 39 |
+Chicken Sandwich Brunoo | ciabatta, mix sałat, kurczak, pomidor, cebula, sos sambal mayo, sos czosnkowy | 36 |
+Bacon Sandwich Brunoo | bułka rustykalna, mix sałat, bekon, pomidor, cebula, sos sambal mayo | 36 |
+Bacon Toast Brunoo | bekon, sałata, pomidor, cebula, jajko sadzone, sos sambal mayo | 36 |
+Beef Toast Brunoo | szarpana wołowina, bekon, sałata, pomidor, cebula, jajko sadzone, sos sambal mayo | 39 |
+Wrap Brunoo | tortilla, nuggetsy z kurczaka, sałata lodowa, pomidor, cebula, sos sambal mayo | 36 |
+
+## Pizza
+Margherita | sos pomidorowy, mozzarella fior di latte | 29 | wege
+Capricciosa | sos pomidorowy, mozzarella fior di latte, szynka cotto, pieczarki | 38 |
+Bianca | sos śmietanowy, mozzarella fior di latte, włoska mortadela | 39 |
+Napoli | sos pomidorowy, mozzarella fior di latte, salami napoli, oliwki leccino, sos czosnkowy | 38 |
+Diavola | sos pomidorowy, mozzarella fior di latte, salami spianata, cebula | 38 | ostre
+Parma | sos pomidorowy, mozzarella fior di latte, szynka parmeńska, pomidorki koktajlowe, grana padano, rukola | 42 |
+Al Tonno | sos pomidorowy, mozzarella fior di latte, tuńczyk, cebula, oliwki | 39 |
+Brunoo | sos pomidorowy, mozzarella fior di latte, mielona wołowina, czerwona fasola, kukurydza, papryka, cebula | 48 |
+Brunoo Spice | jak Brunoo, z papryczką chilli | 49 | ostre
+
+## Sałatki
+Sałatka Cezar | sałata rzymska, kurczak, pomidorki koktajlowe, grana padano, grzanki, sos cezar | 38 |
+Sałatka grecka | sałata lodowa, feta, pomidor, papryka, ogórek, czerwona cebula, oliwki leccino, vinegrette | 36 | wege
+
+## Makarony
+Penne pesto | penne, pesto bazyliowe, pomidorki koktajlowe, cebula, grana padano, orzeszki pini | 38 | wege
+Bolognese | spaghetti, mięso wieprzowe, sos pomidorowy, grana padano | 38 |
+
+## Frytki
+Frytki grube | ziemniaki grubo cięte | 8 | wege
+Wiatraczki opiekane | ziemniaczki opiekane | 10 | wege
+
+## Dla dzieci
+Baby Margherita | sos pomidorowy, mozzarella fior di latte | 19 | wege
+Baby Burger | bułka maślana, kotlet wołowy, cheddar, ketchup | 25 |
+Nuggetsy z frytkami | | 19 |
+Pancakes | krem, owoce, cukier puder, mięta | 22 | wege
+Gnocchi | masło, grana padano | 18 | wege
+
+## Napoje zimne
+Coca-Cola | | 330 ml: 7; 0,5 l: 9; 850 ml: 12 |
+Coca-Cola Zero | | 330 ml: 7; 0,5 l: 9; 850 ml: 12 |
+Fanta | | 330 ml: 7; 0,5 l: 9; 850 ml: 12 |
+Sprite | | 330 ml: 7; 0,5 l: 9; 850 ml: 12 |

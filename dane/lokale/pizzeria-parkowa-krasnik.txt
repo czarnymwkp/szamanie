@@ -1,0 +1,94 @@
+# Pizzeria Parkowa, Kraśnik (ul. Parkowa 1) — menu przepisane ze strony lokalu.
+źródło: https://pizzeriaparkowa.pl/
+sprawdzono: 2026-10-25
+
+== MENU ==
+## Pizza | 32 cm, z włoskiego pieca Moretti; pudełko na wynos +2 zł
+Margherita | sos pomidorowy, mozzarella | 24 | wege
+Funghi | sos pomidorowy, mozzarella, pieczarki | 26 | wege
+Prosciutto Cotto | sos pomidorowy, mozzarella, szynka | 27 |
+Ortolana | sos pomidorowy, mozzarella, oliwki, rukola, oliwa z oliwek | 28 | wege
+Venge | sos pomidorowy, mozzarella, szynka, pieczarki | 29 |
+Salame | sos pomidorowy, mozzarella, salami | 29 |
+Diavola | sos pomidorowy, mozzarella, salami pikantne | 29 | ostre
+Havai | sos pomidorowy, mozzarella, szynka, ananas | 29 |
+Tonno Cipolla | sos pomidorowy, mozzarella, tuńczyk, cebula | 30 |
+Pancetta | sos pomidorowy, mozzarella, boczek, cebula | 30 |
+Regina | sos pomidorowy, mozzarella, szynka, pieczarki, kukurydza | 30 |
+Vegetariana | sos pomidorowy, mozzarella, papryka, kukurydza, oliwki, cebula | 30 | wege
+Wiejska | sos pomidorowy, mozzarella, kiełbasa włoska, boczek, cebula | 32 |
+Capricciosa | sos pomidorowy, mozzarella, szynka, oliwki, pieczarki | 32 |
+Rustica | sos pomidorowy, mozzarella, szynka, salami pikantne, papryka | 32 | ostre
+Pollo Rostito | sos pomidorowy, mozzarella, kurczak, cebula, pieczarki, papryka | 33 |
+Non Fare El Greco | sos pomidorowy, mozzarella, salami, oliwki, pomidor, ser feta, cebula | 33 |
+Crudo | sos pomidorowy, mozzarella, szynka crudo, rukola, ser grana padano | 33 |
+Deliciosa | sos pomidorowy, mozzarella, salami pikantne, szynka, tuńczyk | 33 |
+Quattro 4 Maggi | sos pomidorowy, mozzarella, 4 rodzaje sera, gorgonzola | 33 | wege
+Provenciale | sos pomidorowy, mozzarella, szynka, salami pikantne, cebula, kukurydza, pieczarki | 33 |
+Parkowa | firmowa: sos pomidorowy, mozzarella, szynka, salami, pieczarki, sałata, sos czosnkowy | 35 | polecane
+Pizza na życzenie | sos pomidorowy, mozzarella + dowolne dodatki (każdy +4 zł) | 24 |
+
+## Pizza specjalna
+Calzone — pizza pieróg | mozzarella, szynka, pomidorki, rukola, parmezan | 30 |
+Pizza Kebab | sos pomidorowy, mozzarella, gyros, kukurydza, cebula, sałata pekińska, sos 1000 wysp | 35 |
+Delicato Diavola | sos pomidorowy, mozzarella, 4 sery, gorgonzola, salami pikantne, ananas | 35 | ostre
+Carbonara | sos crème fraîche, mozzarella, boczek, jajko, cebula | 35 |
+Americana | sos BBQ, mozzarella, kurczak, kukurydza, cebula | 35 |
+Turecka | sos jogurtowy, mozzarella, wołowina kraftowa, jalapeño, cebula, sałatka firmowa | 35 | ostre
+Krewetka | sos jogurtowy, mozzarella, krewetki, szczypior, parmezan | 38 | polecane
+
+## Burgery | frytki albo coleslaw do burgera +7 zł
+Klasyk | 100% wołowiny, sałata, ser mimolette, cheddar, boczek, domowe pikle, sos 1000 wysp, pomidor | 150 g: 27; 200 g: 29 |
+BBQ | 100% wołowiny, sałata, ser mimolette, cheddar, boczek, domowe pikle, cebula karmelizowana w sosie BBQ, sos 1000 wysp | 150 g: 27; 200 g: 29 |
+Zakazany Owoc | 100% wołowiny, sałata, ser mimolette, cheddar, bekon, jalapeño, sos chipotle, sos pikantny, domowe pikle | 150 g: 27; 200 g: 29 | ostre
+Atak Serca | 2 × 160 g wołowiny, sałata, sos chipotle, podwójny bekon, podwójny ser, cebula, sos 1000 wysp, domowe pikle | 34 | ostre
+Chicken Burger | grillowany kurczak, sałata, ser mimolette, cheddar, rukola, domowe pikle, ananas, bekon, sos 1000 wysp | 26 |
+Vege Burger | kotlet warzywny, sałata lodowa, domowe pikle, cheddar, mimolette, sos 1000 wysp | 24 | wege
+Zbójnicki | 100% wołowiny, ser mimolette, cheddar, boczek, domowe pikle, sos 1000 wysp, kotlet ziemniaczany | 29 |
+Wściekły Turek | wołowina 150 g + mięso kraftowe 60 g, ogórek, pomidor, jalapeño, sos ostry albo łagodny, cebula | 35 | ostre
+Dirty Joe | wołowina 200 g, sałata, sos 1000 wysp, jalapeño, cebulka karmelizowana, bekon, polewa z cheddara | 36 |
+
+## Makarony
+Kurka-Kurka-Gorgonzola | sos śmietanowy, kurki, kurczak, gorgonzola, rukola, 400 g | 25 |
+Pomidorowe Penne | sos pomidorowy, duszony kurczak, sos śmietanowy, rukola, parmezan, pestki dyni, 400 g | 25 |
+Szpinakowe Penne | sos śmietanowy, kurczak, szpinak, pieczarki, rukola, parmezan, 400 g | 25 |
+
+## Mała Azja i kebab
+Ryż smażony z warzywami | sałatka, sos słodki chili, 550 g | z kurczakiem: 28; z wołowiną: 30 |
+Makaron smażony z warzywami | sałatka, sos słodki chili, 550 g | z kurczakiem: 28; z wołowiną: 30 |
+Wok z krewetkami | krewetki, makaron albo ryż, sos słodki chili, sałatka | 37 |
+Danie kebab z kurczakiem | kurczak, frytki, sos czosnkowy, sałatka firmowa, 550 g | 37 |
+Danie kebab z wołowiną | wołowina, frytki, sos czosnkowy, sałatka firmowa, 550 g | 34 |
+Tortilla | pomidor, cebula, ogórek, sałatka firmowa, sos 1000 wysp, sos czosnkowy, 300 g | z kurczakiem: 34; z wołowiną: 37 |
+Tortilla „Nienażarty Wół” | pomidor, ogórek, sałatka firmowa, wołowina kraftowa, sos 1000 wysp, sos czosnkowy | 36 |
+Tortilla „Nienażarty Kurak” | pomidor, cebula, ogórek, sałatka firmowa, mięso z uda kurczaka, sos 1000 wysp, sos czosnkowy | 34 |
+
+## Sałatki
+Sałatka Parkowa | sałata, szynka, czerwona cebula, oliwki, pomidorki, ogórek, ser feta, melon, sos vinegret, 400 g | 24 |
+Sałatka Polo | sałata, grillowany kurczak, papryka, czerwona cebula, oliwki, pomidorki, ogórek, kapary, sos koperkowo-jogurtowy, 500 g | 27 |
+Sałatka Crudo | sałata, szynka crudo, pomidorki suszone, cebula, oliwki, melon, sos balsamiczny, sos vinegret, 400 g | 27 |
+Pieczywo czosnkowe | 2 szt. | 5 | wege
+
+## Dla dzieci
+Nuggetsy z kurczaka | 7 szt., frytki, ketchup | 19 |
+
+## Napoje letnie
+Lemoniada cytrynowa | | 400 ml: 12 |
+Mojito truskawkowo-arbuzowe 0% | | 400 ml: 14 |
+Ice tea mango-marakuja | | 400 ml: 10 |
+Lemoniada z owoców sezonowych | | 225 ml: 14 | sezonowe
+Perła Zero z beczki | | 9 |
+
+## Kawa i herbata
+Espresso | pojedyncze albo podwójne | 8 |
+Cappuccino | | 9 |
+Latte | także z syropem | 11 |
+Ice coffee latte | | 400 ml: 12 |
+Kawa mrożona latte tiramisu | | 400 ml: 14 |
+Gorąca czekolada | | 8 |
+Herbata Dilmah Exceptional | | 8 |
+
+## Napoje zimne
+Coca-Cola, Sprite, Fanta | | 0,25–0,33 l: 8 |
+Molecola — włoska cola | | 9 |
+Soki, woda, Nestea, tonic | | 8 |

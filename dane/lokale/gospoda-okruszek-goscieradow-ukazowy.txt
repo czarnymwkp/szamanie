@@ -1,0 +1,53 @@
+# Gospoda Okruszek, Gościeradów Ukazowy — menu przepisane ze zdjęcia tablicy na stronie lokalu.
+# Zdjęcie zrobione 15.02.2023 (EXIF), więc ceny mogą być nieaktualne — do podmiany, gdy lokal da nowe.
+# Pominięte: „LADY 19 zł” pod sałatkami (nie wiadomo, co to za pozycja).
+źródło: https://cdn.website.dish.co/media/4f/39/6104137/Menu-1.jpg
+sprawdzono: 2023-02-15
+
+== MENU ==
+# Kuchnia domowa — wypisana w opisie na stronie lokalu, bez cen.
+## Kuchnia domowa | codziennie inne danie dnia; ceny w lokalu
+Pierogi | specjalność lokalu: mięsne, ruskie, z kapustą i grzybami, szpinakowe | | polecane
+Zupy tradycyjne | np. ogórkowa, rosół z kołdunami, barszcz ukraiński, krupnik, grochowa, szczawiowa | |
+Schabowy | | |
+Karkówka | | |
+Golonka | | |
+Wątróbka z jabłkiem | | |
+Zrazy | | |
+Cepeliny | | |
+Pyzy | | |
+Krokiety | | |
+Makarony | | |
+
+## Pizza
+Margherita | | 32 cm: 18; 42 cm: 22 | wege
+Capricciosa | | 32 cm: 22; 42 cm: 26 |
+Domowa | | 32 cm: 24; 42 cm: 29 |
+A’la Ogrodniczka | | 32 cm: 23; 42 cm: 28 |
+W Rajskim Sadzie | | 32 cm: 23; 42 cm: 28 |
+Gościeradowianka | | 32 cm: 25; 42 cm: 30 |
+Alvaro | | 32 cm: 26; 42 cm: 31 |
+Weź coś wymyśl | | 32 cm: 30; 42 cm: 35 |
+Palimorda | | 32 cm: 27; 42 cm: 32 |
+Okruszek | | 32 cm: 27; 42 cm: 32 |
+Na wypasie | | 32 cm: 30; 42 cm: 35 |
+Zorba | | 32 cm: 28; 42 cm: 33 |
+Caprese | | 32 cm: 27; 42 cm: 32 |
+Wiejska | | 32 cm: 27; 42 cm: 32 |
+Włoska | | 32 cm: 35; 42 cm: 40 |
+Tuńczyk | | 32 cm: 28; 42 cm: 33 |
+
+## Kebab
+Kebab w tortilli | | 17 |
+Kebab w chlebku arabskim | | 17 |
+Kebab w bułce | | 17 |
+Danie kebab | | 19 |
+Kapsalon | | S 500 ml: 13; M 1000 ml: 19; XL 1500 ml: 24; XXL 2750 ml: 48 |
+
+## Sałatki
+Sałatka grecka | | 17 | wege
+Sałatka cesarska | | 17 |
+
+## Przekąski
+Zapiekanka | | 9 |
+Frytki | | małe: 5; duże: 7 | wege
