@@ -24,7 +24,7 @@ node -e "new (require('node:sqlite').DatabaseSync)('data/szamanie.db').exec(\"VA
 node -e "const d = new (require('node:sqlite').DatabaseSync)('$TMP/szamanie.db'); d.exec('PRAGMA journal_mode = WAL'); d.close()"
 
 echo "→ Pakuję kod…"
-tar --exclude=./node_modules --exclude=./.next --exclude=./data --exclude='./.env*' \
+tar --exclude=./.git --exclude=./node_modules --exclude=./.next --exclude=./data --exclude='./.env*' \
   --exclude='*.tsbuildinfo' --exclude=./next-env.d.ts -czf "$TMP/app.tgz" .
 du -h "$TMP/app.tgz" "$TMP/szamanie.db" | sed 's/^/  /'
 
