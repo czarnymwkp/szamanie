@@ -403,3 +403,13 @@ z menu, nie wszystkie mają podane aktualne”*.
   Do wysyłki kodów potrzebna skrzynka na domenie (SMTP); rekordów MX nie ruszamy.
   Czeka na usera: gdzie jest poczta szamanie.pl (hosting, „podam później”) i zgoda na start panelu. Potem start
   na gałęzi `feat/panel` (osobny worktree, Pull Request do `main`), pierwszy lokal testowy: Kwadrat.
+- **Panel właściciela — pierwsza wersja gotowa (26.10 w nocy, gałąź `feat/panel`, worktree `D:\APLIKACJE\inne\szamanie-panel`,
+  podgląd :3001 na kopii bazy).** Logowanie 6-cyfrowym kodem z e-maila (bez SMTP kod w logach serwera) i przez Google
+  (przycisk pojawia się, gdy są GOOGLE_CLIENT_ID/SECRET); sesje 30 dni w SQLite. „To Twój lokal?” na stronie lokalu →
+  `/panel/przejmij/<slug>` → zgłoszenie → admin dzwoni na numer lokalu i przyjmuje w `/panel/admin`
+  (`npm run konto -- admin <e-mail>` nadaje rolę admina). Zakładki lokalu: Dane (kontakt, opis, godziny — edytor 7 dni,
+  usługi i udogodnienia), Menu i ceny (ceny zmienia się na liście, warianty, cechy, kolejność, działy; historia cen),
+  Dostawa (strefy z miejscowościami, cena, minimum), Promocje (dni/godziny/daty, opcjonalnie obniżka ceny dania z najniższą
+  ceną z 30 dni — Omnibus). Promocje na stronie lokalu nad menu („Trwa teraz” liczy przeglądarka) i tytuł promocji na
+  karcie na liście. Przetestowane w przeglądarce na kontach testowych `@szamanie.test` (Kwadrat). Do zrobienia:
+  klucze Google, SMTP (hosting poczty od usera), akapit w polityce prywatności (czarn-46 przy scalaniu), co płatne.

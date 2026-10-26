@@ -156,11 +156,13 @@ for (const plik of pliki) {
     continue;
   }
 
-  const zPanelu = db.prepare("SELECT menu_zrodlo FROM lokale WHERE id = ?").get(lokal.id).menu_zrodlo === "panel";
-  if (dane.menu && zPanelu && !wymus) {
-    console.error(`✗ ${lokal.nazwa}: menu edytuje lokal w panelu — pomijam (nadpisanie: npm run menu -- ${slug} --wymus)`);
-    bledy++;
-    continue;
+  // menu i strefy, które lokal zmienia w panelu, zostają (chyba że --wymus)
+  const zrodla = db.prepare("SELECT menu_zrodlo, dostawa_zrodlo FROM lokale WHERE id = ?").get(lokal.id);
+  for (const [blok, zrodlo] of [["menu", zrodla.menu_zrodlo], ["dostawa", zrodla.dostawa_zrodlo]]) {
+    if (dane[blok] && zrodlo === "panel" && !wymus) {
+      console.error(`! ${lokal.nazwa}: ${blok} zmienia lokal w panelu — pomijam (nadpisanie: npm run menu -- ${slug} --wymus)`);
+      dane[blok] = null;
+    }
   }
 
   db.exec("BEGIN");

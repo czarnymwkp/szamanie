@@ -10,6 +10,9 @@ import FormularzZgloszenia from "./FormularzZgloszenia";
 
 export const metadata: Metadata = { title: "Poproś o dostęp do lokalu" };
 
+// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+export const instant = false;
+
 export default async function Przejmij({ params }: PageProps<"/panel/przejmij/[slug]">) {
   const { slug } = await params;
   const konto = await wymagajKonta(`/panel/przejmij/${slug}`);

@@ -3,6 +3,9 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { wymagajLokalu } from "@/lib/panel/konta";
 import Zakladki from "./Zakladki";
 
+// jak cały panel: zależy od konta, więc czeka na serwer (bez tego Next ostrzega o odczycie adresu przy prerenderze)
+export const instant = false;
+
 export default async function UkladLokalu({ children, params }: LayoutProps<"/panel/[slug]">) {
   const { slug } = await params;
   const { lokal } = await wymagajLokalu(slug);

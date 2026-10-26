@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgePercent, BookOpen, Store } from "lucide-react";
+import { BadgePercent, BookOpen, Store, Truck } from "lucide-react";
 
 export default function Zakladki({ slug }: { slug: string }) {
   const sciezka = usePathname();
   const zakladki = [
     { href: `/panel/${slug}`, nazwa: "Dane lokalu", Ikona: Store },
     { href: `/panel/${slug}/menu`, nazwa: "Menu i ceny", Ikona: BookOpen },
+    { href: `/panel/${slug}/dostawa`, nazwa: "Dostawa", Ikona: Truck },
     { href: `/panel/${slug}/promocje`, nazwa: "Promocje", Ikona: BadgePercent },
   ];
   return (

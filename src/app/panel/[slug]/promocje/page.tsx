@@ -6,6 +6,9 @@ import Promocje from "./Promocje";
 
 export const metadata: Metadata = { title: "Promocje" };
 
+// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+export const instant = false;
+
 export default async function StronaPromocji({ params }: PageProps<"/panel/[slug]/promocje">) {
   const { slug } = await params;
   const { lokal } = await wymagajLokalu(slug);

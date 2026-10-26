@@ -87,10 +87,11 @@ export const pobierzKonto = cache(async (): Promise<Konto | null> => {
   if (!token) return null;
   const konto = db
     .prepare(
+      // „teraz” liczy SQLite: new Date() w komponencie serwera Next uznaje za blokowanie prerenderu
       `SELECT k.id, k.email, k.imie, k.rola FROM sesje s JOIN konta k ON k.id = s.konto_id
-       WHERE s.id = ? AND s.wygasa > ?`,
+       WHERE s.id = ? AND s.wygasa > strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
     )
-    .get(skrot(token), new Date().toISOString()) as Konto | undefined;
+    .get(skrot(token)) as Konto | undefined;
   return konto ? { ...konto } : null;
 });
 

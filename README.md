@@ -30,6 +30,21 @@ Ręczne poprawki (telefony, adresy, ukryte lokale, cechy) są zapisane tylko w b
 | `npm run menu -- <slug>` | wczytuje menu z `dane/lokale/<slug>.txt` |
 | `npm run popraw -- <slug> <pole> <wartość>` | ręczna poprawka lokalu (np. `telefon`, `dostawa`, `zwierzeta`) |
 | `npm run pakiet -- <slug> <top\|galeria> <dni>` | ręcznie przyznaje płatny pakiet (`npm run pakiet -- lista` pokazuje aktywne) |
+| `npm run konto -- admin <e-mail>` | rola admina w panelu (`lista`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
+
+## Panel lokalu (`/panel`)
+
+Właściciel loguje się kodem z e-maila albo przez Google, prosi o dostęp do lokalu („To mój lokal”), a admin
+potwierdza to telefonicznie w `/panel/admin`. W panelu: dane i godziny, menu z cenami, strefy dostawy, promocje.
+Zmiany widać na stronie lokalu od razu. Menu i strefy zmienione w panelu nie są nadpisywane przez `npm run menu`.
+
+Zmienne w `.env.local` (lokalnie) albo `/opt/szamanie/.env` (serwer), wszystkie opcjonalne:
+
+| Zmienna | Do czego |
+| --- | --- |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | logowanie przez Google (Google Cloud → identyfikator klienta OAuth, aplikacja internetowa; adres przekierowania `https://szamanie.pl/panel/logowanie/google/powrot`) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_HASLO`, `SMTP_OD` | wysyłka kodów logowania; bez nich kody trafiają do logów serwera |
+| `KONTAKT_EMAIL` | tu przychodzą powiadomienia o nowych zgłoszeniach lokali |
 
 ## Wdrożenie
 

@@ -352,3 +352,84 @@ export function zapiszPromocje(lokalId: number, p: Omit<PromocjaEdycja, "id"> & 
 export function usunPromocje(lokalId: number, id: number) {
   db.prepare("UPDATE promocje SET usunieto = datetime('now'), aktywna = 0 WHERE id = ? AND lokal_id = ?").run(id, lokalId);
 }
+
+// ——— Dostawa ———
+
+export type StrefaEdycja = { nazwa: string; miejsca: string; cena: string; minimum: string };
+
+export function dostawaDoEdycji(lokalId: number) {
+  const strefy = (
+    db
+      .prepare("SELECT nazwa, miejsca, cena_gr, min_gr FROM strefy_dostawy WHERE lokal_id = ? ORDER BY kolejnosc")
+      .all(lokalId) as { nazwa: string; miejsca: string; cena_gr: number | null; min_gr: number | null }[]
+  ).map(
+    (s): StrefaEdycja => ({
+      nazwa: s.nazwa,
+      miejsca: (JSON.parse(s.miejsca) as string[]).join(", "),
+      cena: s.cena_gr === null ? "" : naTekst(s.cena_gr),
+      minimum: s.min_gr === null ? "" : naTekst(s.min_gr),
+    }),
+  );
+  const { dostawa_uwagi: uwagi } = db.prepare("SELECT dostawa_uwagi FROM lokale WHERE id = ?").get(lokalId) as {
+    dostawa_uwagi: string | null;
+  };
+  return { strefy, uwagi: uwagi ?? "" };
+}
+
+export function nazwyMiejscowosci() {
+  return (db.prepare("SELECT nazwa FROM miejscowosci ORDER BY nazwa").all() as { nazwa: string }[]).map((m) => m.nazwa);
+}
+
+/** Sprawdza strefy z formularza: miejscowości muszą być z naszej listy (po nich klient szuka „dowozi do mnie”). */
+export function sprawdzStrefy(dane: unknown): { strefy: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[] } | { blad: string } {
+  if (!Array.isArray(dane) || dane.length > 60) return { blad: "Nieprawidłowe strefy dostawy." };
+  const znane = new Map(nazwyMiejscowosci().map((n) => [n.toLowerCase(), n]));
+  const strefy = [];
+  for (const s of dane as Record<string, unknown>[]) {
+    const nazwa = tekst(s?.nazwa, 80);
+    const lista = tekst(s?.miejsca, 400)
+      .split(",")
+      .map((m) => m.trim())
+      .filter(Boolean);
+    if (!nazwa && !lista.length) continue;
+    const miejsca: string[] = [];
+    for (const m of lista) {
+      const znana = znane.get(m.toLowerCase());
+      if (!znana) return { blad: `Nie znamy miejscowości „${m}”. Wybierz ją z podpowiedzi albo usuń.` };
+      miejsca.push(znana);
+    }
+    if (!miejsca.length && nazwa && znane.has(nazwa.toLowerCase())) miejsca.push(znane.get(nazwa.toLowerCase())!);
+    const cenaTekst = tekst(s.cena, 20);
+    const minTekst = tekst(s.minimum, 20);
+    const cena = cenaTekst ? grosze(cenaTekst) : null;
+    const min = minTekst ? grosze(minTekst) : null;
+    if ((cenaTekst && cena === null) || (minTekst && min === null)) {
+      return { blad: `Strefa „${nazwa || miejsca.join(", ")}”: kwoty wpisz jako liczby, np. 5 albo 4,50.` };
+    }
+    strefy.push({ nazwa: nazwa || miejsca.join(", "), miejsca, cena, min });
+  }
+  return { strefy };
+}
+
+export function zapiszDostawe(
+  lokalId: number,
+  strefy: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[],
+  uwagi: string | null,
+) {
+  db.exec("BEGIN");
+  try {
+    db.prepare("DELETE FROM strefy_dostawy WHERE lokal_id = ?").run(lokalId);
+    const dodaj = db.prepare(
+      "INSERT INTO strefy_dostawy (lokal_id, nazwa, miejsca, cena_gr, min_gr, kolejnosc) VALUES (?, ?, ?, ?, ?, ?)",
+    );
+    strefy.forEach((s, i) => dodaj.run(lokalId, s.nazwa, JSON.stringify(s.miejsca), s.cena, s.min, i));
+    db.prepare(
+      `UPDATE lokale SET dostawa_zrodlo = 'panel', dostawa_sprawdzono = date('now', 'localtime'), dostawa_uwagi = ?
+       WHERE id = ?`,
+    ).run(uwagi, lokalId);
+    db.exec("COMMIT");
+  } catch (blad) {
+    db.exec("ROLLBACK");
+    throw blad;
+  }
+}

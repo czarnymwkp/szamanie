@@ -247,7 +247,7 @@ export function CennikiDostawy({ cenniki }: { cenniki: { lokal: Lokal; dostawa: 
               {d.sprawdzono && (
                 <p className="text-xs font-bold text-tekst-2">
                   Cennik{" "}
-                  {d.zrodlo ? (
+                  {d.zrodlo && /^https?:/.test(d.zrodlo) ? (
                     <a href={d.zrodlo} rel="nofollow" className="underline hover:text-tekst">
                       ze strony lokalu
                     </a>

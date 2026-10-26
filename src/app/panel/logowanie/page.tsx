@@ -7,6 +7,9 @@ import FormularzLogowania from "./FormularzLogowania";
 
 export const metadata: Metadata = { title: "Logowanie" };
 
+// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+export const instant = false;
+
 const BLEDY: Record<string, string> = {
   google: "Logowanie przez Google się nie udało. Spróbuj jeszcze raz albo zaloguj się kodem z e-maila.",
   "google-email": "Twoje konto Google nie ma potwierdzonego adresu e-mail. Zaloguj się kodem z e-maila.",

@@ -112,9 +112,7 @@ export default function FormularzDanych({ dane, zapisz }: { dane: DaneLokalu; za
             <Przelacznik key={u.pole} pole={u.pole} nazwa={u.nazwa} wlaczony={dane[u.pole]} />
           ))}
         </div>
-        <p className={podpowiedz}>
-          Strefy i ceny dostawy ustawimy razem z Tobą — napisz albo zadzwoń, wkrótce będą też tutaj.
-        </p>
+        <p className={podpowiedz}>Dokąd dowozicie i za ile — w zakładce „Dostawa”.</p>
       </section>
 
       {/* pasek zapisu przyklejony do dołu ekranu — na telefonie zawsze pod kciukiem */}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ChartColumn, Images, LayoutTemplate, Mail, ShoppingCart, TrendingUp, UtensilsCrossed } from "lucide-react";
+import Link from "next/link";
+import { ChartColumn, Images, LayoutTemplate, LogIn, Mail, ShoppingCart, TrendingUp, UtensilsCrossed } from "lucide-react";
 import type { ReactNode } from "react";
 import { KONTAKT_EMAIL } from "@/lib/konfiguracja";
 
@@ -19,9 +20,8 @@ const PAKIETY: { ikona: ReactNode; nazwa: string; opis: string; wkrotce?: boolea
   },
   {
     ikona: <UtensilsCrossed className="size-6" aria-hidden />,
-    nazwa: "Menu z cenami",
-    opis: "Dania, ceny i danie dnia na stronie lokalu. Zmieniasz je sam w panelu.",
-    wkrotce: true,
+    nazwa: "Menu z cenami i promocje",
+    opis: "Dania, ceny i promocje na stronie lokalu. Zmieniasz je sam w panelu lokalu.",
   },
   {
     ikona: <Images className="size-6" aria-hidden />,
@@ -69,14 +69,23 @@ export default function DlaLokali() {
           <p className="mt-4 max-w-xl animate-wjazd text-base leading-relaxed font-semibold [animation-delay:160ms] lg:text-lg">
             Podstawowy wpis na szamanie.pl jest bezpłatny. Za dodatki płacisz tylko wtedy, gdy chcesz się wyróżnić.
           </p>
-          {KONTAKT_EMAIL && (
-            <a
-              href={`mailto:${KONTAKT_EMAIL}`}
-              className="mt-6 inline-flex animate-wjazd items-center gap-2 rounded-full bg-tekst px-5 py-3 font-black text-white transition hover:-translate-y-0.5 [animation-delay:240ms]"
+          <div className="mt-6 flex animate-wjazd flex-wrap gap-3 [animation-delay:240ms]">
+            <Link
+              href="/panel/logowanie"
+              prefetch={false}
+              className="inline-flex items-center gap-2 rounded-full bg-tekst px-5 py-3 font-black text-white transition hover:-translate-y-0.5"
             >
-              <Mail className="size-5" aria-hidden /> Napisz do nas
-            </a>
-          )}
+              <LogIn className="size-5" aria-hidden /> Panel lokalu
+            </Link>
+            {KONTAKT_EMAIL && (
+              <a
+                href={`mailto:${KONTAKT_EMAIL}`}
+                className="inline-flex items-center gap-2 rounded-full border-2 border-tekst px-5 py-3 font-black transition hover:-translate-y-0.5"
+              >
+                <Mail className="size-5" aria-hidden /> Napisz do nas
+              </a>
+            )}
+          </div>
         </div>
       </section>
 
@@ -112,8 +121,8 @@ export default function DlaLokali() {
               Bezpłatny wpis
             </h2>
             <p className="mt-2 leading-relaxed font-semibold">
-              Nie ma Twojego lokalu na liście albo dane są nieaktualne? Napisz do nas, a dodamy go lub poprawimy za
-              darmo.
+              Dane są nieaktualne? Zaloguj się do panelu lokalu i popraw menu, ceny albo godziny sam. Nie ma Twojego
+              lokalu na liście? Napisz do nas, a dodamy go za darmo.
             </p>
             {!KONTAKT_EMAIL && <p className="mt-3 text-sm font-bold text-tekst-2">Formularz kontaktowy wkrótce.</p>}
           </section>

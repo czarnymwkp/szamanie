@@ -6,6 +6,9 @@ import EdytorMenu from "./EdytorMenu";
 
 export const metadata: Metadata = { title: "Menu i ceny" };
 
+// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+export const instant = false;
+
 export default async function Menu({ params }: PageProps<"/panel/[slug]/menu">) {
   const { slug } = await params;
   const { lokal } = await wymagajLokalu(slug);

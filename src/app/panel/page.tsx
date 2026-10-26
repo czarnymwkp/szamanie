@@ -7,6 +7,9 @@ import { lokaleKonta, wymagajKonta } from "@/lib/panel/konta";
 
 export const metadata: Metadata = { title: { absolute: "Twoje lokale · Panel lokalu" } };
 
+// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+export const instant = false;
+
 export default async function Panel({ searchParams }: PageProps<"/panel">) {
   const konto = await wymagajKonta();
   const { zgloszono } = await searchParams;

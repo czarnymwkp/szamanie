@@ -11,7 +11,9 @@ import {
   POLA_TAK_NIE,
   POLA_TEKSTOWE,
   sprawdzMenu,
+  sprawdzStrefy,
   usunPromocje as usunZBazy,
+  zapiszDostawe as zapiszStrefy,
   zapiszDaneLokalu,
   zapiszMenuLokalu,
   zapiszPromocje as zapiszWBazie,
@@ -127,4 +129,15 @@ export async function usunPromocje(slug: string, id: number) {
   usunZBazy(lokal.id, id);
   updateTag("promocje");
   updateTag("lokale");
+}
+
+export async function zapiszDostawe(slug: string, strefy: unknown, uwagi: string): Promise<StanFormularza> {
+  const { lokal } = await wymagajLokalu(slug);
+  const sprawdzone = sprawdzStrefy(strefy);
+  if ("blad" in sprawdzone) return { blad: sprawdzone.blad };
+  zapiszStrefy(lokal.id, sprawdzone.strefy, String(uwagi ?? "").trim().slice(0, 300) || null);
+  // strefy pokazuje strona lokalu (tag „menu”), a lokal ze strefami dowozi (lista lokali)
+  updateTag("menu");
+  updateTag("lokale");
+  return { ok: "Zapisano strefy dostawy." };
 }

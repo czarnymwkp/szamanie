@@ -6,6 +6,9 @@ import FormularzDanych from "./FormularzDanych";
 
 export const metadata: Metadata = { title: "Dane lokalu" };
 
+// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+export const instant = false;
+
 export default async function DaneLokalu({ params }: PageProps<"/panel/[slug]">) {
   const { slug } = await params;
   const { lokal } = await wymagajLokalu(slug);
