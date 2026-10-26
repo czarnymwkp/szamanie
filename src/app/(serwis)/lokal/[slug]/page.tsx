@@ -26,12 +26,13 @@ export async function generateMetadata({ params }: PageProps<"/lokal/[slug]">): 
   const [menu, lokale, indeks] = await Promise.all([pobierzMenu(lokal.id), pobierzLokale(), doIndeksu(lokal)]);
   const miasto = lokal.miejscowosc ?? "Kraśnik";
   // „Zapiekanki Kraśnik - Bar Przekąskowy” bez drugiego „Kraśnik”; lokale o tej samej nazwie w tej samej
-  // miejscowości (trzy lodziarnie Sandomierskiej Manufaktury Lodów) rozróżnia ulica.
+  // miejscowości (trzy lodziarnie Sandomierskiej Manufaktury Lodów) rozróżnia ulica — krótko, bez imion i stopni
+  // („Generała Władysława Sikorskiego 7a” → „Sikorskiego 7a”), bo tytuł i tak jest długi.
+  const ulica = lokal.adres?.match(/(?:(?:Plac|Aleja|Al\.|Rynek|Osiedle|Os\.) )?\S+ \d\S*$/)?.[0] ?? lokal.adres;
   const gdzie = [
     lokal.nazwa.toLowerCase().includes(miasto.toLowerCase()) ? "" : ` ${miasto}`,
-    lokal.adres &&
-    lokale.some((l) => l.id !== lokal.id && l.nazwa === lokal.nazwa && l.miejscowosc === lokal.miejscowosc)
-      ? `, ${lokal.adres}`
+    ulica && lokale.some((l) => l.id !== lokal.id && l.nazwa === lokal.nazwa && l.miejscowosc === lokal.miejscowosc)
+      ? `, ${ulica}`
       : "",
   ].join("");
   const uslugi = [lokal.dostawa && "dowóz", lokal.naWynos && "na wynos"].filter(Boolean).join(" i ");
