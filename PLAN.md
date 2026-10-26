@@ -377,3 +377,9 @@ z menu, nie wszystkie mają podane aktualne”*.
   wywołania tylko z serwera; po wdrożeniu dopisać do `/polityka-prywatnosci` akapit o opiniach z Google (imiona autorów
   = dane osobowe, pobierane na bieżąco, nie przechowywane); strony lokali są statyczne (`ensureStatic`) → dane z Google
   przez `"use cache"` z krótkim `cacheLife`, nie przez `connection()`.
+- **Repozytorium git (26.10):** user zakłada repo na GitHubie (polecił mu to Kamil). Lokalnie `git init -b main`,
+  pierwszy commit dcfc1c7 (232 pliki). Poza repo: `data/` (baza), `.env*`, `node_modules`, `.next`. `.gitattributes`
+  wymusza LF (`core.autocrlf=true` w Gicie na Windowsie psułby `deploy/*.sh` na serwerze). README po polsku.
+  Repo **prywatne** (PLAN.md z notatkami biznesowymi, drzewo Parkowej bez potwierdzonej zgody). Od teraz zamiast
+  kopii folderów w `szamanie-kopie` wystarczy commit przed dużą zmianą. `gh` nie jest zainstalowany; push przez
+  Git Credential Manager (przy pierwszym logowaniu otwiera się przeglądarka).
