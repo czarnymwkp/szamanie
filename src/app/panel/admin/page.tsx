@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, Phone, X } from "lucide-react";
-import { karta, pole, przyciskMaly } from "@/components/panel/style";
+import { karta, kartaRamka, pole, przyciskMaly } from "@/components/panel/style";
 import { db } from "@/lib/db";
 import { pobierzLokale } from "@/lib/lokale";
 import { linkTelefonu } from "@/lib/nazwy";
@@ -105,7 +105,7 @@ export default async function Admin() {
       <section>
         <h2 className="mb-3 text-lg font-black">Kto zarządza lokalami</h2>
         {!dostepy.length && <p className="text-tekst-2">Jeszcze nikt.</p>}
-        <ul className={`${karta} divide-y divide-obrys p-0`}>
+        <ul className={`${kartaRamka} divide-y divide-obrys`}>
           {dostepy.map((d) => (
             <li key={`${d.lokal}-${d.konto}`} className="flex flex-wrap items-center gap-3 px-5 py-3">
               <Link href={`/panel/${d.slug}`} className="font-extrabold hover:underline">

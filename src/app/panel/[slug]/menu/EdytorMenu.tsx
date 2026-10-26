@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { karta, komunikatBledu, komunikatOk, pole, przyciskGlowny, przyciskMaly } from "@/components/panel/style";
+import { karta, kartaRamka, komunikatBledu, komunikatOk, pole, przyciskGlowny, przyciskMaly } from "@/components/panel/style";
 import type { CechaDania } from "@/lib/menu";
 import type { DanieEdycja, SekcjaEdycja } from "@/lib/panel/lokal";
 import { bezPolskich } from "@/lib/slug.mjs";
@@ -186,37 +186,54 @@ export default function EdytorMenu({
         if (f && !widoczne.length) return null;
         const otwarta = !!f || otwarte.has(s.k);
         return (
-          <section key={s.k} className={`${karta} p-0`}>
-            <div className="flex items-center gap-1.5 p-3 sm:p-4">
+          <section key={s.k} className={kartaRamka}>
+            {otwarta ? (
+              <div className="flex items-center gap-1 p-2 sm:gap-1.5 sm:p-3">
+                <button
+                  type="button"
+                  onClick={() => przelacz(s.k)}
+                  aria-expanded
+                  aria-label="Zwiń dział"
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-krem"
+                >
+                  <ChevronDown className="size-5" aria-hidden />
+                </button>
+                <input
+                  value={s.nazwa}
+                  onChange={(e) => zmienSekcje(s.k, (x) => ({ ...x, nazwa: e.target.value }))}
+                  placeholder="Nazwa działu, np. Pizza"
+                  aria-label="Nazwa działu"
+                  maxLength={80}
+                  className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-lg font-black outline-none focus:bg-krem"
+                />
+                <PrzyciskiKolejnosci
+                  gora={() => setSekcje((l) => przesun(l, i, -1))}
+                  dol={() => setSekcje((l) => przesun(l, i, 1))}
+                  co="dział"
+                />
+                <Usun
+                  co="dział"
+                  pytanie={s.dania.length ? `Usunąć dział z ${s.dania.length} daniami?` : "Usunąć dział?"}
+                  usun={() => setSekcje((l) => l.filter((x) => x.k !== s.k))}
+                />
+              </div>
+            ) : (
+              // zwinięty dział: cały pasek rozwija — nazwę i kolejność zmienia się po rozwinięciu
               <button
                 type="button"
                 onClick={() => przelacz(s.k)}
-                aria-expanded={otwarta}
-                aria-label={otwarta ? "Zwiń dział" : "Rozwiń dział"}
-                className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-krem"
+                aria-expanded={false}
+                className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition hover:bg-krem"
               >
-                <ChevronDown className={`size-5 transition ${otwarta ? "" : "-rotate-90"}`} aria-hidden />
+                <ChevronDown className="size-5 shrink-0 -rotate-90" aria-hidden />
+                <span className={`min-w-0 flex-1 truncate text-lg font-black ${s.nazwa ? "" : "text-tekst-2 italic"}`}>
+                  {s.nazwa || "Nowy dział"}
+                </span>
+                <span className="shrink-0 rounded-full bg-krem px-2.5 py-0.5 text-sm font-bold text-tekst-2">
+                  {s.dania.length}
+                </span>
               </button>
-              <input
-                value={s.nazwa}
-                onChange={(e) => zmienSekcje(s.k, (x) => ({ ...x, nazwa: e.target.value }))}
-                placeholder="Nazwa działu, np. Pizza"
-                aria-label="Nazwa działu"
-                maxLength={80}
-                className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-lg font-black outline-none focus:bg-krem"
-              />
-              <span className="shrink-0 text-sm text-tekst-2">{s.dania.length}</span>
-              <PrzyciskiKolejnosci
-                gora={() => setSekcje((l) => przesun(l, i, -1))}
-                dol={() => setSekcje((l) => przesun(l, i, 1))}
-                co="dział"
-              />
-              <Usun
-                co="dział"
-                pytanie={s.dania.length ? `Usunąć dział z ${s.dania.length} daniami?` : "Usunąć dział?"}
-                usun={() => setSekcje((l) => l.filter((x) => x.k !== s.k))}
-              />
-            </div>
+            )}
 
             {otwarta && (
               <div className="border-t border-obrys">

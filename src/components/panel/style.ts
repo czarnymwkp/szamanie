@@ -1,6 +1,9 @@
 // Wspólne klasy panelu właściciela. Pola mają 16 px, żeby iPhone nie powiększał strony przy pisaniu.
 
-export const karta = "rounded-2xl bg-karta p-5 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_6px_16px_rgba(0,0,0,0.05)] ring-1 ring-obrys/60";
+/** Karta bez wewnętrznego odstępu — dla list z wierszami od krawędzi do krawędzi. */
+export const kartaRamka = "rounded-2xl bg-karta shadow-[0_1px_2px_rgba(0,0,0,0.06),0_6px_16px_rgba(0,0,0,0.05)] ring-1 ring-obrys/60";
+
+export const karta = `${kartaRamka} p-5`;
 
 export const pole =
   "w-full rounded-xl border border-obrys-2 bg-white px-3.5 py-2.5 text-[16px] outline-none transition placeholder:text-tekst-2/60 focus:border-akcent focus:ring-2 focus:ring-akcent/30";

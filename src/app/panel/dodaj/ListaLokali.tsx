@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 import { useDeferredValue, useState } from "react";
-import { karta, pole } from "@/components/panel/style";
+import { kartaRamka, pole } from "@/components/panel/style";
 import { bezPolskich } from "@/lib/slug.mjs";
 
 type Lokal = { slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
@@ -28,7 +28,7 @@ export default function ListaLokali({ lokale }: { lokale: Lokal[] }) {
           autoFocus
         />
       </label>
-      <ul className={`${karta} divide-y divide-obrys p-0`}>
+      <ul className={`${kartaRamka} divide-y divide-obrys`}>
         {wyniki.slice(0, 60).map((l) => (
           <li key={l.slug}>
             <Link href={`/panel/przejmij/${l.slug}`} className="flex items-center gap-3 px-5 py-3.5 transition hover:bg-krem">
