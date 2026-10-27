@@ -23,7 +23,6 @@ import { parsujGodziny } from "@/lib/godziny";
 import type { Lokal } from "@/lib/lokale";
 import { pobierzDostawe, pobierzMenu, type Dostawa } from "@/lib/menu";
 import { pobierzPromocje } from "@/lib/promocje";
-import { inicjaly, motywLokalu } from "@/lib/motyw";
 import { motywStrony, type MotywStrony } from "@/lib/motywyStron";
 import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
@@ -74,7 +73,6 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
     pobierzDostawe(lokal.id),
     pobierzPromocje(lokal.id),
   ]);
-  const { kolor } = motywLokalu(lokal);
   const tydzien = parsujGodziny(lokal.godziny);
   const plakietki = plakietkiLokalu(lokal);
   const uslugi = uslugiLokalu(lokal, { bezPlakietek: true });
@@ -107,25 +105,11 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
       </div>
 
       <div className="mx-auto max-w-5xl px-5">
-        {motyw?.baner ? (
-          // baner z motywu ma znak, nazwę (h1) i adres lokalu — bez kafelka z inicjałami i drugiego tytułu
-          lokal.promowany && <EtykietaPromo className="mt-2 animate-wjazd" />
-        ) : (
-          <div className="relative -mt-10 flex items-end gap-4 sm:-mt-12">
-            <span
-              aria-hidden
-              className="flex size-20 shrink-0 animate-wjazd items-center justify-center rounded-[1.3rem] bg-white text-3xl font-black shadow-[0_4px_16px_rgba(0,0,0,0.16)] sm:size-24"
-              style={{ color: kolor }}
-            >
-              {inicjaly(lokal.nazwa)}
-            </span>
-            {lokal.promowany && <EtykietaPromo className="mb-2 animate-wjazd" />}
-          </div>
-        )}
+        {lokal.promowany && <EtykietaPromo className={`${motyw?.baner ? "mt-2" : "mt-5"} animate-wjazd`} />}
 
         {/* Telefon: nagłówek → menu → adres → godziny → reszta. Komputer: nagłówek | godziny, pod spodem menu
             na całą szerokość, na dole adres | dostawa i usługi. */}
-        <div className={`${motyw?.baner ? "mt-2" : "mt-4"} flex flex-col lg:grid lg:grid-cols-[1fr_340px] lg:gap-x-10`}>
+        <div className={`${motyw?.baner ? "mt-2" : "mt-5"} flex flex-col lg:grid lg:grid-cols-[1fr_340px] lg:gap-x-10`}>
           <div className="min-w-0 lg:col-start-1 lg:row-start-1">
             {!motyw?.baner && (
               <h1

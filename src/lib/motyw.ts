@@ -35,7 +35,7 @@ function motywKuchni(k: string): Motyw | null {
 
 /**
  * Wygląd banera karty, dopóki lokal nie ma własnych zdjęć: zdjęcie poglądowe kategorii, a gdy go brak —
- * kolor z ikoną. Każdy kolor ma kontrast co najmniej 4,5:1 z bielą (biała ikona, kolorowe inicjały na białym).
+ * kolor z ikoną. Każdy kolor ma kontrast co najmniej 4,5:1 z bielą (biała ikona na kolorze).
  * Decyduje pierwsza rozpoznana kuchnia: najpierw idą te z danych lokalu, potem dopisane z nazwy i menu
  * (`pobierzLokale`), więc włoska restauracja z pizzą w karcie nie dostaje banera pizzerii.
  */
@@ -58,14 +58,4 @@ export function motywLokalu(l: Pick<Lokal, "typ" | "kuchnie">): Motyw {
     default:
       return motyw("#3b322c", "sztucce", "restauracja");
   }
-}
-
-/** „Pyszny Kebab” → „PK”, „Santorini” → „S” — zastępcze logo lokalu. */
-export function inicjaly(nazwa: string) {
-  const slowa = nazwa.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-  return slowa
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join("")
-    .toUpperCase();
 }
