@@ -2,13 +2,31 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { adresIp, lokalDoPrzejecia, pobierzKonto, poprawnyEmail, wylogujKonto } from "@/lib/panel/konta";
+import {
+  adresIp,
+  kontoPoLinku,
+  lokalDoPrzejecia,
+  lokaleKonta,
+  pobierzKonto,
+  poprawnyEmail,
+  wylogujKonto,
+  zalogujKonto,
+} from "@/lib/panel/konta";
 import { powiadomAdmina } from "@/lib/panel/poczta";
 import { ADRES_SERWISU } from "@/lib/konfiguracja";
 
 export async function wyloguj() {
   await wylogujKonto();
   redirect("/panel");
+}
+
+/** Wejście prywatnym linkiem: sesja dopiero po kliknięciu „Wejdź do panelu” (POST), nie przy samym otwarciu linku. */
+export async function wejdzLinkiem(token: string) {
+  const konto = kontoPoLinku(token);
+  if (!konto) redirect("/panel?link=nieaktywny");
+  await zalogujKonto(konto);
+  const lokale = lokaleKonta(konto);
+  redirect(lokale.length === 1 ? `/panel/${lokale[0].slug}` : "/panel");
 }
 
 export type StanZgloszenia = { blad?: string };

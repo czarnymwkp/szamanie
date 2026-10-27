@@ -6,7 +6,8 @@ import { cache } from "react";
 import { db } from "../db";
 
 // Konta właścicieli lokali i sesje. Sesja = losowy token w ciasteczku httpOnly; w bazie tylko jego SHA-256.
-// Na razie bez logowania: właściciel wchodzi prywatnym linkiem od admina (/panel/wejdz/<token>), który zakłada sesję.
+// Na razie bez logowania: właściciel wchodzi prywatnym linkiem od admina (/panel/wejdz/<token>) — sesję zakłada
+// przycisk „Wejdź do panelu” na tej stronie.
 // Logowanie kodem z e-maila i przez Google jest gotowe, ale wyłączone — włącza je PANEL_LOGOWANIE=1.
 // Każda strona i akcja panelu sprawdza uprawnienia sama (wymagajKonta / wymagajLokalu / wymagajAdmina),
 // bo ukrycie przycisku w interfejsie niczego nie chroni.
