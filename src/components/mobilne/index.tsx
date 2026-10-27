@@ -10,6 +10,16 @@ import { GlownaM07, LokalM07 } from "./M07Bento";
 import { GlownaM08, LokalM08 } from "./M08PoraDnia";
 import { GlownaM09, LokalM09 } from "./M09Smak";
 import { GlownaM10, LokalM10 } from "./M10Plynny";
+import { GlownaM11, LokalM11 } from "./M11Automat";
+import { GlownaM12, LokalM12 } from "./M12Gazeta";
+import { GlownaM13, LokalM13 } from "./M13Paragon";
+import { GlownaM14, LokalM14 } from "./M14Glina";
+import { GlownaM15, LokalM15 } from "./M15Kosmos";
+import { GlownaM16, LokalM16 } from "./M16Akwarela";
+import { GlownaM17, LokalM17 } from "./M17Ogrod";
+import { GlownaM18, LokalM18 } from "./M18Komiks";
+import { GlownaM19, LokalM19 } from "./M19Bauhaus";
+import { GlownaM20, LokalM20 } from "./M20Kino";
 import { PROPOZYCJE_M, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
 
 // Rejestr propozycji wyglądu na telefon: numer → strona główna i strona lokalu.
@@ -24,6 +34,16 @@ const GLOWNE: Record<number, (p: PropsGlownejM) => React.ReactNode> = {
   8: GlownaM08,
   9: GlownaM09,
   10: GlownaM10,
+  11: GlownaM11,
+  12: GlownaM12,
+  13: GlownaM13,
+  14: GlownaM14,
+  15: GlownaM15,
+  16: GlownaM16,
+  17: GlownaM17,
+  18: GlownaM18,
+  19: GlownaM19,
+  20: GlownaM20,
 };
 const LOKALE: Record<number, (p: PropsLokaluM) => React.ReactNode> = {
   1: LokalM01,
@@ -36,6 +56,16 @@ const LOKALE: Record<number, (p: PropsLokaluM) => React.ReactNode> = {
   8: LokalM08,
   9: LokalM09,
   10: LokalM10,
+  11: LokalM11,
+  12: LokalM12,
+  13: LokalM13,
+  14: LokalM14,
+  15: LokalM15,
+  16: LokalM16,
+  17: LokalM17,
+  18: LokalM18,
+  19: LokalM19,
+  20: LokalM20,
 };
 
 /** Numery propozycji, które już można oglądać. */

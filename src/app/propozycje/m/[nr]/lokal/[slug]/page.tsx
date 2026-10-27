@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { LokalPropozycjiM } from "@/components/mobilne";
+import { linkiStopki } from "@/components/mobilne/linki";
 import { LOKALE_DO_PODGLADU, PROPOZYCJE_M } from "@/components/mobilne/wspolne";
-import { pobierzLokal } from "@/lib/lokale";
+import { pobierzLokal, pobierzLokale } from "@/lib/lokale";
 import { pobierzDostawe, pobierzMenu } from "@/lib/menu";
 
 // Z góry tylko lokale z listy podglądu; reszta generuje się przy pierwszym wejściu.
@@ -23,6 +24,6 @@ async function Tresc({ params }: Pick<PageProps<"/propozycje/m/[nr]/lokal/[slug]
   const nr = Number(tekstNr);
   const lokal = await pobierzLokal(slug);
   if (!lokal || !PROPOZYCJE_M.some((p) => p.nr === nr)) notFound();
-  const [menu, dostawa] = await Promise.all([pobierzMenu(lokal.id), pobierzDostawe(lokal.id)]);
-  return <LokalPropozycjiM lokal={lokal} menu={menu} dostawa={dostawa} nr={nr} />;
+  const [menu, dostawa, lokale] = await Promise.all([pobierzMenu(lokal.id), pobierzDostawe(lokal.id), pobierzLokale()]);
+  return <LokalPropozycjiM lokal={lokal} menu={menu} dostawa={dostawa} nr={nr} linki={linkiStopki(lokale)} />;
 }

@@ -16,6 +16,7 @@ import TabelaGodzin from "../TabelaGodzin";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
 import MenuZakladki from "./MenuZakladki";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { szeroki } from "./fonty";
 import { adresM, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
@@ -168,12 +169,12 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-tekst text-white" : "bg-white/50 ring-1 ring-white/60"
   }`;
 
-export function GlownaM10({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM10({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const [rozwiniete, setRozwiniete] = useState(false);
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip pb-16">
+    <div className="relative isolate min-h-screen overflow-x-clip">
       <TloShader kolory={["#fff1e6", "#ff6400", "#ff4f8b", "#ffc46b"]} />
       <header className="sticky top-0 z-40">
         <div className="mx-auto flex h-16 max-w-2xl items-center gap-3 px-4">
@@ -270,6 +271,7 @@ export function GlownaM10({ lokale, miejscowosci, nr }: PropsGlownejM) {
           </ul>
         </section>
       </main>
+      <StopkaM linki={linki} szaman="holo" />
     </div>
   );
 }
@@ -281,12 +283,12 @@ function paletaLokalu(kolor: string): [string, string, string, string] {
   return ["#fff6ee", kolor, jasny, "#ff8a3d"];
 }
 
-export function LokalM10({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM10({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
   const { kolor } = motywLokalu(lokal);
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip pb-16">
+    <div className="relative isolate min-h-screen overflow-x-clip">
       <TloShader kolory={paletaLokalu(kolor)} />
       <main id="tresc" className="mx-auto max-w-2xl px-4 pt-4">
         <Link href={adresM(nr)} aria-label="Wszystkie lokale" className={`${szklo} flex size-11 items-center justify-center rounded-full`}>
@@ -352,6 +354,7 @@ export function LokalM10({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           <p className={`${szeroki.className} text-lg font-bold`}>Smacznego!</p>
         </div>
       </main>
+      <StopkaM linki={linki} szaman="holo" />
     </div>
   );
 }

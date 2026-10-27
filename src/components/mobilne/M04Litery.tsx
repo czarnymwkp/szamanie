@@ -13,6 +13,7 @@ import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
 import { useLista } from "../menu/useLista";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
@@ -73,7 +74,7 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-tekst text-tlo" : "bg-tlo"
   }`;
 
-export function GlownaM04({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM04({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const otwarte = lokale.filter(k.czyOtwarte).length;
   const pasek = [
@@ -84,7 +85,7 @@ export function GlownaM04({ lokale, miejscowosci, nr }: PropsGlownejM) {
   ].join("   ✦   ");
 
   return (
-    <div style={PLAKAT} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16 text-tekst">
+    <div style={PLAKAT} className="relative isolate min-h-screen overflow-x-clip bg-tlo text-tekst">
       <TloLitery slowa={["PIZZA", "KEBAB", "BURGERY", "KAWA", "PIEROGI", "LODY"]} />
       <div className="overflow-hidden bg-tekst py-1.5 text-tlo">
         <div className={`${plakat.className} flex w-max animate-tasma text-sm tracking-wide uppercase`}>
@@ -205,11 +206,12 @@ export function GlownaM04({ lokale, miejscowosci, nr }: PropsGlownejM) {
           )}
         </section>
       </main>
+      <StopkaM linki={linki} szaman="plakat" />
     </div>
   );
 }
 
-export function LokalM04({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM04({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const { liczba } = useLista(lokal.slug);
   const tydzien = parsujGodziny(lokal.godziny);
   const naglowek = (numer: string, tekst: string) => (
@@ -219,7 +221,7 @@ export function LokalM04({ lokal, menu, dostawa, nr }: PropsLokaluM) {
   );
 
   return (
-    <div style={PLAKAT} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-36 text-tekst">
+    <div style={PLAKAT} className="relative isolate min-h-screen overflow-x-clip bg-tlo text-tekst">
       <TloLitery slowa={[lokal.nazwa.toUpperCase(), ...lokal.kuchnie.slice(0, 3).map((x) => nazwaKuchni(x).toUpperCase())]} />
       <div className="flex items-center border-b-2 border-tekst bg-tlo px-5 py-3">
         <Link href={adresM(nr)} className={`${plakat.className} flex items-center gap-2 text-lg uppercase`}>
@@ -274,6 +276,7 @@ export function LokalM04({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           <iframe title={`Mapa: ${lokal.nazwa}`} src={adresMapy(lokal)} loading="lazy" className="mt-4 h-60 w-full border-[3px] border-tekst grayscale" />
         </section>
       </main>
+      <StopkaM linki={linki} szaman="plakat" className="pb-24" />
 
       <nav
         aria-label="Akcje"

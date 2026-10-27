@@ -7,7 +7,10 @@ import Szaman from "../Szaman";
  * Animowany szaman w stylu propozycji: ta sama postać (je burgera, czaruje), przepuszczona przez filtr SVG.
  * szkic — ołówek; neon — świecący kontur; plakat — sitodruk w dwóch kolorach; zorza — opalizujący połysk;
  * naklejka — biała obwódka; piksele — jak ze starej gry; holo — rozszczepione kolory; cieply — przy piecu;
- * noc / dzien — światło pory dnia. Pinezka nie ma filtra: szaman siedzi w znaczniku mapy.
+ * noc / dzien — światło pory dnia; crt — piksele na kineskopie; druk — raster gazety; termo — wydruk z kasy;
+ * glina — miękka bryła 3D; kosmos — poświata; akwarela — rozlana farba; ogrod — zieleń; komiks — kontur i plamy
+ * koloru; bauhaus — kolory podstawowe; kino — sepia w świetle reflektora. Pinezka nie ma filtra: szaman siedzi
+ * w znaczniku mapy.
  */
 export type StylSzamana =
   | "szkic"
@@ -20,12 +23,102 @@ export type StylSzamana =
   | "cieply"
   | "noc"
   | "dzien"
-  | "pinezka";
+  | "pinezka"
+  | "crt"
+  | "druk"
+  | "termo"
+  | "glina"
+  | "kosmos"
+  | "akwarela"
+  | "ogrod"
+  | "komiks"
+  | "bauhaus"
+  | "kino";
 
 const KRAWEDZIE = "-1 -1 -1 -1 8 -1 -1 -1 -1";
 
+/** Raster jak w druku: odcienie szarości z szumem, potem próg — zostaje farba albo papier. */
+function raster(czestosc: string, farba: string, mocSzumu: string): ReactNode {
+  return (
+    <>
+      <feColorMatrix type="saturate" values="0" result="szary" />
+      <feTurbulence type="fractalNoise" baseFrequency={czestosc} numOctaves="1" seed="7" result="szum" />
+      <feColorMatrix in="szum" type="saturate" values="0" result="szumSzary" />
+      <feComposite in="szary" in2="szumSzary" operator="arithmetic" k2="1" k3={mocSzumu} k4="-0.22" result="zSzumem" />
+      <feComponentTransfer in="zSzumem" result="prog">
+        <feFuncR type="discrete" tableValues="0 1" />
+        <feFuncG type="discrete" tableValues="0 1" />
+        <feFuncB type="discrete" tableValues="0 1" />
+      </feComponentTransfer>
+      <feColorMatrix in="prog" type="luminanceToAlpha" result="jasne" />
+      <feComponentTransfer in="jasne" result="farbaAlfa">
+        <feFuncA type="table" tableValues="1 0" />
+      </feComponentTransfer>
+      <feFlood floodColor={farba} />
+      <feComposite in2="farbaAlfa" operator="in" result="farbaNaPapierze" />
+      <feComposite in="farbaNaPapierze" in2="SourceAlpha" operator="in" />
+    </>
+  );
+}
+
 function filtr(styl: StylSzamana): ReactNode {
   switch (styl) {
+    case "druk":
+      return raster("0.9", "#1c1a17", "0.55");
+    case "termo":
+      return raster("1.6", "#3a3a3a", "0.4");
+    case "glina":
+      // miękka bryła: rozmyty kształt jako mapa wysokości, światło z lewej góry
+      return (
+        <>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="wysokosc" />
+          <feSpecularLighting in="wysokosc" surfaceScale="6" specularConstant="0.85" specularExponent="16" lightingColor="#ffffff" result="blask">
+            <fePointLight x="-40" y="-60" z="140" />
+          </feSpecularLighting>
+          <feComposite in="blask" in2="SourceAlpha" operator="in" result="blaskNaKsztalcie" />
+          <feComposite in="SourceGraphic" in2="blaskNaKsztalcie" operator="arithmetic" k2="1" k3="0.65" />
+        </>
+      );
+    case "akwarela":
+      return (
+        <>
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="2" result="papier" />
+          <feDisplacementMap in="SourceGraphic" in2="papier" scale="7" xChannelSelector="R" yChannelSelector="G" result="rozlane" />
+          <feGaussianBlur in="rozlane" stdDeviation="0.9" result="miekkie" />
+          <feColorMatrix in="miekkie" type="saturate" values="0.75" result="blade" />
+          <feComponentTransfer in="blade">
+            <feFuncA type="linear" slope="0.88" />
+          </feComponentTransfer>
+        </>
+      );
+    case "komiks":
+      return (
+        <>
+          <feComponentTransfer in="SourceGraphic" result="plaskie">
+            <feFuncR type="discrete" tableValues="0 0.45 0.8 1" />
+            <feFuncG type="discrete" tableValues="0 0.45 0.8 1" />
+            <feFuncB type="discrete" tableValues="0 0.45 0.8 1" />
+          </feComponentTransfer>
+          <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="gruby" />
+          <feFlood floodColor="#111111" />
+          <feComposite in2="gruby" operator="in" result="kontur" />
+          <feMerge>
+            <feMergeNode in="kontur" />
+            <feMergeNode in="plaskie" />
+          </feMerge>
+        </>
+      );
+    case "bauhaus":
+      return (
+        <>
+          <feColorMatrix type="saturate" values="0" result="szary" />
+          <feComponentTransfer in="szary">
+            <feFuncR type="discrete" tableValues="0.11 0.9 0.12 0.97" />
+            <feFuncG type="discrete" tableValues="0.11 0.2 0.31 0.78" />
+            <feFuncB type="discrete" tableValues="0.1 0.14 0.64 0.02" />
+          </feComponentTransfer>
+        </>
+      );
     case "szkic":
       // krawędzie → ciemne linie na białym, drżące jak rysowane ręką
       return (
@@ -160,6 +253,7 @@ function filtr(styl: StylSzamana): ReactNode {
           </feMerge>
         </>
       );
+    case "crt":
     case "piksele":
       // próbka co 5 px rozdmuchana do kwadratu 5×5
       return (
@@ -226,6 +320,12 @@ const CSS: Partial<Record<StylSzamana, string>> = {
   noc: "[filter:brightness(0.8)_saturate(0.85)_drop-shadow(0_0_16px_rgba(147,197,253,0.65))]",
   dzien:
     "[filter:brightness(1.05)_drop-shadow(0_6px_14px_rgba(255,170,0,0.45))]",
+  crt: "drop-shadow-[0_0_8px_rgba(90,255,180,0.7)]",
+  kosmos: "animate-unoszenie [filter:drop-shadow(0_0_16px_rgba(120,200,255,0.75))_saturate(1.15)]",
+  ogrod: "[filter:saturate(1.1)_drop-shadow(0_10px_16px_rgba(21,128,61,0.35))]",
+  kino: "[filter:sepia(0.55)_contrast(1.1)_drop-shadow(0_0_22px_rgba(255,220,150,0.45))]",
+  glina: "drop-shadow-[0_14px_18px_rgba(120,60,160,0.3)]",
+  komiks: "-rotate-3",
 };
 
 export default function SzamanM({

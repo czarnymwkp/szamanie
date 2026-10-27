@@ -17,6 +17,7 @@ import MenuLokalu from "../menu/MenuLokalu";
 import { useKatalog } from "../useKatalog";
 import { useTeraz } from "../useTeraz";
 import FiltryM from "./FiltryM";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { fraunces } from "./fonty";
 import { adresM, losowe, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
@@ -165,7 +166,7 @@ function podpowiedz(pora: Pora, lokale: Lokal[]) {
   return lokale.filter(pasuje[pora]).slice(0, 8);
 }
 
-export function GlownaM08({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM08({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const { pora, setReczna } = usePora();
   const p = PORY[pora];
@@ -177,7 +178,7 @@ export function GlownaM08({ lokale, miejscowosci, nr }: PropsGlownejM) {
     }`;
 
   return (
-    <div style={p.tokeny} className="relative isolate min-h-screen overflow-x-clip pb-16 text-tekst">
+    <div style={p.tokeny} className="relative isolate min-h-screen overflow-x-clip text-tekst">
       <Niebo pora={pora} />
       <header className="sticky top-0 z-40">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-5">
@@ -287,6 +288,7 @@ export function GlownaM08({ lokale, miejscowosci, nr }: PropsGlownejM) {
           </ul>
         </section>
       </main>
+      <StopkaM linki={linki} szaman="dzien" />
     </div>
   );
 }
@@ -327,7 +329,7 @@ function LukDnia({ godziny }: { godziny: string | null }) {
   );
 }
 
-export function LokalM08({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM08({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const { pora, setReczna } = usePora();
   const p = PORY[pora];
   const ciemno = pora === "noc";
@@ -335,7 +337,7 @@ export function LokalM08({ lokal, menu, dostawa, nr }: PropsLokaluM) {
   const karta = `rounded-[1.75rem] p-5 backdrop-blur-xl ${ciemno ? "bg-white/[0.07] ring-1 ring-white/10" : "bg-white/80"}`;
 
   return (
-    <div style={p.tokeny} className="relative isolate min-h-screen overflow-x-clip pb-16 text-tekst">
+    <div style={p.tokeny} className="relative isolate min-h-screen overflow-x-clip text-tekst">
       <Niebo pora={pora} />
       <header className="sticky top-0 z-40">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-4">
@@ -394,6 +396,7 @@ export function LokalM08({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           </section>
         )}
       </main>
+      <StopkaM linki={linki} szaman="dzien" />
     </div>
   );
 }

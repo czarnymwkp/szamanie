@@ -14,6 +14,7 @@ import PrzyciskProwadz from "../PrzyciskProwadz";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
@@ -80,12 +81,12 @@ const chip = (aktywny: boolean) =>
     aktywny ? "m-neon-ramka border-akcent bg-akcent/15 text-akcent-tekst" : "border-obrys-2 bg-karta/80"
   }`;
 
-export function GlownaM02({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM02({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const otwarte = lokale.filter(k.czyOtwarte).length;
 
   return (
-    <div style={NOC} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16 text-tekst">
+    <div style={NOC} className="relative isolate min-h-screen overflow-x-clip bg-tlo text-tekst">
       <TloNeon />
       <header className="sticky top-0 z-40 border-b border-white/5 bg-tlo/70 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-5">
@@ -238,15 +239,16 @@ export function GlownaM02({ lokale, miejscowosci, nr }: PropsGlownejM) {
           )}
         </section>
       </main>
+      <StopkaM linki={linki} szaman="neon" />
     </div>
   );
 }
 
-export function LokalM02({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM02({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
 
   return (
-    <div style={NOC} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16 text-tekst">
+    <div style={NOC} className="relative isolate min-h-screen overflow-x-clip bg-tlo text-tekst">
       <TloNeon />
       <div className="relative h-[54vh] min-h-80 overflow-hidden">
         <Miniatura lokal={lokal} className="size-full saturate-[1.15]" sizes="100vw" priorytet />
@@ -320,6 +322,7 @@ export function LokalM02({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           />
         </section>
       </main>
+      <StopkaM linki={linki} szaman="neon" />
     </div>
   );
 }

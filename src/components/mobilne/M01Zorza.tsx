@@ -13,6 +13,7 @@ import PrzyciskProwadz from "../PrzyciskProwadz";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import { useLista } from "../menu/useLista";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { TRYBY, useKatalog } from "../useKatalog";
@@ -40,12 +41,12 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-gradient-to-r from-[#ff6400] to-[#ff3d7f] text-white shadow-lg" : "m-szklo"
   }`;
 
-export function GlownaM01({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM01({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const otwarte = lokale.filter(k.czyOtwarte).length;
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fbf5ef] pb-16">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fbf5ef]">
       <Zorza />
       <header className="m-szklo sticky top-0 z-40 border-x-0 border-t-0">
         <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-5">
@@ -226,17 +227,18 @@ export function GlownaM01({ lokale, miejscowosci, nr }: PropsGlownejM) {
           )}
         </section>
       </main>
+      <StopkaM linki={linki} szaman="zorza" />
     </div>
   );
 }
 
-export function LokalM01({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM01({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const { liczba } = useLista(lokal.slug);
   const tydzien = parsujGodziny(lokal.godziny);
   const wege = lokal.cechy.wege || lokal.cechy.wegan;
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fbf5ef] pb-40">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fbf5ef]">
       <Zorza />
       <div className="relative h-[46vh] min-h-72 overflow-hidden rounded-b-[2.5rem]">
         <div className="m-najazd absolute inset-0">
@@ -316,6 +318,7 @@ export function LokalM01({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           <iframe title={`Mapa: ${lokal.nazwa}`} src={adresMapy(lokal)} loading="lazy" className="h-56 w-full rounded-[1.4rem] border-0" />
         </section>
       </main>
+      <StopkaM linki={linki} szaman="zorza" className="pb-24" />
 
       {/* pływający pasek akcji; gdy na dole jest lista do zamówienia, podjeżdża nad nią */}
       <nav

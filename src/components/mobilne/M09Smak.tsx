@@ -16,6 +16,7 @@ import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
 import MenuKafle from "./MenuKafle";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { elegancki } from "./fonty";
 import { adresM, losowe, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
@@ -77,11 +78,11 @@ const chip = (aktywny: boolean) =>
     aktywny ? "border-akcent bg-akcent text-black" : "border-obrys-2 bg-karta"
   }`;
 
-export function GlownaM09({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM09({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
 
   return (
-    <div style={ESPRESSO} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16 text-tekst">
+    <div style={ESPRESSO} className="relative isolate min-h-screen overflow-x-clip bg-tlo text-tekst">
       <section className="relative h-[78vh] min-h-[30rem] overflow-hidden">
         {ZDJECIA_HERO.map((z, i) =>
           z ? (
@@ -193,15 +194,16 @@ export function GlownaM09({ lokale, miejscowosci, nr }: PropsGlownejM) {
           </ul>
         </section>
       </main>
+      <StopkaM linki={linki} szaman="cieply" />
     </div>
   );
 }
 
-export function LokalM09({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM09({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
 
   return (
-    <div style={ESPRESSO} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16 text-tekst">
+    <div style={ESPRESSO} className="relative isolate min-h-screen overflow-x-clip bg-tlo text-tekst">
       <section className="relative h-[70vh] min-h-96 overflow-hidden">
         <div className="m-paralaksa absolute inset-0">
           <Miniatura lokal={lokal} className="m-najazd size-full" sizes="100vw" priorytet />
@@ -257,6 +259,7 @@ export function LokalM09({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           className="mt-4 h-56 w-full rounded-[1.75rem] border-0 [filter:sepia(0.5)_brightness(0.75)_contrast(1.1)]"
         />
       </main>
+      <StopkaM linki={linki} szaman="cieply" />
     </div>
   );
 }

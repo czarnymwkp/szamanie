@@ -14,6 +14,7 @@ import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
@@ -206,11 +207,11 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-tekst text-white" : "bg-white"
   }`;
 
-export function GlownaM05({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM05({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fff8f2] pb-16">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fff8f2]">
       <TloBable />
       <header className="sticky top-0 z-40 bg-[#fff8f2]/75 backdrop-blur-lg">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-5">
@@ -324,17 +325,18 @@ export function GlownaM05({ lokale, miejscowosci, nr }: PropsGlownejM) {
           )}
         </section>
       </main>
+      <StopkaM linki={linki} szaman="naklejka" />
     </div>
   );
 }
 
-export function LokalM05({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM05({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
   // karty przyklejają się coraz niżej — spod każdej wystaje pasek poprzedniej
   const karta = "sticky overflow-hidden rounded-[2rem] shadow-[0_-8px_30px_rgba(0,0,0,0.08)]";
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fff8f2] pb-16">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-[#fff8f2]">
       <TloBable />
       <main id="tresc" className="mx-auto max-w-2xl space-y-4 px-4 pt-4">
         <section className={`${karta} top-3 z-[1] h-80`}>
@@ -404,6 +406,7 @@ export function LokalM05({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           )}
         </section>
       </main>
+      <StopkaM linki={linki} szaman="naklejka" />
     </div>
   );
 }

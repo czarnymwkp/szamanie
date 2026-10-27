@@ -38,6 +38,7 @@ import PrzyciskProwadz from "../PrzyciskProwadz";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
@@ -101,11 +102,11 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-[#ffd36e] shadow-none" : "bg-white shadow-[3px_3px_0_#1d1b19]"
   }`;
 
-export function GlownaM03({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM03({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
 
   return (
-    <div style={PAPIER} className="m-papier relative isolate min-h-screen overflow-x-clip pb-16 text-tekst">
+    <div style={PAPIER} className="m-papier relative isolate min-h-screen overflow-x-clip text-tekst">
       <TloSzkic />
       <header className="sticky top-0 z-40 border-b-2 border-dashed border-obrys-2 bg-[#fffdf7]/90 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-5">
@@ -247,15 +248,16 @@ export function GlownaM03({ lokale, miejscowosci, nr }: PropsGlownejM) {
           )}
         </section>
       </main>
+      <StopkaM linki={linki} szaman="szkic" />
     </div>
   );
 }
 
-export function LokalM03({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM03({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
 
   return (
-    <div style={PAPIER} className="m-papier relative isolate min-h-screen overflow-x-clip pb-16 text-tekst">
+    <div style={PAPIER} className="m-papier relative isolate min-h-screen overflow-x-clip text-tekst">
       <TloSzkic />
       <main id="tresc" className="mx-auto max-w-2xl px-5 pt-5">
         <Link href={adresM(nr)} className={`${reka.className} inline-flex items-center gap-1 text-2xl`}>
@@ -331,6 +333,7 @@ export function LokalM03({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           </section>
         </div>
       </main>
+      <StopkaM linki={linki} szaman="szkic" />
     </div>
   );
 }

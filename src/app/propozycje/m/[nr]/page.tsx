@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { GlownaPropozycjiM } from "@/components/mobilne";
+import { linkiStopki } from "@/components/mobilne/linki";
 import { PROPOZYCJE_M } from "@/components/mobilne/wspolne";
 import { pobierzLokale, pobierzMiejscowosci } from "@/lib/lokale";
 
@@ -20,5 +21,5 @@ async function Tresc({ params }: Pick<PageProps<"/propozycje/m/[nr]">, "params">
   const nr = Number((await params).nr);
   if (!PROPOZYCJE_M.some((p) => p.nr === nr)) notFound();
   const [lokale, miejscowosci] = await Promise.all([pobierzLokale(), pobierzMiejscowosci()]);
-  return <GlownaPropozycjiM lokale={lokale} miejscowosci={miejscowosci} nr={nr} />;
+  return <GlownaPropozycjiM lokale={lokale} miejscowosci={miejscowosci} nr={nr} linki={linkiStopki(lokale)} />;
 }

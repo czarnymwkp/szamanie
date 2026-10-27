@@ -525,3 +525,114 @@
     box-shadow: 0 0 46px rgb(255 100 0 / 0.85);
   }
 }
+
+/* szaman w stopce: podskok z obrotem po dotknięciu */
+@keyframes m-skok {
+  30% {
+    transform: translateY(-38px) rotate(-12deg) scale(1.08);
+  }
+  55% {
+    transform: translateY(-46px) rotate(200deg);
+  }
+  80% {
+    transform: translateY(0) rotate(360deg) scale(0.95);
+  }
+}
+
+/* 11 · Automat: gwiazdy lecą w dół, każda warstwa o jeden kafel wzoru (bez szwu) */
+@keyframes m-spad {
+  to {
+    background-position: 0 var(--krok, 40px);
+  }
+}
+
+/* 13 · Paragon: wydruk wyjeżdża z kasy skokami (po animacji bez przycinania — lista do zamówienia jest stała) */
+@keyframes m-druk {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-24px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+/* 14 · Glina: napompowana plastelina — jasny brzeg u góry, ciemniejszy u dołu, miękki cień pod spodem */
+.m-glina {
+  background: var(--kolor-gliny, #ffffff);
+  box-shadow:
+    inset 6px 6px 12px rgb(255 255 255 / 0.65),
+    inset -6px -8px 14px rgb(43 32 70 / 0.1),
+    10px 14px 26px rgb(90 60 140 / 0.18);
+}
+
+/* 15 · Kosmos: spadająca gwiazda co kilka sekund */
+.m-meteor {
+  position: fixed;
+  top: 8%;
+  left: 70%;
+  width: 140px;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #fff, transparent);
+  rotate: 150deg;
+  opacity: 0;
+  animation: m-meteor var(--t, 7s) ease-in var(--d, 0s) infinite;
+}
+@keyframes m-meteor {
+  0%,
+  86% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-60vw);
+  }
+}
+.m-orbita {
+  animation: obrot var(--t, 60s) linear infinite;
+}
+/* ikona na orbicie kręci się w przeciwną stronę, więc stoi prosto */
+.m-orbita .m-przeciw {
+  animation: obrot var(--t, 60s) linear infinite reverse;
+}
+
+/* 17 · Ogród: liść opada i kołysze się na boki */
+@keyframes m-lisc {
+  from {
+    transform: translate(0, -10vh) rotate(0deg);
+  }
+  25% {
+    transform: translate(30px, 20vh) rotate(60deg);
+  }
+  50% {
+    transform: translate(-20px, 50vh) rotate(130deg);
+  }
+  75% {
+    transform: translate(25px, 80vh) rotate(200deg);
+  }
+  to {
+    transform: translate(0, 110vh) rotate(280deg);
+  }
+}
+
+/* 20 · Kino: reflektory omiatają salę, żarówki szyldu mrugają na zmianę */
+@keyframes m-reflektor {
+  from {
+    transform: rotate(-14deg);
+  }
+  to {
+    transform: rotate(14deg);
+  }
+}
+@keyframes m-zarowki {
+  50% {
+    opacity: 0.45;
+    filter: brightness(1.6);
+  }
+}

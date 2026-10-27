@@ -12,6 +12,7 @@ import IkonaTypu from "../IkonaTypu";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
 import StatusOtwarcia from "../StatusOtwarcia";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
@@ -76,13 +77,13 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-tekst text-white ring-tekst" : "bg-karta ring-black/10"
   } ${mono.className}`;
 
-export function GlownaM07({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM07({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const otwarte = lokale.filter(k.czyOtwarte).length;
   const najdluzej = k.doPozna[0];
 
   return (
-    <div style={BENTO} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16">
+    <div style={BENTO} className="relative isolate min-h-screen overflow-x-clip bg-tlo">
       <TloKropki />
       <header className="sticky top-0 z-40 bg-tlo/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-4">
@@ -212,6 +213,7 @@ export function GlownaM07({ lokale, miejscowosci, nr }: PropsGlownejM) {
           </ul>
         </section>
       </main>
+      <StopkaM linki={linki} szaman="piksele" />
     </div>
   );
 }
@@ -274,12 +276,12 @@ function Odliczanie({ tydzien }: { tydzien: Tydzien }) {
   );
 }
 
-export function LokalM07({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM07({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
   const ceny = menu?.sekcje.flatMap((s) => s.pozycje.flatMap((p) => p.ceny.map((c) => c.gr))) ?? [];
 
   return (
-    <div style={BENTO} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16">
+    <div style={BENTO} className="relative isolate min-h-screen overflow-x-clip bg-tlo">
       <TloKropki />
       <header className="sticky top-0 z-40 bg-tlo/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
@@ -380,6 +382,7 @@ export function LokalM07({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           )}
         </div>
       </main>
+      <StopkaM linki={linki} szaman="piksele" />
     </div>
   );
 }

@@ -9,7 +9,7 @@ export default function ListaPropozycjiM() {
     <main id="tresc" className="mx-auto w-full max-w-3xl px-5 py-8">
       <Image src="/logo-jasne-tlo.png" alt="szamanie" width={148} height={32} className="h-8 w-auto" priority />
       <h1 className="mt-6 flex animate-wjazd items-center gap-2 text-3xl font-black lg:text-4xl">
-        <Smartphone className="size-8 text-akcent-tekst" aria-hidden /> 10 propozycji na telefon
+        <Smartphone className="size-8 text-akcent-tekst" aria-hidden /> {PROPOZYCJE_M.length} propozycji na telefon
       </h1>
       <p className="mt-3 animate-wjazd font-semibold text-tekst-2 [animation-delay:80ms]">
         Cały wygląd: strona główna i strona lokalu, na prawdziwych danych. Każda ma inne tło, układ i animacje. Na

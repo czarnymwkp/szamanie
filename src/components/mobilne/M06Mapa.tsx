@@ -16,6 +16,7 @@ import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
+import StopkaM from "./StopkaM";
 import SzamanM from "./SzamanM";
 import { adresM, losowe, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
 
@@ -74,13 +75,13 @@ const chip = (aktywny: boolean) =>
     aktywny ? "bg-[#1a73e8] text-white" : "bg-white"
   }`;
 
-export function GlownaM06({ lokale, miejscowosci, nr }: PropsGlownejM) {
+export function GlownaM06({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);
   const [wybrany, setWybrany] = useState<number | null>(null);
   const lokalNaMapie = k.wyniki.find((l) => l.id === wybrany) ?? null;
 
   return (
-    <div style={PIASEK} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16">
+    <div style={PIASEK} className="relative isolate min-h-screen overflow-x-clip bg-tlo">
       <div className="sticky top-0 h-[58vh]">
         <MapaLokali lokale={k.wyniki} wybrany={wybrany} onWybierz={setWybrany} className="size-full" />
         <div className="pointer-events-none absolute inset-x-0 top-0 z-[500] px-4 pt-3">
@@ -193,15 +194,16 @@ export function GlownaM06({ lokale, miejscowosci, nr }: PropsGlownejM) {
           </section>
         </div>
       </main>
+      <StopkaM linki={linki} szaman="pinezka" />
     </div>
   );
 }
 
-export function LokalM06({ lokal, menu, dostawa, nr }: PropsLokaluM) {
+export function LokalM06({ lokal, menu, dostawa, nr, linki }: PropsLokaluM) {
   const tydzien = parsujGodziny(lokal.godziny);
 
   return (
-    <div style={PIASEK} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16">
+    <div style={PIASEK} className="relative isolate min-h-screen overflow-x-clip bg-tlo">
       <div className="sticky top-0 h-[48vh]">
         <MapaLokali lokale={[lokal]} wybrany={lokal.id} onWybierz={() => {}} className="size-full" />
         <Link
@@ -258,6 +260,7 @@ export function LokalM06({ lokal, menu, dostawa, nr }: PropsLokaluM) {
           )}
         </div>
       </main>
+      <StopkaM linki={linki} szaman="pinezka" />
     </div>
   );
 }
