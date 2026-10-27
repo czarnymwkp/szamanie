@@ -11,12 +11,12 @@ import IkonaTypu from "../IkonaTypu";
 import MapaLokali from "../MapaLokali";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
-import Szaman from "../Szaman";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
+import SzamanM from "./SzamanM";
 import { adresM, losowe, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
 
 // 6 · Mapa — najpierw mapa z pinezkami wszystkich lokali (przykleja się u góry), lista wjeżdża na nią jak
@@ -135,7 +135,7 @@ export function GlownaM06({ lokale, miejscowosci, nr }: PropsGlownejM) {
       <main id="tresc" className="relative z-10 -mt-8 rounded-t-[2rem] bg-tlo shadow-[0_-10px_30px_rgba(0,0,0,0.15)]">
         <TloWarstwice />
         {/* szaman stoi na krawędzi arkusza, nad mapą */}
-        <Szaman className="pointer-events-none absolute -top-[5.5rem] right-3 w-24" />
+        <SzamanM styl="pinezka" className="pointer-events-none absolute -top-[7rem] right-5 w-24" />
         <div className="mx-auto max-w-2xl px-5 pt-3">
           <span aria-hidden className="mx-auto block h-1.5 w-12 rounded-full bg-obrys-2" />
           <h1 className="mt-4 font-grotesk text-2xl font-bold">

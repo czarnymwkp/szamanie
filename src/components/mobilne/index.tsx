@@ -6,6 +6,10 @@ import { GlownaM03, LokalM03 } from "./M03Szkicownik";
 import { GlownaM04, LokalM04 } from "./M04Litery";
 import { GlownaM05, LokalM05 } from "./M05Talia";
 import { GlownaM06, LokalM06 } from "./M06Mapa";
+import { GlownaM07, LokalM07 } from "./M07Bento";
+import { GlownaM08, LokalM08 } from "./M08PoraDnia";
+import { GlownaM09, LokalM09 } from "./M09Smak";
+import { GlownaM10, LokalM10 } from "./M10Plynny";
 import { PROPOZYCJE_M, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
 
 // Rejestr propozycji wyglądu na telefon: numer → strona główna i strona lokalu.
@@ -16,6 +20,10 @@ const GLOWNE: Record<number, (p: PropsGlownejM) => React.ReactNode> = {
   4: GlownaM04,
   5: GlownaM05,
   6: GlownaM06,
+  7: GlownaM07,
+  8: GlownaM08,
+  9: GlownaM09,
+  10: GlownaM10,
 };
 const LOKALE: Record<number, (p: PropsLokaluM) => React.ReactNode> = {
   1: LokalM01,
@@ -24,6 +32,10 @@ const LOKALE: Record<number, (p: PropsLokaluM) => React.ReactNode> = {
   4: LokalM04,
   5: LokalM05,
   6: LokalM06,
+  7: LokalM07,
+  8: LokalM08,
+  9: LokalM09,
+  10: LokalM10,
 };
 
 /** Numery propozycji, które już można oglądać. */

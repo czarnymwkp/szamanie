@@ -12,9 +12,9 @@ import BaneryReklamowe from "../BaneryReklamowe";
 import IkonaTypu from "../IkonaTypu";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
-import Szaman from "../Szaman";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
+import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
 import { useUlubione } from "../useUlubione";
@@ -220,9 +220,9 @@ export function GlownaM05({ lokale, miejscowosci, nr }: PropsGlownejM) {
 
       <main id="tresc" className="mx-auto max-w-2xl px-5">
         <section className="relative pt-4">
-          <Szaman className="pointer-events-none absolute -top-2 -right-2 w-28 animate-wjazd [animation-delay:300ms]" />
+          <SzamanM styl="naklejka" className="pointer-events-none absolute -top-2 -right-2 w-28 animate-wjazd [animation-delay:300ms]" />
           <p className={`${bricolage.className} animate-wjazd text-lg font-bold text-tekst-2`}>Hej! 👋</p>
-          <h1 className={`${bricolage.className} animate-wjazd text-[2.6rem] leading-[1] font-extrabold tracking-tight [animation-delay:60ms]`}>
+          <h1 className={`${bricolage.className} max-w-[72%] animate-wjazd text-[2.6rem] leading-[1] font-extrabold tracking-tight [animation-delay:60ms]`}>
             Co dziś szamiesz?
           </h1>
           <form

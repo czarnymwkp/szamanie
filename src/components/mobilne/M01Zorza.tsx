@@ -10,10 +10,10 @@ import EtykietaPromo from "../EtykietaPromo";
 import IkonaTypu from "../IkonaTypu";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
-import Szaman from "../Szaman";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import { useLista } from "../menu/useLista";
+import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { TRYBY, useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
@@ -60,7 +60,7 @@ export function GlownaM01({ lokale, miejscowosci, nr }: PropsGlownejM) {
 
       <main id="tresc" className="mx-auto max-w-2xl px-5">
         <section className="relative pt-7">
-          <Szaman className="pointer-events-none absolute top-3 -right-3 w-28 animate-wjazd [animation-delay:300ms]" />
+          <SzamanM styl="zorza" className="pointer-events-none absolute top-3 -right-3 w-28 animate-wjazd [animation-delay:300ms]" />
           <p className="m-szklo inline-flex animate-wjazd items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold">
             <MapPin className="size-3.5 text-akcent-tekst" aria-hidden /> Kraśnik i okolice · {lokale.length} lokali
           </p>

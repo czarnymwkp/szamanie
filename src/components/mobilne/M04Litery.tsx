@@ -9,11 +9,11 @@ import { linkTelefonu, nazwaKuchni, odmiana, opisLokalu, pelnyAdres } from "@/li
 import BaneryReklamowe from "../BaneryReklamowe";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
-import Szaman from "../Szaman";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
 import { useLista } from "../menu/useLista";
+import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
@@ -102,7 +102,7 @@ export function GlownaM04({ lokale, miejscowosci, nr }: PropsGlownejM) {
       </header>
 
       <main id="tresc" className="relative mx-auto max-w-2xl px-5">
-        <Szaman className="pointer-events-none absolute top-2 right-2 w-24 animate-wjazd [animation-delay:700ms]" />
+        <SzamanM styl="plakat" className="pointer-events-none absolute top-2 right-2 w-24 animate-wjazd [animation-delay:700ms]" />
         <h1 className={`${plakat.className} pt-6 text-[19vw] leading-[0.86] uppercase sm:text-8xl`}>
           <Litery tekst="Co dziś" />
           <br />

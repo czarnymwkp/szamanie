@@ -11,17 +11,17 @@ import EtykietaPromo from "../EtykietaPromo";
 import IkonaTypu from "../IkonaTypu";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
-import Szaman from "../Szaman";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
+import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
 import { adresM, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
 
 // 2 · Neon — restauracja nocą: ciemne tokeny, ziarno filmu, reflektor idzie za palcem, siatka podłogi
-// ucieka w perspektywę, neonowe napisy mrugają. Zdjęcia w duotonie, kolor wraca po dotknięciu.
+// ucieka w perspektywę, neonowe napisy mrugają. Zdjęcia w pełnym kolorze w neonowych ramkach.
 
 const NOC = {
   "--color-tlo": "#07070a",
@@ -98,7 +98,7 @@ export function GlownaM02({ lokale, miejscowosci, nr }: PropsGlownejM) {
 
       <main id="tresc" className="mx-auto max-w-2xl px-5">
         <section className="relative pt-10">
-          <Szaman className="pointer-events-none absolute top-2 -right-3 w-32 animate-wjazd drop-shadow-[0_0_22px_rgba(255,100,0,0.55)] [animation-delay:300ms]" />
+          <SzamanM styl="neon" className="pointer-events-none absolute top-2 -right-3 w-32 animate-wjazd drop-shadow-[0_0_22px_rgba(255,100,0,0.55)] [animation-delay:300ms]" />
           <p className="animate-wjazd text-xs font-black tracking-[0.3em] text-tekst-2 uppercase">Kraśnik · dzień i noc</p>
           <h1 className="mt-3 animate-wjazd font-grotesk text-[3.6rem] leading-[0.9] font-bold tracking-tight [animation-delay:80ms]">
             Co dziś
@@ -184,8 +184,9 @@ export function GlownaM02({ lokale, miejscowosci, nr }: PropsGlownejM) {
             <div className="-mx-5 mt-4 flex gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none]">
               {k.doPozna.map(({ lokal, doGodziny }) => (
                 <Link key={lokal.id} href={lokalM(nr, lokal.slug)} className="group relative h-44 w-40 shrink-0 overflow-hidden rounded-2xl">
-                  <Miniatura lokal={lokal} className="m-duotone size-full" dopisek={false} />
-                  <span className="absolute inset-0 bg-gradient-to-t from-[#2a0018] via-[#ff2d87]/20 to-transparent mix-blend-hard-light" />
+                  <Miniatura lokal={lokal} className="size-full saturate-[1.15]" dopisek={false} />
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                  <span className="m-neon-ramka absolute inset-0 rounded-2xl" />
                   <span className="absolute inset-x-3 bottom-3">
                     <span className="block truncate text-sm font-extrabold text-white">{lokal.nazwa}</span>
                     <span className="m-neon-rozowy block font-grotesk text-2xl font-bold">do {doGodziny}</span>
@@ -209,8 +210,8 @@ export function GlownaM02({ lokale, miejscowosci, nr }: PropsGlownejM) {
                   className="group flex gap-3 rounded-2xl border border-obrys bg-karta/80 p-2.5 backdrop-blur transition hover:border-akcent/60 active:scale-[0.99]"
                 >
                   <div className="relative size-24 shrink-0 overflow-hidden rounded-xl">
-                    <Miniatura lokal={l} className="m-duotone size-full transition duration-500 group-hover:filter-none group-active:filter-none" dopisek={false} />
-                    <span className="absolute inset-0 bg-gradient-to-br from-[#ff6400]/55 to-[#7c3aed]/45 mix-blend-color transition-opacity duration-500 group-hover:opacity-0" />
+                    <Miniatura lokal={l} className="size-full saturate-[1.15] transition duration-500 group-hover:scale-105" dopisek={false} />
+                    <span className="absolute inset-0 rounded-xl ring-1 ring-akcent/40 transition group-hover:ring-2 group-hover:ring-akcent" />
                   </div>
                   <div className="min-w-0 flex-1 py-0.5">
                     <h3 className="truncate font-grotesk text-lg leading-tight font-bold">{l.nazwa}</h3>
@@ -248,8 +249,7 @@ export function LokalM02({ lokal, menu, dostawa, nr }: PropsLokaluM) {
     <div style={NOC} className="relative isolate min-h-screen overflow-x-clip bg-tlo pb-16 text-tekst">
       <TloNeon />
       <div className="relative h-[54vh] min-h-80 overflow-hidden">
-        <Miniatura lokal={lokal} className="m-duotone size-full" sizes="100vw" priorytet />
-        <span className="absolute inset-0 bg-gradient-to-br from-[#ff6400]/50 to-[#7c3aed]/50 mix-blend-color" />
+        <Miniatura lokal={lokal} className="size-full saturate-[1.15]" sizes="100vw" priorytet />
         <span className="absolute inset-0 bg-gradient-to-t from-tlo via-tlo/40 to-transparent" />
         <Link
           href={adresM(nr)}

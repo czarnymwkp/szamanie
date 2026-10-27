@@ -35,10 +35,10 @@ import EtykietaPromo from "../EtykietaPromo";
 import IkonaTypu from "../IkonaTypu";
 import Miniatura from "../Miniatura";
 import PrzyciskProwadz from "../PrzyciskProwadz";
-import Szaman from "../Szaman";
 import StatusOtwarcia from "../StatusOtwarcia";
 import TabelaGodzin from "../TabelaGodzin";
 import MenuLokalu from "../menu/MenuLokalu";
+import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
@@ -116,7 +116,7 @@ export function GlownaM03({ lokale, miejscowosci, nr }: PropsGlownejM) {
 
       <main id="tresc" className="mx-auto max-w-2xl px-5">
         <section className="relative pt-8">
-          <Szaman className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms]" />
+          <SzamanM styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms]" />
           <h1 className="animate-wjazd text-[2.9rem] leading-[0.95] font-black tracking-tight">
             Co dziś
             <span className={`${reka.className} relative ml-1 inline-block -rotate-2 text-[4.2rem] text-akcent-tekst`}>
