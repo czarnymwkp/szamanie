@@ -8,7 +8,6 @@ import TabelaGodzin from "../TabelaGodzin";
 import { adresMapy, kontaktyLokalu, uslugiLokalu } from "../szablony/wspolne";
 import { parsujGodziny } from "@/lib/godziny";
 import type { Lokal } from "@/lib/lokale";
-import { inicjaly, motywLokalu } from "@/lib/motyw";
 import { linkTelefonu, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import { StopkaPropozycji, adresPropozycji, type PropsLokalu } from "./wspolne";
 
@@ -16,7 +15,6 @@ import { StopkaPropozycji, adresPropozycji, type PropsLokalu } from "./wspolne";
 export default function P06Lokal({ lokal, nr }: PropsLokalu) {
   const tydzien = parsujGodziny(lokal.godziny);
   const uslugi = uslugiLokalu(lokal);
-  const { kolor } = motywLokalu(lokal);
   return (
     <div className="min-h-screen bg-tlo pb-24 lg:pb-0">
       <div className="relative">
@@ -28,11 +26,8 @@ export default function P06Lokal({ lokal, nr }: PropsLokalu) {
 
       <main id="tresc" className="relative mx-auto -mt-16 max-w-3xl px-4">
         <article className="animate-wjazd rounded-[2rem] bg-white p-6 text-center shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
-          <span aria-hidden className="mx-auto -mt-14 flex size-20 items-center justify-center rounded-full border-4 border-white bg-white text-2xl font-black shadow-md" style={{ color: kolor }}>
-            {inicjaly(lokal.nazwa)}
-          </span>
-          {lokal.promowany && <EtykietaPromo className="mt-3" />}
-          <h1 className="mt-3 text-3xl font-black lg:text-4xl">{lokal.nazwa}</h1>
+          {lokal.promowany && <EtykietaPromo className="mb-3" />}
+          <h1 className="text-3xl font-black lg:text-4xl">{lokal.nazwa}</h1>
           <p className="mt-1 font-bold text-tekst-2">{opisLokalu(lokal)}</p>
           <p className="text-sm font-semibold text-tekst-2">{pelnyAdres(lokal)}</p>
           <div className="mt-3 flex justify-center">
