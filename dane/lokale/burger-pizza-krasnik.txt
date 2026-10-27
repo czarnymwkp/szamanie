@@ -1,0 +1,81 @@
+# Burger&Pizza, Kraśnik (ul. Lubelska 117) — menu przepisane ze zdjęć karty na Facebooku lokalu
+# (2 strony: pizza i burgery, wrzucone 20.01.2026). Nazwy pizz poprawione: „Quatrro” → Quattro, „Capricossa” → Capricciosa.
+źródło: https://www.facebook.com/pizza.burger.krasnik
+sprawdzono: 2026-01-20
+
+== MENU ==
+## Burgery
+Burger Klasyk | ketchup, sałata, wołowina, pomidor, pikle z ogórka, czerwona cebula, sos biały | 24 |
+Cheeseburger | ketchup, sałata, wołowina, 2x cheddar, pomidor, czerwona cebula, pikle, sos biały | 26 |
+Burger BBQ | sos BBQ, sałata, wołowina, 2x bekon, pikle, cebula czerwona karmelizowana | 28 |
+Burger Zorba | sos tzatziki, sałata, pikle, wołowina, ser feta, pomidor, cebula czerwona | 28 |
+Burger Forza Italia | sos tzatziki, rukola, wołowina, ser gorgonzola, pomidor, pikle, sos musztardowy | 28 |
+Burger Hot Bacon | sos sambal, sałata, wołowina, pikle, bekon, papryka jalapeño, cebula, pomidor, sos biały | 28 | ostre
+Burger Bekon | sos 1000 wysp, wołowina, bekon, prażona cebulka, pikle, sałata | 26 |
+Burger Red | kotlet vege, sos bazyliowy, sos biały, papryka, pikle, pomidor, prażony słonecznik, rukola | 26 | wege
+Burger Nachos | sos serowy, sałata, pomidor, wołowina, cheddar, nachos, cebula, pikle | 26 |
+Burger Hawaii | sos słodko-pikantny, sałata, wołowina, cheddar, grillowany ananas, cebula, pomidor | 27 |
+Burger Onion | wołowina, bekon, ser cheddar, krążki cebulowe, sałata, pomidor, pikle, sos remulada | 32 |
+Burger Zbójnicki | wołowina, bekon, ser cheddar, placek ziemniaczany, papryczki jalapeño, sałata, pomidor, pikle, sos czosnkowy | 32 | ostre
+Burger Norman | ketchup, sos serowy, wołowina, bekon, camembert, cheddar, czerwona cebula, pikle, sałata, pomidor | 32 |
+Burger Chicken | grillowany kurczak, ser cheddar, sałata, cebula, pomidor, pikle, sos biały, ketchup | 26 |
+Burger Pesto | grillowany kurczak, ser feta, suszone pomidory, cebula, rukola, tzatziki, sos bazyliowy | 28 |
+
+## Pizza
+Margherita | sos pomidorowy, mozzarella | 25 | wege
+Elba | sos pomidorowy, mozzarella, suszone pomidory, oliwki, kapary | 28 | wege
+Prosciutto | sos pomidorowy, mozzarella, szynka włoska gotowana | 28 |
+Regina | sos pomidorowy, mozzarella, szynka włoska gotowana, pieczarki | 29 |
+Peperoni | sos pomidorowy, mozzarella, kiełbaska peperoni | 29 |
+Diavola | sos pomidorowy, mozzarella, kiełbaska peperoni, czerwona cebula, peperonico | 31 | ostre
+Quattro Stagioni | sos pomidorowy, mozzarella, karczochy, oliwki, szynka włoska gotowana | 31 |
+Capricciosa | sos pomidorowy, mozzarella, karczochy, oliwki, szynka włoska gotowana, kiełbaska peperoni, pieczarki | 34 |
+Quattro Formaggi | sos pomidorowy, 4 rodzaje sera | 32 | wege
+Siciliana | sos pomidorowy, mozzarella, kiełbaska peperoni, pieczarki, papryka | 32 |
+Wiejska | sos pomidorowy, mozzarella, boczek, cebula, papryka, pieczarki | 35 |
+Crudo | sos pomidorowy, mozzarella, szynka crudo, rukola, parmezan | 34 |
+Papay | sos pomidorowy, mozzarella, szpinak, czosnek | 27 | wege
+Herkules | sos pomidorowy, mozzarella, szynka crudo, szynka włoska gotowana, kiełbaska peperoni | 35 |
+Tonno | sos pomidorowy, mozzarella, tuńczyk, cebula, oliwki | 30 |
+Frutti di Mare | sos pomidorowy, mozzarella, owoce morza, czosnek, pietruszka | 39 |
+Bambino | sos pomidorowy, mozzarella, szynka włoska gotowana, kukurydza | 28 |
+Etna | sos pomidorowy, mozzarella, kiełbaska peperoni, papryczki jalapeño | 32 | ostre
+Casanova | sos pomidorowy, mozzarella, gorgonzola, rukola, orzechy włoskie | 34 | wege
+Puccini | sos pomidorowy, mozzarella, kiełbaska peperoni, kapary, rukola, parmezan | 34 |
+Stradivarius | sos pomidorowy, mozzarella, szynka włoska gotowana, oliwki, papryczki jalapeño | 34 | ostre
+Prince | sos pomidorowy, mozzarella, kiełbaska peperoni, kapary, gorgonzola | 34 |
+Calzone (pieróg) | sos pomidorowy, 2x mozzarella, szynka włoska gotowana, pieczarki | 32 |
+Hawaii | sos pomidorowy, mozzarella, szynka włoska gotowana, ananas | 28 |
+Con Pollo | sos pomidorowy, mozzarella, kurczak, papryka, cebula, pieczarki | 36 |
+Alla Carbonara | biały sos, mozzarella, czerwona cebula, boczek, szczypior, parmezan | 36 |
+Italia | sos pomidorowy, mozzarella, kiełbaska peperoni, suszone pomidory, oliwki | 33 |
+Bari | sos pomidorowy, mozzarella, szpinak, karczochy, czosnek, papryczki jalapeño | 33 | wege, ostre
+Vega | sos pomidorowy, mozzarella, papryka, pomidor, pieczarki, cebula | 29 | wege
+
+## Sałatki
+Caprese | pomidor, mozzarella, rukola, bazylia, oliwa, krem balsamiczny | 24 | wege
+Zorba | mix sałat, pomidor, ogórek, czerwona cebula, oliwki, feta, bazylia, sos winegret | 26 | wege
+Tono | mix sałat, pomidor, kukurydza, tuńczyk, oliwki, oliwa, krem balsamiczny jasny | 26 |
+Siciliana | mix sałat, suszone pomidory, mozzarella, oliwki, cebula, ziarna słonecznika, oliwa, krem balsamiczny | 28 | wege
+Santorini | mix sałat, ogórek, pomidor, oliwki, ser gorgonzola, grillowany bekon, sos winegret | 27 |
+Con Pollo | mix sałat, grillowany kurczak, pomidor, pomidory suszone, cebula, oliwki, kapary, orzeszki ziemne, sos jogurtowo-miodowy | 28 |
+Parmina | sałata, szynka crudo, oliwki, suszone pomidory, parmezan, oliwa, krem balsamiczny | 27 |
+
+## Dodatki
+Frytki | | 8 | wege
+Frytki z batatów | | 10 | wege
+Krążki cebulowe | | 9 | wege
+Panierowane serki łagodne | | 4 szt.: 9; 7 szt.: 13; 9 szt.: 15 | wege
+Panierowane serki pikantne | | 4 szt.: 10; 7 szt.: 15; 9 szt.: 18 | wege, ostre
+
+## Dodatki do burgerów
+Extra kotlet | do wyboru: wołowina, panierowany ser, grillowany kurczak albo vege | 9 |
+Extra bekon | | 4 |
+Extra cheddar | | 4 |
+Extra jalapeño | | 4 | ostre
+
+## Dodatki do pizzy
+Dodatkowy ser, wędlina | | 4 |
+Inny dodatkowy składnik | | 4 |
+Sos | | 3 |
+Tuńczyk, owoce morza, szynka crudo | | 6 |

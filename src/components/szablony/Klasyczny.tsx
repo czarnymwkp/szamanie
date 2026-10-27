@@ -25,6 +25,7 @@ import { pobierzDostawe, pobierzMenu, type Dostawa } from "@/lib/menu";
 import { motywStrony, type MotywStrony } from "@/lib/motywyStron";
 import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
+import BanerBelka from "./BanerBelka";
 import BanerSwietliki from "./BanerSwietliki";
 import { KROJE } from "./kroje";
 import { adresMapy, plakietkiLokalu, uslugiLokalu } from "./wspolne";
@@ -80,8 +81,10 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
     <article className={`bg-tlo pb-12 text-tekst ${krojeMotywu}`} style={stylStrony}>
       <div className="relative">
         <ViewTransition name={`baner-${lokal.slug}`} share="morph" default="none">
-          {motyw?.baner ? (
+          {motyw?.baner?.rodzaj === "swietliki" ? (
             <BanerSwietliki znak={motyw.baner.znak} nazwa={lokal.nazwa} podpis={motyw.baner.podpis} />
+          ) : motyw?.baner?.rodzaj === "belka" ? (
+            <BanerBelka nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : (
             <Baner lokal={lokal} rozmiar="strona" className="h-44 sm:h-56 lg:h-72" />
           )}
@@ -249,6 +252,7 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
                 nazwa={lokal.nazwa}
                 telefon={lokal.telefon}
                 numerowane={motyw?.menuNumerowane}
+                belki={motyw?.menuBelki}
               />
             ) : (
               <section

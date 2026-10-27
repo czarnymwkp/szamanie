@@ -20,16 +20,21 @@ export type TokenKoloru =
   | "zamkniete";
 
 /** Kroje z `components/szablony/kroje.ts`. */
-export type KrojLokalu = "playfair" | "karla";
+export type KrojLokalu = "playfair" | "karla" | "rokkitt" | "roboto-condensed";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
   ciemny?: boolean; // ciemne pola formularzy i paski przewijania
   kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu };
-  /** Baner zamiast zdjęcia kategorii: znak lokalu (plik w public/), pod nim nazwa i `podpis` z adresem. */
-  baner?: { rodzaj: "swietliki"; znak: string; podpis: string };
+  /**
+   * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
+   * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`.
+   */
+  baner?: { rodzaj: "swietliki"; znak: string; podpis: string } | { rodzaj: "belka"; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
+  /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
+  menuBelki?: boolean;
 };
 
 const MOTYWY: Record<string, MotywStrony> = {
@@ -58,6 +63,27 @@ const MOTYWY: Record<string, MotywStrony> = {
       podpis: "Kraśnik · ul. Parkowa 1 · Piec Moretti · Pizza 32 cm",
     },
     menuNumerowane: true,
+  },
+  // Karta z Facebooka lokalu (20.01.2026): białe tło, działy na czarnych belkach, numerowane dania wersalikami,
+  // ceny na pomarańczowych etykietach — z ciemnym tekstem, bo biały na tym pomarańczu ma kontrast 2,8:1.
+  // Ich logo (byk) i szkice z karty tylko za zgodą lokalu — na razie bez nich.
+  "burger-pizza-krasnik": {
+    kolory: {
+      tlo: "#ffffff",
+      karta: "#ffffff",
+      krem: "#f3f2f0",
+      tekst: "#2b2a28",
+      "tekst-2": "#5c5a57",
+      obrys: "#e7e5e2",
+      "obrys-2": "#cfccc8",
+      akcent: "#eb8523",
+      "akcent-tekst": "#b45309",
+      "na-akcencie": "#2b2a28",
+    },
+    kroje: { naglowki: "rokkitt", tekst: "roboto-condensed" },
+    baner: { rodzaj: "belka", haslo: "Handmade", podpis: "Kraśnik · ul. Lubelska 117" },
+    menuNumerowane: true,
+    menuBelki: true,
   },
 };
 

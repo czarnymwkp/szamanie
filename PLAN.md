@@ -413,3 +413,11 @@ z menu, nie wszystkie mają podane aktualne”*.
 - 26.10, próbny build main (2d20110): przeszedł. Audyt: 59 adresów bez błędów, zostały 3 za długie tytuły. Na produkcji /favicon.ico, /wp-login.php i /.env dają czyste 404 bez błędów. InvariantError „did not produce a static shell” jest tylko w dev.
 - d3c5910: dodany `src/app/favicon.ico` (16/32/48 px z icon.png, 7 KB), więc /favicon.ico zwraca 200 zamiast 26 KB strony 404. Tytuł lokalu o tej samej nazwie w tej samej miejscowości ma krótką ulicę („Sikorskiego 7a”).
 - PR #1 (panel, https://github.com/czarnymwkp/szamanie/pull/1): mój plik StronaFrazy dostał jedną linię (link do cennika dostawy tylko dla http), sprawdzone, OK. Commity 2d20110 i d3c5910 czekają lokalnie na push (u czarn-46 push zablokowany).
+
+### 27.10 — Burger&Pizza w stylu ich karty, bez inicjałów, nowe prośby usera (czarn-57)
+- e293ddd (na feat/panel: 9069117): usunięte kafelki z inicjałami lokalu (np. „MM” dla Mar-Mat) z kart, strony lokalu i propozycji 6 — userowi się nie podobały.
+- **Burger&Pizza** (`dane/lokale/burger-pizza-krasnik.txt`): menu przepisane ze zdjęć karty z ich Facebooka (2 strony z 20.01.2026, user ściągnął je do Pobranych): 64 pozycje w 6 działach. Adres „Lubelska 117” z karty, wpisany przez `npm run popraw` (jest tylko w bazie). Godzin brak (FB wymaga logowania).
+- Motyw w stylu ich karty (`motywyStron.ts`): białe tło, działy na czarnych belkach (`menuBelki`), numerowane dania wersalikami, ceny na pomarańczowych etykietach z ciemnym tekstem (biały na #eb8523 ma 2,8:1), kroje Rokkitt + Roboto Condensed, baner `belka` (`BanerBelka.tsx`: nazwa na belce wjeżdżającej od lewej, kreska, „Handmade”). User: „idealnie ci wyszło”. Logo (byk) i szkice z ich karty tylko za zgodą lokalu — na razie ikony.
+- **User (27.10): na stronie głównej pod wyszukiwarką, nad „Na co masz ochotę?” ma być miejsce na banery reklamowe.**
+- **User (27.10): 10 propozycji całego wyglądu na telefonie** — „na mobilce jest lipa”, kremowe tło „bardzo pusto wygląda”; w tle coś z prześwitem, nowoczesne animacje, „aplikacja mobile ma robić wow”. W toku.
+- Ekran nie gaśnie (Wake Lock) tylko w ściągawce listy („Zadzwoń i zamów” / „Duże litery”) i tylko po HTTPS — na podglądzie po http z telefonu nie zadziała.

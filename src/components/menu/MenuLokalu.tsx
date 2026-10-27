@@ -47,6 +47,7 @@ export default function MenuLokalu({
   nazwa,
   telefon,
   numerowane = false,
+  belki = false,
 }: {
   menu: Menu;
   dostawa: Dostawa | null;
@@ -54,6 +55,7 @@ export default function MenuLokalu({
   nazwa: string;
   telefon: string | null;
   numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
+  belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
 }) {
   const l = useLista(slug);
   const [szukaj, setSzukaj] = useState("");
@@ -123,6 +125,7 @@ export default function MenuLokalu({
             s={s}
             l={l}
             numerowane={numerowane}
+            belki={belki}
             // przy szukaniu pokazujemy od razu wszystkie trafienia
             stan={fraza ? true : wybor.get(s.nazwa)}
             desktop={desktop}
@@ -147,7 +150,7 @@ export default function MenuLokalu({
           ) : (
             menu.zrodlo
           )}
-          . Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu. Zdjęcia działów są poglądowe.
+          . Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu.{!belki && " Zdjęcia działów są poglądowe."}
         </p>
       )}
 
@@ -173,6 +176,7 @@ function Dzial({
   s,
   l,
   numerowane,
+  belki,
   stan,
   desktop,
   przelacz,
@@ -181,6 +185,7 @@ function Dzial({
   s: SekcjaMenu;
   l: ListaLokalu;
   numerowane: boolean;
+  belki: boolean;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
   przelacz: (otwarty: boolean) => void;
@@ -217,9 +222,13 @@ function Dzial({
           onClick={klik}
           aria-expanded={otwarty}
           aria-controls={idTresci}
-          className={`relative flex w-full items-center gap-3 overflow-hidden rounded-2xl text-left shadow-sm transition-[height] duration-300 active:scale-[0.99] ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`}
+          className={`relative flex w-full items-center gap-3 overflow-hidden text-left transition-[height] duration-300 active:scale-[0.99] ${
+            belki
+              ? `bg-tekst text-tlo ${klasy("h-16", "h-14", "h-16 lg:h-14")}`
+              : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
+          }`}
         >
-          {s.okladka && (
+          {s.okladka && !belki && (
             <>
               <Image
                 src={s.okladka.plik}
@@ -235,8 +244,14 @@ function Dzial({
             </>
           )}
           <span className="relative min-w-0 flex-1 pl-4">
-            <span className="block truncate font-grotesk text-xl leading-tight font-bold">{s.nazwa}</span>
-            <span className={`block text-xs font-bold ${s.okladka ? "text-white/75" : "text-tekst-2"}`}>
+            <span
+              className={`block truncate font-grotesk leading-tight ${belki ? "text-2xl font-black uppercase" : "text-xl font-bold"}`}
+            >
+              {s.nazwa}
+            </span>
+            <span
+              className={`block text-xs font-bold ${belki ? "text-tlo/70" : s.okladka ? "text-white/75" : "text-tekst-2"}`}
+            >
               {s.pozycje.length} {odmiana(s.pozycje.length, ["pozycja", "pozycje", "pozycji"])}
               {od !== null && ` · od ${zl(od)}`}
             </span>
@@ -266,7 +281,7 @@ function Dzial({
           {/* na komputerze menu ma całą szerokość strony — dania w dwóch kolumnach */}
           <ul className="pb-2 lg:grid lg:grid-cols-2 lg:gap-x-10">
             {s.pozycje.map((p, i) => (
-              <WierszMenu key={p.id} p={p} l={l} numer={numerowane ? i + 1 : null} />
+              <WierszMenu key={p.id} p={p} l={l} numer={numerowane ? i + 1 : null} belki={belki} />
             ))}
           </ul>
         </div>
@@ -275,7 +290,17 @@ function Dzial({
   );
 }
 
-function WierszMenu({ p, l, numer }: { p: PozycjaMenu; l: ListaLokalu; numer: number | null }) {
+function WierszMenu({
+  p,
+  l,
+  numer,
+  belki,
+}: {
+  p: PozycjaMenu;
+  l: ListaLokalu;
+  numer: number | null;
+  belki: boolean;
+}) {
   const jednaCena = p.ceny.length <= 1;
   const cena = p.ceny[0] ?? null;
   const dodaj = (wariant: string | null, gr: number | null) =>
@@ -291,11 +316,24 @@ function WierszMenu({ p, l, numer }: { p: PozycjaMenu; l: ListaLokalu; numer: nu
       <div
         className={`-mx-3 flex items-start gap-3 rounded-2xl px-3 py-3.5 transition-colors duration-300 ${naLiscie ? "bg-akcent/[0.08]" : ""}`}
       >
-        {numer !== null && (
+        {numer !== null && !belki && (
           <span className="w-6 shrink-0 pt-0.5 text-right text-sm font-bold text-tekst-2 tabular-nums">{numer}.</span>
         )}
         <div className="min-w-0 flex-1">
-          {numer !== null && jednaCena ? (
+          {belki ? (
+            // jak w karcie lokalu: „1. BURGER KLASYK” i cena na etykiecie tuż za nazwą
+            <h4 className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-grotesk text-lg leading-tight font-black uppercase">
+                {numer !== null && `${numer}. `}
+                {p.nazwa}
+              </span>
+              {jednaCena && (
+                <span className="bg-akcent px-1.5 py-px text-sm leading-snug font-bold text-na-akcencie">
+                  {cenaTekst}
+                </span>
+              )}
+            </h4>
+          ) : numer !== null && jednaCena ? (
             // jak w karcie lokalu: nazwa ······ cena
             <h4 className="flex items-baseline gap-2">
               <span className="font-grotesk text-lg leading-snug font-bold">{p.nazwa}</span>
@@ -322,7 +360,7 @@ function WierszMenu({ p, l, numer }: { p: PozycjaMenu; l: ListaLokalu; numer: nu
           )}
           {p.opis && <p className="mt-1 text-sm leading-snug text-tekst-2">{p.opis}</p>}
           {jednaCena ? (
-            numer === null && <p className="mt-1.5 font-black">{cenaTekst}</p>
+            numer === null && !belki && <p className="mt-1.5 font-black">{cenaTekst}</p>
           ) : (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {p.ceny.map((c) => {

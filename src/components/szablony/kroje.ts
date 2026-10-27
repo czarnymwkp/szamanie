@@ -1,4 +1,4 @@
-import { Karla, Playfair_Display } from "next/font/google";
+import { Karla, Playfair_Display, Roboto_Condensed, Rokkitt } from "next/font/google";
 import type { KrojLokalu } from "@/lib/motywyStron";
 
 // Kroje motywów lokali (lib/motywyStron.ts). Bez preload: pobierają się tylko na stronach lokali, które ich używają.
@@ -15,7 +15,22 @@ const karla = Karla({
   preload: false,
 });
 
+// Burger&Pizza: gruby szeryf blokowy jak w nagłówkach ich karty i wąski bezszeryfowy jak w składnikach.
+const rokkitt = Rokkitt({
+  variable: "--font-rokkitt",
+  subsets: ["latin", "latin-ext"],
+  preload: false,
+});
+
+const robotoCondensed = Roboto_Condensed({
+  variable: "--font-roboto-condensed",
+  subsets: ["latin", "latin-ext"],
+  preload: false,
+});
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
+  rokkitt: { variable: rokkitt.variable, zmienna: "var(--font-rokkitt)" },
+  "roboto-condensed": { variable: robotoCondensed.variable, zmienna: "var(--font-roboto-condensed)" },
 };
