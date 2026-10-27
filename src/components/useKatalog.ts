@@ -28,6 +28,8 @@ export function useKatalog(lokale: Lokal[], miejscowosci: Miejscowosc[]) {
   const [kategoria, setKategoria] = useState("wszystko");
   const [tryb, setTryb] = useState<Tryb>("wszystko");
   const [tylkoOtwarte, setTylkoOtwarte] = useState(false);
+  // listek „Wege”: lokale z opcjami wegetariańskimi albo wegańskimi (OSM, poprawki, dania wege w menu)
+  const [tylkoWege, setTylkoWege] = useState(false);
   const [pozycja, setPozycja] = useState<Pozycja | null>(null);
   const [promien, setPromien] = useState(2);
   const [szukamPozycji, setSzukamPozycji] = useState(false);
@@ -85,6 +87,7 @@ export function useKatalog(lokale: Lokal[], miejscowosci: Miejscowosc[]) {
     if (tryb === "na-miejscu" && l.cechy.tylkoNaWynos) return false;
     if (tryb === "zamowie" && !l.dostawa && !l.naWynos) return false;
     if (odleglosci && odleglosci.get(l.id)! > promien) return false;
+    if (tylkoWege && !l.cechy.wege && !l.cechy.wegan) return false;
     if (tylkoOtwarte && teraz) return czyOtwarte(l);
     return true;
   });
@@ -129,6 +132,7 @@ export function useKatalog(lokale: Lokal[], miejscowosci: Miejscowosc[]) {
     setKategoria("wszystko");
     setTryb("wszystko");
     setTylkoOtwarte(false);
+    setTylkoWege(false);
     setPozycja(null);
   };
 
@@ -141,6 +145,9 @@ export function useKatalog(lokale: Lokal[], miejscowosci: Miejscowosc[]) {
     setTryb,
     tylkoOtwarte,
     setTylkoOtwarte,
+    tylkoWege,
+    setTylkoWege,
+    ileWege: lokale.filter((l) => l.cechy.wege || l.cechy.wegan).length,
     pozycja,
     promien,
     setPromien,
