@@ -1,12 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { etykieta, karta, komunikatBledu, pole, przyciskGlowny } from "@/components/panel/style";
+import { etykieta, karta, komunikatBledu, pole, podpowiedz, przyciskGlowny } from "@/components/panel/style";
 import type { StanZgloszenia } from "../../akcje";
 
 type Akcja = (stan: StanZgloszenia, dane: FormData) => Promise<StanZgloszenia>;
 
-export default function FormularzZgloszenia({ zglos, imie }: { zglos: Akcja; imie: string }) {
+export default function FormularzZgloszenia({ zglos, imie, pytajOEmail }: { zglos: Akcja; imie: string; pytajOEmail: boolean }) {
   const [stan, akcja, trwa] = useActionState(zglos, {} satisfies StanZgloszenia);
 
   return (
@@ -22,7 +22,18 @@ export default function FormularzZgloszenia({ zglos, imie }: { zglos: Akcja; imi
           Twój telefon
         </label>
         <input id="telefon" name="telefon" type="tel" required maxLength={40} autoComplete="tel" className={pole} />
+        <p className={podpowiedz}>Na ten numer wyślemy SMS-em link do panelu.</p>
       </div>
+      {pytajOEmail && (
+        <div>
+          <label htmlFor="email" className={etykieta}>
+            E-mail <span className="font-normal text-tekst-2">(opcjonalnie)</span>
+          </label>
+          <input id="email" name="email" type="email" maxLength={200} autoComplete="email" className={pole} />
+        </div>
+      )}
+      {/* pułapka na boty: ludzie tego pola nie widzą */}
+      <input name="strona" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] size-px opacity-0" />
       <fieldset>
         <legend className={etykieta}>Kim jesteś w lokalu?</legend>
         <div className="flex flex-wrap gap-2">

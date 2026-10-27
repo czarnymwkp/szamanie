@@ -71,7 +71,7 @@ export default function DlaLokali() {
           </p>
           <div className="mt-6 flex animate-wjazd flex-wrap gap-3 [animation-delay:240ms]">
             <Link
-              href="/panel/logowanie"
+              href="/panel"
               prefetch={false}
               className="inline-flex items-center gap-2 rounded-full bg-tekst px-5 py-3 font-black text-white transition hover:-translate-y-0.5"
             >
@@ -121,7 +121,7 @@ export default function DlaLokali() {
               Bezpłatny wpis
             </h2>
             <p className="mt-2 leading-relaxed font-semibold">
-              Dane są nieaktualne? Zaloguj się do panelu lokalu i popraw menu, ceny albo godziny sam. Nie ma Twojego
+              Dane są nieaktualne? Wejdź do panelu lokalu i popraw menu, ceny albo godziny sam. Nie ma Twojego
               lokalu na liście? Napisz do nas, a dodamy go za darmo.
             </p>
             {!KONTAKT_EMAIL && <p className="mt-3 text-sm font-bold text-tekst-2">Formularz kontaktowy wkrótce.</p>}

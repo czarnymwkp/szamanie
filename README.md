@@ -30,18 +30,23 @@ Ręczne poprawki (telefony, adresy, ukryte lokale, cechy) są zapisane tylko w b
 | `npm run menu -- <slug>` | wczytuje menu z `dane/lokale/<slug>.txt` |
 | `npm run popraw -- <slug> <pole> <wartość>` | ręczna poprawka lokalu (np. `telefon`, `dostawa`, `zwierzeta`) |
 | `npm run pakiet -- <slug> <top\|galeria> <dni>` | ręcznie przyznaje płatny pakiet (`npm run pakiet -- lista` pokazuje aktywne) |
-| `npm run konto -- admin <e-mail>` | rola admina w panelu (`lista`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
+| `npm run konto -- admin <e-mail>` | rola admina w panelu i link wejścia (`lista`, `link <e-mail>`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
 
 ## Panel lokalu (`/panel`)
 
-Właściciel loguje się kodem z e-maila albo przez Google, prosi o dostęp do lokalu („To mój lokal”), a admin
-potwierdza to telefonicznie w `/panel/admin`. W panelu: dane i godziny, menu z cenami, strefy dostawy, promocje.
+Na razie bez logowania. Właściciel prosi o dostęp do lokalu („To Twój lokal?” na stronie lokalu), admin potwierdza
+to telefonicznie na numer lokalu w `/panel/admin` i wysyła mu SMS-em prywatny link `/panel/wejdz/<token>`, który
+otwiera panel (sesja na 90 dni; ten sam link działa na kolejnych urządzeniach, dopóki admin nie utworzy nowego albo
+nie odbierze dostępu). Admin może też dać dostęp bez zgłoszenia: panel lokalu → zakładka Dane → „Dostęp do panelu”.
+Swój link admin dostaje z `npm run konto -- admin <e-mail>` (na serwerze: `docker compose exec app node scripts/konto.mjs admin <e-mail>`).
+W panelu: dane i godziny, menu z cenami, strefy dostawy, promocje.
 Zmiany widać na stronie lokalu od razu. Menu i strefy zmienione w panelu nie są nadpisywane przez `npm run menu`.
 
 Zmienne w `.env.local` (lokalnie) albo `/opt/szamanie/.env` (serwer), wszystkie opcjonalne:
 
 | Zmienna | Do czego |
 | --- | --- |
+| `PANEL_LOGOWANIE=1` | włącza logowanie kodem z e-maila i przez Google (gotowe, na razie wyłączone) |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | logowanie przez Google (Google Cloud → identyfikator klienta OAuth, aplikacja internetowa; adres przekierowania `https://szamanie.pl/panel/logowanie/google/powrot`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_HASLO`, `SMTP_OD` | wysyłka kodów logowania; bez nich kody trafiają do logów serwera |
 | `KONTAKT_EMAIL` | tu przychodzą powiadomienia o nowych zgłoszeniach lokali |

@@ -3,13 +3,13 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { connection, type NextRequest } from "next/server";
 import { klientGoogle, opcjeCiasteczka } from "@/lib/panel/google";
-import { bezpiecznyCel } from "@/lib/panel/konta";
+import { bezpiecznyCel, logowanieWlaczone } from "@/lib/panel/konta";
 
 // Start logowania przez Google: stan (ochrona przed CSRF) i weryfikator PKCE w ciasteczkach na 10 minut.
 export async function GET(zadanie: NextRequest) {
   // zawsze przy żądaniu: bez tego build zapisałby przekierowanie na stałe (np. gdy klucza Google jeszcze nie ma)
   await connection();
-  const google = klientGoogle(zadanie);
+  const google = logowanieWlaczone() ? klientGoogle(zadanie) : null;
   if (!google) redirect("/panel/logowanie");
 
   const stan = generateState();

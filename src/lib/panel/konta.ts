@@ -1,21 +1,31 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "../db";
 
 // Konta właścicieli lokali i sesje. Sesja = losowy token w ciasteczku httpOnly; w bazie tylko jego SHA-256.
+// Na razie bez logowania: właściciel wchodzi prywatnym linkiem od admina (/panel/wejdz/<token>), który zakłada sesję.
+// Logowanie kodem z e-maila i przez Google jest gotowe, ale wyłączone — włącza je PANEL_LOGOWANIE=1.
 // Każda strona i akcja panelu sprawdza uprawnienia sama (wymagajKonta / wymagajLokalu / wymagajAdmina),
 // bo ukrycie przycisku w interfejsie niczego nie chroni.
 
-export type Konto = { id: number; email: string; imie: string | null; rola: "wlasciciel" | "admin" };
+export type Konto = { id: number; email: string | null; imie: string | null; rola: "wlasciciel" | "admin" };
 export type LokalPanelu = { id: number; slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
 
 const CIASTECZKO = "szamanie_sesja";
-const DNI_SESJI = 30;
+const DNI_SESJI = 90;
 
 export const skrot = (tekst: string) => createHash("sha256").update(tekst).digest("hex");
+
+export const logowanieWlaczone = () => process.env.PANEL_LOGOWANIE === "1";
+
+/** Adres IP klienta do limitów (za Caddy — z nagłówka X-Forwarded-For). */
+export async function adresIp() {
+  const h = await headers();
+  return h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "lokalnie";
+}
 
 /** Adres do przekierowania po logowaniu — tylko wewnątrz panelu (bez „//host”, żeby nie wyprowadzić poza serwis). */
 export function bezpiecznyCel(dalej: unknown) {
@@ -58,6 +68,47 @@ export function kontoZewnetrzne(dostawca: string, identyfikator: string, email: 
   return id;
 }
 
+/** Nowy link do panelu dla konta; poprzedni przestaje działać. W bazie zostaje tylko skrót tokenu. */
+export function nowyLink(kontoId: number) {
+  const token = randomBytes(24).toString("base64url");
+  db.prepare("UPDATE konta SET link = ? WHERE id = ?").run(skrot(token), kontoId);
+  return `/panel/wejdz/${token}`;
+}
+
+export function kontoPoLinku(token: string) {
+  const konto = db.prepare("SELECT id FROM konta WHERE link = ?").get(skrot(token)) as { id: number } | undefined;
+  return konto?.id ?? null;
+}
+
+const cyfry = (telefon: string) => telefon.replace(/\D/g, "").slice(-9);
+
+/**
+ * Konto osoby z lokalu, której admin daje dostęp: istniejące po e-mailu albo (konto bez e-maila) po telefonie,
+ * inaczej nowe. E-mail jest opcjonalny, bo na razie wchodzi się linkiem.
+ */
+export function kontoOsoby(imie: string, telefon: string, email: string | null): number {
+  const istniejace =
+    (email
+      ? (db.prepare("SELECT id FROM konta WHERE email = ?").get(normalizujEmail(email)) as { id: number } | undefined)
+      : undefined) ??
+    (db.prepare("SELECT id, telefon FROM konta WHERE email IS NULL AND telefon IS NOT NULL").all() as { id: number; telefon: string }[]).find(
+      (k) => cyfry(k.telefon) === cyfry(telefon),
+    );
+  if (istniejace) {
+    db.prepare("UPDATE konta SET imie = coalesce(imie, ?), telefon = coalesce(telefon, ?) WHERE id = ?").run(
+      imie,
+      telefon,
+      istniejace.id,
+    );
+    return istniejace.id;
+  }
+  return Number(
+    db
+      .prepare("INSERT INTO konta (email, imie, telefon) VALUES (?, ?, ?)")
+      .run(email ? normalizujEmail(email) : null, imie, telefon).lastInsertRowid,
+  );
+}
+
 /** Zakłada sesję i ustawia ciasteczko. Tylko w akcji serwera albo route handlerze (ciasteczka ustawia odpowiedź). */
 export async function zalogujKonto(kontoId: number) {
   const token = randomBytes(32).toString("base64url");
@@ -97,7 +148,9 @@ export const pobierzKonto = cache(async (): Promise<Konto | null> => {
 
 export async function wymagajKonta(dalej = "/panel"): Promise<Konto> {
   const konto = await pobierzKonto();
-  if (!konto) redirect(`/panel/logowanie?dalej=${encodeURIComponent(bezpiecznyCel(dalej))}`);
+  if (!konto) {
+    redirect(logowanieWlaczone() ? `/panel/logowanie?dalej=${encodeURIComponent(bezpiecznyCel(dalej))}` : "/panel");
+  }
   return konto;
 }
 
@@ -126,6 +179,18 @@ export async function wymagajLokalu(slug: string): Promise<{ konto: Konto; lokal
 export function lokalDoPrzejecia(slug: string) {
   const lokal = lokalPoSlugu(slug);
   return lokal ? { ...lokal } : null;
+}
+
+/** Lokale do wyboru przy zgłoszeniu „to mój lokal”. */
+export function lokaleDoWyboru() {
+  return (
+    db.prepare("SELECT slug, nazwa, adres, miejscowosc FROM lokale WHERE ukryty = 0 ORDER BY nazwa COLLATE NOCASE").all() as {
+      slug: string;
+      nazwa: string;
+      adres: string | null;
+      miejscowosc: string | null;
+    }[]
+  ).map((l) => ({ ...l }));
 }
 
 export function lokaleKonta(kontoId: number): LokalPanelu[] {

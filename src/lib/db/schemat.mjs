@@ -119,10 +119,13 @@ export const MIGRACJE = [
    ALTER TABLE lokale ADD COLUMN dostawa_uwagi TEXT;`,
   // 6: panel właściciela — konta (logowanie kodem z e-maila albo przez Google), sesje, przejęcie lokalu
   //    weryfikowane ręcznie przez admina, promocje i historia cen (dyrektywa Omnibus: najniższa cena z 30 dni).
+  //    Na start bez logowania: właściciel wchodzi prywatnym linkiem od admina (konta.link), e-mail jest opcjonalny.
   `CREATE TABLE konta (
      id         INTEGER PRIMARY KEY,
-     email      TEXT NOT NULL UNIQUE,         -- małymi literami
+     email      TEXT UNIQUE,                  -- małymi literami; NULL = konto tylko z linkiem
      imie       TEXT,
+     telefon    TEXT,                         -- na niego admin wysyła link do panelu
+     link       TEXT UNIQUE,                  -- SHA-256 tokenu z linku /panel/wejdz/<token>; NULL = bez linku
      rola       TEXT NOT NULL DEFAULT 'wlasciciel' CHECK (rola IN ('wlasciciel', 'admin')),
      utworzono  TEXT NOT NULL DEFAULT (datetime('now')),
      ostatnio   TEXT                          -- ostatnie logowanie
@@ -159,9 +162,10 @@ export const MIGRACJE = [
    CREATE TABLE zgloszenia (
      id          INTEGER PRIMARY KEY,
      lokal_id    INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
-     konto_id    INTEGER NOT NULL REFERENCES konta(id) ON DELETE CASCADE,
+     konto_id    INTEGER REFERENCES konta(id) ON DELETE CASCADE,  -- NULL = zgłoszenie bez konta; konto powstaje przy przyjęciu
      imie        TEXT NOT NULL,
      telefon     TEXT NOT NULL,
+     email       TEXT,
      rola        TEXT NOT NULL,                -- właściciel, menedżer, pracownik
      wiadomosc   TEXT,
      status      TEXT NOT NULL DEFAULT 'nowe' CHECK (status IN ('nowe', 'przyjete', 'odrzucone')),

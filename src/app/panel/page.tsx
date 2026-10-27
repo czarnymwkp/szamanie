@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Plus, ShieldCheck, Store } from "lucide-react";
-import { karta, komunikatOk } from "@/components/panel/style";
+import { karta, komunikatBledu, komunikatOk } from "@/components/panel/style";
 import { db } from "@/lib/db";
-import { lokaleKonta, wymagajKonta } from "@/lib/panel/konta";
+import { logowanieWlaczone, lokaleDoWyboru, lokaleKonta, pobierzKonto } from "@/lib/panel/konta";
+import ListaLokali from "./dodaj/ListaLokali";
 
 export const metadata: Metadata = { title: { absolute: "Twoje lokale · Panel lokalu" } };
 
@@ -11,8 +12,9 @@ export const metadata: Metadata = { title: { absolute: "Twoje lokale · Panel lo
 export const instant = false;
 
 export default async function Panel({ searchParams }: PageProps<"/panel">) {
-  const konto = await wymagajKonta();
-  const { zgloszono } = await searchParams;
+  const konto = await pobierzKonto();
+  const { zgloszono, link } = await searchParams;
+  if (!konto) return <Wejscie zgloszono={!!zgloszono} nieaktywny={link === "nieaktywny"} />;
   const lokale = lokaleKonta(konto.id);
   const czekajace = (
     db
@@ -108,6 +110,57 @@ export default async function Panel({ searchParams }: PageProps<"/panel">) {
       <Link href="/panel/dodaj" className="inline-flex items-center gap-2 font-extrabold text-akcent-tekst hover:underline">
         <Plus className="size-5" aria-hidden /> Dodaj swój lokal
       </Link>
+    </div>
+  );
+}
+
+/** Panel bez sesji: jak dostać link do panelu (na razie zamiast logowania). */
+function Wejscie({ zgloszono, nieaktywny }: { zgloszono: boolean; nieaktywny: boolean }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-grotesk text-3xl font-bold tracking-tight sm:text-4xl">Panel dla lokali</h1>
+        <p className="mt-2 leading-relaxed text-tekst-2">
+          Zmieniaj menu i ceny, godziny otwarcia i dodawaj promocje. Bez hasła i zakładania konta.
+        </p>
+      </div>
+
+      {zgloszono && (
+        <p className={komunikatOk}>
+          Dziękujemy! Zadzwonimy na numer lokalu, żeby potwierdzić, a potem wyślemy Ci SMS-em link do panelu.
+        </p>
+      )}
+      {nieaktywny && (
+        <p role="alert" className={komunikatBledu}>
+          Ten link do panelu już nie działa. Poproś nas o nowy albo wyślij zgłoszenie poniżej.
+        </p>
+      )}
+
+      <ol className={`${karta} space-y-3 bg-krem text-sm leading-relaxed ring-0`}>
+        {[
+          "Znajdź swój lokal na liście i zostaw numer telefonu.",
+          "Zadzwonimy na numer lokalu, żeby potwierdzić, że to Ty.",
+          "Dostaniesz SMS-em link do panelu — wystarczy go otworzyć. Ten sam link zadziała też na drugim telefonie.",
+        ].map((krok, i) => (
+          <li key={i} className="flex gap-3">
+            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-akcent text-xs font-black text-na-akcencie">
+              {i + 1}
+            </span>
+            {krok}
+          </li>
+        ))}
+      </ol>
+
+      <section>
+        <h2 className="mb-3 text-lg font-black">Znajdź swój lokal</h2>
+        <ListaLokali lokale={lokaleDoWyboru()} />
+      </section>
+
+      {logowanieWlaczone() && (
+        <Link href="/panel/logowanie" className="inline-flex items-center gap-2 font-extrabold text-akcent-tekst hover:underline">
+          Masz już konto? Zaloguj się <ArrowRight className="size-4" aria-hidden />
+        </Link>
+      )}
     </div>
   );
 }

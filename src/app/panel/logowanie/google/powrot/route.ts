@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 import { CIASTECZKA_GOOGLE, klientGoogle, opcjeCiasteczka } from "@/lib/panel/google";
-import { bezpiecznyCel, kontoZewnetrzne, zalogujKonto } from "@/lib/panel/konta";
+import { bezpiecznyCel, kontoZewnetrzne, logowanieWlaczone, zalogujKonto } from "@/lib/panel/konta";
 
 type Dane = { iss?: string; aud?: string; sub?: string; email?: string; email_verified?: boolean; name?: string };
 
@@ -15,7 +15,7 @@ export async function GET(zadanie: NextRequest) {
   const [stan, weryfikator, dalej] = CIASTECZKA_GOOGLE.map((n) => sloik.get(n)?.value);
   for (const n of CIASTECZKA_GOOGLE) sloik.set(n, "", { ...opcjeCiasteczka, maxAge: 0 });
 
-  const google = klientGoogle(zadanie);
+  const google = logowanieWlaczone() ? klientGoogle(zadanie) : null;
   const kod = parametry.get("code");
   if (!google || !kod || !stan || !weryfikator || parametry.get("state") !== stan) redirect("/panel/logowanie?blad=google");
 

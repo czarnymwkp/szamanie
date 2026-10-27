@@ -7,7 +7,7 @@ export default async function KontoWNaglowku() {
   if (!konto) return null;
   return (
     <form action={wyloguj} className="ml-auto flex min-w-0 items-center gap-2">
-      <span className="hidden min-w-0 truncate text-sm text-tekst-2 sm:block">{konto.email}</span>
+      <span className="hidden min-w-0 truncate text-sm text-tekst-2 sm:block">{konto.email ?? konto.imie}</span>
       <button
         type="submit"
         aria-label="Wyloguj"

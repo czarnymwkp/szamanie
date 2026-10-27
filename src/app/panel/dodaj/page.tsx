@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { connection } from "next/server";
 import { KONTAKT_EMAIL } from "@/lib/konfiguracja";
-import { wymagajKonta } from "@/lib/panel/konta";
+import { lokaleDoWyboru } from "@/lib/panel/konta";
 import ListaLokali from "./ListaLokali";
 
 export const metadata: Metadata = { title: "Dodaj swój lokal" };
 
+// lista z bazy w chwili żądania — czeka na serwer (jak cały panel)
+export const instant = false;
+
 export default async function Dodaj() {
-  await wymagajKonta("/panel/dodaj");
-  const lokale = (
-    db
-      .prepare("SELECT slug, nazwa, adres, miejscowosc FROM lokale WHERE ukryty = 0 ORDER BY nazwa COLLATE NOCASE")
-      .all() as { slug: string; nazwa: string; adres: string | null; miejscowosc: string | null }[]
-  ).map((l) => ({ ...l }));
+  await connection();
+  const lokale = lokaleDoWyboru();
 
   return (
     <div className="space-y-6">

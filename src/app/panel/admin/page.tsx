@@ -7,7 +7,8 @@ import { pobierzLokale } from "@/lib/lokale";
 import { linkTelefonu } from "@/lib/nazwy";
 import { wymagajAdmina } from "@/lib/panel/konta";
 import ListaLokali from "../dodaj/ListaLokali";
-import { odbierzDostep, rozpatrzZgloszenie } from "./akcje";
+import LinkDoPanelu from "../LinkDoPanelu";
+import { nowyLinkDoPanelu, odbierzDostep, rozpatrzZgloszenie } from "./akcje";
 
 export const metadata: Metadata = { title: "Administracja" };
 
@@ -20,7 +21,7 @@ type Zgloszenie = {
   status: string;
   notatka: string | null;
   utworzono: string;
-  email: string;
+  email: string | null;
   slug: string;
   nazwa: string;
   adres: string | null;
@@ -35,8 +36,8 @@ export default async function Admin() {
     db
       .prepare(
         `SELECT z.id, z.imie, z.telefon, z.rola, z.wiadomosc, z.status, z.notatka, z.utworzono,
-                k.email, l.slug, l.nazwa, l.adres
-         FROM zgloszenia z JOIN konta k ON k.id = z.konto_id JOIN lokale l ON l.id = z.lokal_id
+                coalesce(z.email, k.email) AS email, l.slug, l.nazwa, l.adres
+         FROM zgloszenia z LEFT JOIN konta k ON k.id = z.konto_id JOIN lokale l ON l.id = z.lokal_id
          ORDER BY z.status = 'nowe' DESC, z.utworzono DESC LIMIT 100`,
       )
       .all() as Zgloszenie[]
@@ -46,11 +47,22 @@ export default async function Admin() {
   const dostepy = (
     db
       .prepare(
-        `SELECT k.id AS konto, k.email, k.rola, l.id AS lokal, l.nazwa, l.slug
+        `SELECT k.id AS konto, k.email, k.imie, k.telefon, k.link IS NOT NULL AS ma_link, k.rola,
+                l.id AS lokal, l.nazwa, l.slug
          FROM lokale_konta lk JOIN konta k ON k.id = lk.konto_id JOIN lokale l ON l.id = lk.lokal_id
          ORDER BY l.nazwa`,
       )
-      .all() as { konto: number; email: string; rola: string; lokal: number; nazwa: string; slug: string }[]
+      .all() as {
+      konto: number;
+      email: string | null;
+      imie: string | null;
+      telefon: string | null;
+      ma_link: number;
+      rola: string;
+      lokal: number;
+      nazwa: string;
+      slug: string;
+    }[]
   ).map((d) => ({ ...d }));
   const wszystkie = (
     db.prepare("SELECT slug, nazwa, adres, miejscowosc FROM lokale ORDER BY nazwa COLLATE NOCASE").all() as {
@@ -69,7 +81,11 @@ export default async function Admin() {
 
       <section>
         <h2 className="mb-3 text-lg font-black">Nowe zgłoszenia ({nowe.length})</h2>
-        {!nowe.length && <p className="text-tekst-2">Brak nowych zgłoszeń.</p>}
+        {nowe.length ? (
+          <p className="mb-3 text-sm text-tekst-2">Po przyjęciu wyślij link do panelu z listy „Kto zarządza lokalami”.</p>
+        ) : (
+          <p className="text-tekst-2">Brak nowych zgłoszeń.</p>
+        )}
         <ul className="space-y-3">
           {nowe.map((z) => {
             const telefonLokalu = telefony.get(z.slug);
@@ -82,7 +98,8 @@ export default async function Admin() {
                   <span className="text-xs text-tekst-2">{kiedy(z.utworzono)}</span>
                 </div>
                 <p className="text-sm leading-relaxed">
-                  <b>{z.imie}</b> ({z.rola}) · {z.email} · tel. {z.telefon}
+                  <b>{z.imie}</b> ({z.rola}) · tel. {z.telefon}
+                  {z.email && <> · {z.email}</>}
                   {z.wiadomosc && <span className="mt-1 block text-tekst-2">„{z.wiadomosc}”</span>}
                 </p>
                 <p className="text-sm">
@@ -120,7 +137,15 @@ export default async function Admin() {
               <Link href={`/panel/${d.slug}`} className="font-extrabold hover:underline">
                 {d.nazwa}
               </Link>
-              <span className="min-w-0 flex-1 truncate text-sm text-tekst-2">{d.email}</span>
+              <span className="min-w-0 flex-1 truncate text-sm text-tekst-2">
+                {[d.imie, d.telefon, d.email].filter(Boolean).join(" · ")}
+              </span>
+              <LinkDoPanelu
+                utworz={nowyLinkDoPanelu.bind(null, d.konto)}
+                telefon={d.telefon}
+                nazwa={d.nazwa}
+                maLink={!!d.ma_link}
+              />
               <form action={odbierzDostep}>
                 <input type="hidden" name="lokal" value={d.lokal} />
                 <input type="hidden" name="konto" value={d.konto} />
@@ -132,7 +157,8 @@ export default async function Admin() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-black">Panel dowolnego lokalu</h2>
+        <h2 className="mb-1 text-lg font-black">Panel dowolnego lokalu</h2>
+        <p className="mb-3 text-sm text-tekst-2">Tam też dasz komuś dostęp bez zgłoszenia — na dole zakładki „Dane”.</p>
         <ListaLokali lokale={wszystkie} prefiks="/panel/" />
       </section>
 
@@ -142,7 +168,7 @@ export default async function Admin() {
           <ul className="space-y-1 text-sm">
             {stare.map((z) => (
               <li key={z.id}>
-                {z.status === "przyjete" ? "✓" : "✗"} <b>{z.nazwa}</b> — {z.imie}, {z.email}
+                {z.status === "przyjete" ? "✓" : "✗"} <b>{z.nazwa}</b> — {[z.imie, z.telefon, z.email].filter(Boolean).join(", ")}
                 {z.notatka && <span className="text-tekst-2"> · {z.notatka}</span>}
               </li>
             ))}

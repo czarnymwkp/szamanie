@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { karta, komunikatBledu } from "@/components/panel/style";
-import { bezpiecznyCel, pobierzKonto } from "@/lib/panel/konta";
+import { bezpiecznyCel, logowanieWlaczone, pobierzKonto } from "@/lib/panel/konta";
 import FormularzLogowania from "./FormularzLogowania";
 
 export const metadata: Metadata = { title: "Logowanie" };
@@ -18,6 +18,8 @@ const BLEDY: Record<string, string> = {
 export default async function Logowanie({ searchParams }: PageProps<"/panel/logowanie">) {
   const { dalej, blad } = await searchParams;
   const cel = bezpiecznyCel(dalej);
+  // na razie bez logowania — wchodzi się linkiem od nas (strona /panel mówi, jak go dostać)
+  if (!logowanieWlaczone()) redirect("/panel");
   if (await pobierzKonto()) redirect(cel);
   const google = !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
 

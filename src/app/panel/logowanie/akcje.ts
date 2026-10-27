@@ -1,20 +1,23 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { nowyKod, sprawdzKod } from "@/lib/panel/kody";
-import { bezpiecznyCel, kontoPoEmailu, normalizujEmail, poprawnyEmail, zalogujKonto } from "@/lib/panel/konta";
+import {
+  adresIp,
+  bezpiecznyCel,
+  kontoPoEmailu,
+  logowanieWlaczone,
+  normalizujEmail,
+  poprawnyEmail,
+  zalogujKonto,
+} from "@/lib/panel/konta";
 import { wyslijKodLogowania } from "@/lib/panel/poczta";
 
 export type StanLogowania = { krok: "email" | "kod"; email: string; blad?: string; info?: string };
 
-async function adresIp() {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "lokalnie";
-}
-
 /** Jeden formularz w dwóch krokach: „wyslij” — kod na e-mail, „zaloguj” — sprawdzenie kodu. */
 export async function logowanie(_: StanLogowania, formData: FormData): Promise<StanLogowania> {
+  if (!logowanieWlaczone()) redirect("/panel");
   const email = normalizujEmail(String(formData.get("email") ?? ""));
   const akcja = formData.get("akcja");
 

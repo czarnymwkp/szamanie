@@ -4,7 +4,7 @@ import { MapPin, Phone } from "lucide-react";
 import { karta } from "@/components/panel/style";
 import { db } from "@/lib/db";
 import { pobierzLokal } from "@/lib/lokale";
-import { lokalDoPrzejecia, wymagajKonta } from "@/lib/panel/konta";
+import { lokalDoPrzejecia, pobierzKonto } from "@/lib/panel/konta";
 import { zglosLokal } from "../../akcje";
 import FormularzZgloszenia from "./FormularzZgloszenia";
 
@@ -15,15 +15,16 @@ export const instant = false;
 
 export default async function Przejmij({ params }: PageProps<"/panel/przejmij/[slug]">) {
   const { slug } = await params;
-  const konto = await wymagajKonta(`/panel/przejmij/${slug}`);
+  // bez logowania: zgłoszenie wysyła każdy, a dostęp daje dopiero admin po telefonie na numer lokalu
+  const konto = await pobierzKonto();
   const lokal = lokalDoPrzejecia(slug);
   if (!lokal) notFound();
-  if (db.prepare("SELECT 1 FROM lokale_konta WHERE lokal_id = ? AND konto_id = ?").get(lokal.id, konto.id)) {
+  if (konto && db.prepare("SELECT 1 FROM lokale_konta WHERE lokal_id = ? AND konto_id = ?").get(lokal.id, konto.id)) {
     redirect(`/panel/${slug}`);
   }
-  const czeka = !!db
-    .prepare("SELECT 1 FROM zgloszenia WHERE lokal_id = ? AND konto_id = ? AND status = 'nowe'")
-    .get(lokal.id, konto.id);
+  const czeka =
+    !!konto &&
+    !!db.prepare("SELECT 1 FROM zgloszenia WHERE lokal_id = ? AND konto_id = ? AND status = 'nowe'").get(lokal.id, konto.id);
   // numer z poprawkami, tak jak na stronie lokalu — na niego zadzwonimy, żeby potwierdzić
   const telefon = (await pobierzLokal(slug))?.telefon ?? null;
 
@@ -43,8 +44,8 @@ export default async function Przejmij({ params }: PageProps<"/panel/przejmij/[s
         <p className="font-extrabold">Jak to działa?</p>
         <p>
           Zostaw dane, a my zadzwonimy {telefon ? <>na numer lokalu <b className="whitespace-nowrap">{telefon}</b></> : "do lokalu"},
-          żeby potwierdzić, że to Ty. Zwykle trwa to jeden dzień roboczy. Potem zmienisz menu, ceny, godziny i dodasz
-          promocje.
+          żeby potwierdzić, że to Ty. Zwykle trwa to jeden dzień roboczy. Potem wyślemy Ci SMS-em link do panelu, w którym
+          zmienisz menu, ceny, godziny i dodasz promocje. Bez hasła i zakładania konta.
         </p>
         {!telefon && (
           <p className="flex items-start gap-1.5">
@@ -57,7 +58,7 @@ export default async function Przejmij({ params }: PageProps<"/panel/przejmij/[s
       {czeka ? (
         <p className={`${karta} font-bold`}>Twoje zgłoszenie już czeka na potwierdzenie. Odezwiemy się wkrótce.</p>
       ) : (
-        <FormularzZgloszenia zglos={zglosLokal.bind(null, slug)} imie={konto.imie ?? ""} />
+        <FormularzZgloszenia zglos={zglosLokal.bind(null, slug)} imie={konto?.imie ?? ""} pytajOEmail={!konto?.email} />
       )}
     </div>
   );
