@@ -13,10 +13,9 @@ ARG ADMINISTRATOR
 ARG CONTACT_EMAIL
 ARG NEXT_PUBLIC_SITE_URL
 # data/szamanie.db in the context is a copy of the database taken at deploy time, used only to generate pages.
-# Without it (GitHub Actions) the build starts from an empty database and pages refill from the server
-# database within a minute. Open the database once before the build: it creates the schema and switches
-# the file to WAL before several build workers try it at once and fail with "database is locked".
-RUN node -e "import('./src/lib/db/otworz.mjs').then((m) => m.otworzBaze().close())" && npm run build
+# Without it (GitHub Actions) the build starts from an empty database (see scripts/init-db.mjs) and pages
+# refill from the server database within a minute.
+RUN npm run build
 
 FROM node:24-slim
 WORKDIR /app

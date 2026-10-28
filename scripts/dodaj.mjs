@@ -17,7 +17,7 @@
 //   opis: …
 //   źródło: https://…                 skąd są dane (tylko do wglądu, nie trafia do bazy)
 import { readFileSync } from "node:fs";
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 import { slugify } from "../src/lib/slug.mjs";
 
 const PLIK = "dane/lokale-spoza-osm.txt";
@@ -93,7 +93,7 @@ function sprawdz(l) {
 }
 
 const lokale = wczytaj().map(sprawdz);
-const db = otworzBaze();
+const db = openDatabase();
 const istniejacy = db.prepare("SELECT id, osm_id FROM lokale WHERE slug = ?");
 const POLA = Object.keys(lokale[0] ?? {}).filter((p) => p !== "slug");
 const wstaw = db.prepare(

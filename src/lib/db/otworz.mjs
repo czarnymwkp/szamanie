@@ -8,7 +8,7 @@ import { MIGRACJE, SCHEMAT } from "./schemat.mjs";
  * Ścieżka: zmienna SZAMANIE_DB albo data/szamanie.db względem katalogu projektu.
  * @returns {DatabaseSync}
  */
-export function otworzBaze(sciezka = process.env.SZAMANIE_DB ?? "data/szamanie.db") {
+export function openDatabase(sciezka = process.env.SZAMANIE_DB ?? "data/szamanie.db") {
   // turbopackIgnore: ścieżka bazy jest znana dopiero w czasie działania, nie wolno jej śledzić przy buildzie
   const pelna = resolve(/* turbopackIgnore: true */ sciezka);
   mkdirSync(dirname(pelna), { recursive: true });

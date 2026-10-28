@@ -7,14 +7,14 @@
 // Użycie: npm run dane:strony            (strony niesprawdzane od 30 dni)
 //         npm run dane:strony -- --wszystkie
 import { mkdirSync, writeFileSync } from "node:fs";
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 
 const UA = "szamanie.pl-bot/0.1 (+https://szamanie.pl; katalog lokali gastronomicznych)";
 const KANDYDACI = "data/kandydaci";
 const MAKS_GRAFIKA = 5 * 1024 * 1024;
 const wszystkie = process.argv.includes("--wszystkie");
 
-const db = otworzBaze();
+const db = openDatabase();
 const lokale = db
   .prepare(
     `SELECT id, slug, nazwa, www FROM lokale WHERE www IS NOT NULL

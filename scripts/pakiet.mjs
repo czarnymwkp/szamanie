@@ -2,10 +2,10 @@
 // Użycie:
 //   npm run pakiet -- <slug> <top|galeria> <liczba dni>   dodaje pakiet od dziś
 //   npm run pakiet -- lista                              pokazuje aktywne i przyszłe pakiety
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 
 const [polecenie, rodzaj, dni] = process.argv.slice(2);
-const db = otworzBaze();
+const db = openDatabase();
 // Data lokalna (nie UTC), żeby pakiet kupiony o 0:30 nie zaczynał się „wczoraj”.
 const dzien = (data) =>
   `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
