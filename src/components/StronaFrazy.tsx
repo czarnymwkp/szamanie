@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ChevronRight, Phone } from "lucide-react";
 import { dataPl, zl } from "@/lib/ceny";
-import { ADRES_SERWISU } from "@/lib/konfiguracja";
+import { SITE_URL } from "@/lib/konfiguracja";
 import type { Lokal } from "@/lib/lokale";
 import type { Danie, Dostawa, Menu, Strefa } from "@/lib/menu";
 import { ileLokali, linkTelefonu } from "@/lib/nazwy";
@@ -340,7 +340,7 @@ export function DaneDlaGoogle({ okruszki, lokale }: { okruszki: Okruszek[]; loka
         "@type": "ListItem",
         position: i + 1,
         name: o.nazwa,
-        item: `${ADRES_SERWISU}${o.adres === "/" ? "" : o.adres}`,
+        item: `${SITE_URL}${o.adres === "/" ? "" : o.adres}`,
       })),
     },
     {
@@ -349,7 +349,7 @@ export function DaneDlaGoogle({ okruszki, lokale }: { okruszki: Okruszek[]; loka
       itemListElement: lokale.map((l, i) => ({
         "@type": "ListItem",
         position: i + 1,
-        url: `${ADRES_SERWISU}/lokal/${l.slug}`,
+        url: `${SITE_URL}/lokal/${l.slug}`,
         name: l.nazwa,
       })),
     },

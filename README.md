@@ -35,4 +35,4 @@ Ręczne poprawki (telefony, adresy, ukryte lokale, cechy) są zapisane tylko w b
 
 Docker + Caddy (HTTPS z Let's Encrypt). Serwer przygotowuje się raz skryptem `deploy/przygotuj-serwer.sh`, a każde wdrożenie to
 `deploy/wdroz.sh user@serwer` (z Git Basha). Opis jest w komentarzach na początku obu skryptów.
-Ustawienia serwera (`DOMENA`, `KONTAKT_EMAIL`, `ADMINISTRATOR`) są w `/opt/szamanie/.env`, poza repozytorium.
+Server settings (`DOMENA`, `CONTACT_EMAIL`, `ADMINISTRATOR`) live in `/opt/szamanie/.env`, outside the repository.

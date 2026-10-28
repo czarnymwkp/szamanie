@@ -7,15 +7,15 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-# Ustawienia czytane przy buildzie (strony statyczne). W GitHub Actions przychodzą jako build-args;
-# deploy/wdroz.sh podaje je przez .env.production w kontekście.
+# Settings read at build time (static pages). GitHub Actions passes them as build args;
+# deploy/wdroz.sh provides them via .env.production in the build context.
 ARG ADMINISTRATOR
-ARG KONTAKT_EMAIL
-ARG NEXT_PUBLIC_ADRES_SERWISU
-# data/szamanie.db w kontekście to kopia bazy z chwili wdrożenia — tylko do wygenerowania stron przy buildzie.
-# Bez niej (GitHub Actions) build startuje z pustą bazą, a strony uzupełniają się danymi z serwera po minucie.
-# Bazę otwieramy raz przed buildem: zakłada schemat i przełącza plik na WAL, zanim zrobi to naraz kilka
-# procesów buildu — inaczej dostają „database is locked”.
+ARG CONTACT_EMAIL
+ARG NEXT_PUBLIC_SITE_URL
+# data/szamanie.db in the context is a copy of the database taken at deploy time, used only to generate pages.
+# Without it (GitHub Actions) the build starts from an empty database and pages refill from the server
+# database within a minute. Open the database once before the build: it creates the schema and switches
+# the file to WAL before several build workers try it at once and fail with "database is locked".
 RUN node -e "import('./src/lib/db/otworz.mjs').then((m) => m.otworzBaze().close())" && npm run build
 
 FROM node:24-slim

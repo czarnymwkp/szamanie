@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ChartColumn, Images, LayoutTemplate, Mail, ShoppingCart, TrendingUp, UtensilsCrossed } from "lucide-react";
 import type { ReactNode } from "react";
-import { KONTAKT_EMAIL } from "@/lib/konfiguracja";
+import { CONTACT_EMAIL } from "@/lib/konfiguracja";
 
 export const metadata: Metadata = {
   title: "Dla lokali — wyróżnij swój lokal",
@@ -69,9 +69,9 @@ export default function DlaLokali() {
           <p className="mt-4 max-w-xl animate-wjazd text-base leading-relaxed font-semibold [animation-delay:160ms] lg:text-lg">
             Podstawowy wpis na szamanie.pl jest bezpłatny. Za dodatki płacisz tylko wtedy, gdy chcesz się wyróżnić.
           </p>
-          {KONTAKT_EMAIL && (
+          {CONTACT_EMAIL && (
             <a
-              href={`mailto:${KONTAKT_EMAIL}`}
+              href={`mailto:${CONTACT_EMAIL}`}
               className="mt-6 inline-flex animate-wjazd items-center gap-2 rounded-full bg-tekst px-5 py-3 font-black text-white transition hover:-translate-y-0.5 [animation-delay:240ms]"
             >
               <Mail className="size-5" aria-hidden /> Napisz do nas
@@ -115,7 +115,7 @@ export default function DlaLokali() {
               Nie ma Twojego lokalu na liście albo dane są nieaktualne? Napisz do nas, a dodamy go lub poprawimy za
               darmo.
             </p>
-            {!KONTAKT_EMAIL && <p className="mt-3 text-sm font-bold text-tekst-2">Formularz kontaktowy wkrótce.</p>}
+            {!CONTACT_EMAIL && <p className="mt-3 text-sm font-bold text-tekst-2">Formularz kontaktowy wkrótce.</p>}
           </section>
           <section aria-labelledby="kolejnosc" className="pojawianie rounded-2xl bg-white p-6 shadow-sm">
             <h2 id="kolejnosc" className="text-xl font-black">

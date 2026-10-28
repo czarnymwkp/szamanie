@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch: {}
 
-# kolejne pushe na main nie budują naraz — ostatni wygrywa tag latest
+# consecutive pushes to main don't build in parallel — the newest one gets the latest tag
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
@@ -53,8 +53,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # widoczne publicznie na stronie (/polityka-prywatnosci, /dla-lokali), więc zmienne repozytorium, nie sekrety
+          # shown publicly on the site (/polityka-prywatnosci, /dla-lokali), so repository variables, not secrets
           build-args: |
             ADMINISTRATOR=${{ vars.ADMINISTRATOR }}
-            KONTAKT_EMAIL=${{ vars.KONTAKT_EMAIL }}
-            NEXT_PUBLIC_ADRES_SERWISU=${{ vars.NEXT_PUBLIC_ADRES_SERWISU || 'https://szamanie.pl' }}
+            CONTACT_EMAIL=${{ vars.CONTACT_EMAIL }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://szamanie.pl' }}
