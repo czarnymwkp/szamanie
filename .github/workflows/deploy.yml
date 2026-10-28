@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOCKER_REGISTRY: registry.kamil.kalisz.pl
+  DOCKER_REGISTRY: registry.tools.bngdev.com
   DOCKER_REPOSITORY: registry
   DOCKER_IMAGE_NAME: szamanie
 
