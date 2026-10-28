@@ -1,7 +1,7 @@
 // Pobiera lokale gastronomiczne z OpenStreetMap (Overpass API) z powiatów z listy POWIATY
 // i zapisuje je do bazy. Lokale z reczna_edycja = 1 są pomijane, a lokali usuniętych z OSM nie kasujemy.
 // Użycie: npm run import:osm
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 import { slugify } from "../src/lib/slug.mjs";
 
 // Obszar katalogu. Priorytet: powiat kraśnicki; kolejne powiaty dopisuj tutaj (nazwy jak w OSM).
@@ -142,7 +142,7 @@ for (const e of elements) {
 // wtedy, gdy OSM ma wartość — brak w OSM nie kasuje danych zdobytych gdzie indziej.
 const UZUPELNIANE = ["adres", "telefon", "www", "facebook", "instagram", "email", "menu_url", "godziny"];
 
-const db = otworzBaze();
+const db = openDatabase();
 const znajdz = db.prepare("SELECT id, reczna_edycja FROM lokale WHERE osm_id = ?");
 const slugZajety = db.prepare("SELECT 1 FROM lokale WHERE slug = ?");
 const POLA = Object.keys(lokale.values().next().value ?? {});

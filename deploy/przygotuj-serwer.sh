@@ -13,7 +13,7 @@ fi
 $S docker compose version
 
 $S mkdir -p "$K/data/kopie"
-[ -f "$K/.env" ] || printf 'DOMENA=szamanie.pl\n# KONTAKT_EMAIL=\n# ADMINISTRATOR=\n' | $S tee "$K/.env" >/dev/null
+[ -f "$K/.env" ] || printf 'DOMENA=szamanie.pl\n# CONTACT_EMAIL=\n# ADMINISTRATOR=\n' | $S tee "$K/.env" >/dev/null
 
 # Codzienna kopia bazy o 3:30, trzymamy 14 dni. VACUUM INTO daje spójną kopię przy działającej aplikacji.
 $S tee /etc/cron.d/szamanie-kopia >/dev/null <<'CRON'

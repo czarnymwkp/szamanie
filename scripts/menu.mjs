@@ -15,14 +15,14 @@
 //   Nazwa | opis | cena („27”, „29,90” albo „32 cm: 27; 45 cm: 37”) | cechy: wege, ostre, polecane, sezonowe
 import { readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 import { bezPolskich } from "../src/lib/slug.mjs";
 
 const KATALOG = "dane/lokale";
 const CECHY = new Set(["wege", "ostre", "polecane", "sezonowe"]);
 const KLUCZE = { źródło: "zrodlo", sprawdzono: "sprawdzono", uwagi: "uwagi" };
 
-const db = otworzBaze();
+const db = openDatabase();
 const znaneMiejsca = new Set(db.prepare("SELECT nazwa FROM miejscowosci").all().map((m) => m.nazwa));
 
 /** „29,90” → 2990 groszy; pusty tekst albo „?” → null. */
