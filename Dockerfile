@@ -1,3 +1,4 @@
+# TODO: switch comments in this file to English.
 # Obraz aplikacji: build Next.js (output: standalone) + skrypty danych (npm run menu / dodaj / popraw / pakiet).
 # Na serwerze baza leży poza obrazem, w wolumenie /app/data (patrz deploy/docker-compose.yml).
 
@@ -6,8 +7,16 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-# data/szamanie.db w kontekście to kopia bazy z chwili wdrożenia — tylko do wygenerowania stron przy buildzie
-RUN npm run build
+# Ustawienia czytane przy buildzie (strony statyczne). W GitHub Actions przychodzą jako build-args;
+# deploy/wdroz.sh podaje je przez .env.production w kontekście.
+ARG ADMINISTRATOR
+ARG KONTAKT_EMAIL
+ARG NEXT_PUBLIC_ADRES_SERWISU
+# data/szamanie.db w kontekście to kopia bazy z chwili wdrożenia — tylko do wygenerowania stron przy buildzie.
+# Bez niej (GitHub Actions) build startuje z pustą bazą, a strony uzupełniają się danymi z serwera po minucie.
+# Bazę otwieramy raz przed buildem: zakłada schemat i przełącza plik na WAL, zanim zrobi to naraz kilka
+# procesów buildu — inaczej dostają „database is locked”.
+RUN node -e "import('./src/lib/db/otworz.mjs').then((m) => m.otworzBaze().close())" && npm run build
 
 FROM node:24-slim
 WORKDIR /app

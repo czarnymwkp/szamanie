@@ -1,0 +1,60 @@
+name: CD - Build and push image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# kolejne pushe na main nie budują naraz — ostatni wygrywa tag latest
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_REGISTRY: registry.kamil.kalisz.pl
+  DOCKER_REPOSITORY: registry
+  DOCKER_IMAGE_NAME: szamanie
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPOSITORY }}/${{ env.DOCKER_IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=long,prefix=
+
+      - name: Build and push production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # widoczne publicznie na stronie (/polityka-prywatnosci, /dla-lokali), więc zmienne repozytorium, nie sekrety
+          build-args: |
+            ADMINISTRATOR=${{ vars.ADMINISTRATOR }}
+            KONTAKT_EMAIL=${{ vars.KONTAKT_EMAIL }}
+            NEXT_PUBLIC_ADRES_SERWISU=${{ vars.NEXT_PUBLIC_ADRES_SERWISU || 'https://szamanie.pl' }}
