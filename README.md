@@ -40,6 +40,9 @@ of the data has to be obtained separately.
 
 **Docker image (CI):** every push to `main` builds the image and pushes it to
 `registry.tools.bngdev.com/registry/szamanie` (`:latest` and `:<sha>`), see `.github/workflows/deploy.yml`.
+The job runs on a self-hosted runner (`runs-on: [self-hosted, minis]`) in the Runner VM on minis, because the
+registry is reachable only from the home network, the VPN and the CI Network. The repo must stay private: a
+self-hosted runner on a public repo would run code from anyone's pull request.
 Required in GitHub → Settings → Secrets and variables → Actions:
 
 - secrets: `DOCKER_REGISTRY_USERNAME`, `DOCKER_REGISTRY_PASSWORD`
