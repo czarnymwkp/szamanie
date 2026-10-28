@@ -1,0 +1,51 @@
+# Docker Compose for Coolify (Docker Compose build pack). Uses the image pushed by .github/workflows/deploy.yml.
+# Coolify's proxy handles HTTPS and the domain, so there is no Caddy service and no published ports.
+#
+# Setup in Coolify:
+#   1. Server → add registry credentials (docker login registry.tools.bngdev.com) so the image can be pulled.
+#   2. New resource → Docker Compose (empty) → paste this file.
+#   3. Set the domain on the "app" service (e.g. https://szamanie.pl:3000 — ":3000" tells the proxy the container port).
+#   4. Environment variables: ADMINISTRATOR, CONTACT_EMAIL (also baked in at build — keep both in sync).
+#   5. First deploy starts with an empty database. Copy the real one into the volume (see bottom of this file).
+#
+# Data scripts run in the container (Coolify → Terminal): node scripts/menu.mjs, node scripts/popraw.mjs …
+
+services:
+  app:
+    image: registry.tools.bngdev.com/registry/szamanie:latest
+    restart: unless-stopped
+    environment:
+      # Coolify magic variable: routes the proxy to container port 3000 and generates a URL if no domain is set
+      - SERVICE_FQDN_APP_3000
+      - SZAMANIE_DB=/app/data/szamanie.db
+      # paid packages and "today" are computed in local time — without it they flip at 01:00/02:00 Polish time
+      - TZ=Europe/Warsaw
+      # pages revalidate at runtime, so the server also reads these after the first minute
+      - ADMINISTRATOR=${ADMINISTRATOR:-}
+      - CONTACT_EMAIL=${CONTACT_EMAIL:-}
+    volumes:
+      # named volume: on first creation Docker copies /app/data from the image, owned by the node user
+      - szamanie-data:/app/data
+    healthcheck:
+      # node:24-slim has no curl/wget
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  szamanie-data:
+
+# Copying the database into the volume (on the Coolify server, once):
+#   docker cp szamanie.db <app-container>:/app/data/szamanie.db.new
+#   then in the container terminal: stop writes, mv szamanie.db.new szamanie.db, rm -f szamanie.db-wal szamanie.db-shm
+#   and restart the service in Coolify.
+#
+# Backups: Coolify → Scheduled Tasks on the "app" service, e.g. daily at 03:30:
+#   node -e "new (require('node:sqlite').DatabaseSync)('/app/data/szamanie.db').exec(\"VACUUM INTO '/app/data/backup-\" + new Date().toISOString().slice(0,10) + \".db'\")"
+#   and ship the files off the server (S3 etc.) — a backup on the same disk dies with the disk.
