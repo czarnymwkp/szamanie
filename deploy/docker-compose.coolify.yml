@@ -2,7 +2,7 @@
 # Coolify's proxy handles HTTPS and the domain, so there is no Caddy service and no published ports.
 #
 # Setup in Coolify:
-#   1. Server → add registry credentials (docker login registry.kamil.kalisz.pl) so the image can be pulled.
+#   1. Server → add registry credentials (docker login registry.tools.bngdev.com) so the image can be pulled.
 #   2. New resource → Docker Compose (empty) → paste this file.
 #   3. Set the domain on the "app" service (e.g. https://szamanie.pl:3000 — ":3000" tells the proxy the container port).
 #   4. Environment variables: ADMINISTRATOR, CONTACT_EMAIL (also baked in at build — keep both in sync).
@@ -12,7 +12,7 @@
 
 services:
   app:
-    image: registry.kamil.kalisz.pl/registry/szamanie:latest
+    image: registry.tools.bngdev.com/registry/szamanie:latest
     restart: unless-stopped
     environment:
       # Coolify magic variable: routes the proxy to container port 3000 and generates a URL if no domain is set
