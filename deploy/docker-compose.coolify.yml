@@ -4,7 +4,9 @@
 # Setup in Coolify:
 #   1. Server → add registry credentials (docker login registry.tools.bngdev.com) so the image can be pulled.
 #   2. New resource → Docker Compose (empty) → paste this file.
-#   3. Set the domain on the "app" service (e.g. https://szamanie.pl:3000 — ":3000" tells the proxy the container port).
+#   3. Domains of the "app" service: exactly https://szamanie.pl:3000 (nothing else, no www). ":3000" only tells the
+#      proxy which container port to forward to — the public side stays 80/443. No other domain is generated, because
+#      this file has no SERVICE_FQDN_* / SERVICE_URL_* variable, and no ports are published on the server.
 #   4. Environment variables: ADMINISTRATOR, CONTACT_EMAIL (also baked in at build — keep both in sync).
 #   5. First deploy starts with an empty database. Copy the real one into the volume (see bottom of this file).
 #
@@ -14,9 +16,8 @@ services:
   app:
     image: registry.tools.bngdev.com/registry/szamanie:latest
     restart: unless-stopped
+    # no "ports:": the container is reachable only through Coolify's proxy, on the domain set in step 3
     environment:
-      # Coolify magic variable: routes the proxy to container port 3000 and generates a URL if no domain is set
-      - SERVICE_FQDN_APP_3000
       - SZAMANIE_DB=/app/data/szamanie.db
       # paid packages and "today" are computed in local time — without it they flip at 01:00/02:00 Polish time
       - TZ=Europe/Warsaw
