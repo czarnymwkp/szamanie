@@ -492,3 +492,8 @@ z menu, nie wszystkie mają podane aktualne”*.
   opcjonalny ekran w lokalu (telewizor/tablet) z numerami „przygotowujemy / gotowe do odbioru” jak w fast foodach,
   plus powiadomienie na telefonie/zegarku „Twoje #A12 gotowe”. Lokal widzi w panelu obciążenie kuchni i może chwilowo
   wydłużyć czas („duży ruch, ok. 60 min”) albo wstrzymać przyjmowanie zamówień.
+  **Ruch widoczny przed zamówieniem (user: „żeby klient wiedział, że jest dużo zamówień”):** na stronie lokalu przy
+  „Zadzwoń” i na karcie na liście plakietka obciążenia: zielona „Spokojnie · ok. 20 min”, żółta „Sporo zamówień ·
+  ok. 40 min”, czerwona „Duży ruch · ok. 60 min” albo „Teraz nie przyjmujemy zamówień”. Liczone z kolejki w panelu
+  (albo ustawione ręcznie przez lokal jednym dotknięciem, gdy zamówienia idą tylko telefonicznie). Klient wybiera
+  świadomie, a lokal ma mniej telefonów „ile jeszcze?”. Bonus na liście: filtr/sortowanie „najkrótsze czekanie”.
