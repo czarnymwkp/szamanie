@@ -453,3 +453,9 @@ z menu, nie wszystkie mają podane aktualne”*.
 - **Live 29.10 ma pustą bazę** („0 lokali”, sitemap bez lokali). Kod wchodzi pushem, ale dane (lokale, menu, telefony,
   poprawki) są tylko w bazie. Trzeba wgrać `szamanie.db` do wolumenu w Coolify (instrukcja na końcu
   `deploy/docker-compose.coolify.yml`). Robi to ktoś z dostępem do serwera Coolify (Kamil albo user).
+- **WYBÓR WYGLĄDU (user 29.10, po rozmowie ze wspólnikiem): propozycja 3 „Szkicownik”.** Przeniesiona na prawdziwą
+  stronę: cały serwis na papierze w kropki z rysowanymi ikonami w tle (`(serwis)/layout.tsx`), nagłówek i stopka
+  w tym stylu (stopka = `StopkaM` z szamanem „szkic”), główna = `components/szkic/GlownaSzkic.tsx` (banery reklamowe
+  i listek Wege też), strona lokalu = `components/szkic/LokalSzkic.tsx` (z promocjami z panelu i „To Twój lokal?”).
+  Lokale z własnym motywem (`motywyStron.ts`: Burger&Pizza, Parkowa) dalej mają Klasyczny w swoich barwach.
+  Wspólne elementy Szkicownika (tło, ramki, krój Caveat, CSS) w `components/szkic/szkic.*`; propozycja 3 też z nich korzysta.

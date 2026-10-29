@@ -2,32 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties } from "react";
-import {
-  ArrowLeft,
-  Beer,
-  CakeSlice,
-  Carrot,
-  Cherry,
-  Coffee,
-  Croissant,
-  CupSoda,
-  Donut,
-  Drumstick,
-  Fish,
-  Hamburger,
-  IceCreamCone,
-  Leaf,
-  MapPin,
-  Navigation,
-  Phone,
-  Pizza,
-  Salad,
-  Sandwich,
-  Search,
-  Soup,
-  Wine,
-} from "lucide-react";
+import { ArrowLeft, Leaf, MapPin, Navigation, Phone, Search } from "lucide-react";
 import { parsujGodziny } from "@/lib/godziny";
 import { linkTelefonu, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import BaneryReklamowe from "../BaneryReklamowe";
@@ -43,64 +18,13 @@ import SzamanM from "./SzamanM";
 import { adresMapy } from "../szablony/wspolne";
 import { useKatalog } from "../useKatalog";
 import FiltryM from "./FiltryM";
-import { reka } from "./fonty";
-import { adresM, losowe, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
+import { PAPIER, Podkreslenie, TloSzkic, chip, reka } from "../szkic/szkic";
+import { adresM, lokalM, type PropsGlownejM, type PropsLokaluM } from "./wspolne";
 
 // 3 · Szkicownik — papier w kropki, w tle rysowane ikony jedzenia powoli płyną po skosie, lokale jak polaroidy
 // przyklejone taśmą, „do późna” na żółtych karteczkach. Odręczne dopiski krojem Caveat.
 
-const PAPIER = {
-  "--color-tlo": "#fffdf7",
-  "--color-krem": "#f6eedf",
-  "--color-obrys": "#e9dfcf",
-  "--color-obrys-2": "#cbbca3",
-  "--color-tekst": "#1d1b19",
-  "--color-tekst-2": "#5d554b",
-} as CSSProperties;
-
-const IKONY = [Pizza, Coffee, Hamburger, Soup, IceCreamCone, Croissant, Cherry, Carrot, Salad, Fish, Wine, Beer, CakeSlice, Donut, Drumstick, Sandwich, CupSoda];
-const los = losowe(11);
-// kafel wzoru 360×360: ikony w siatce 4×4 z rozrzutem i obrotem — powtarza się bez szwów
-const RYSUNKI = Array.from({ length: 16 }, (_, i) => ({
-  Ikona: IKONY[i % IKONY.length],
-  x: (i % 4) * 90 + 10 + los() * 30,
-  y: Math.floor(i / 4) * 90 + 10 + los() * 30,
-  obrot: Math.round((los() - 0.5) * 70),
-  rozmiar: 30 + Math.round(los() * 16),
-}));
-
-function TloSzkic() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 [clip-path:inset(0)]">
-      <svg className="m-dryf fixed -top-[360px] -left-[360px] h-[calc(100vh+720px)] w-[calc(100vw+720px)] text-[#1d1b19] opacity-[0.07]">
-        <defs>
-          <pattern id="m-szkic" width="360" height="360" patternUnits="userSpaceOnUse">
-            {RYSUNKI.map(({ Ikona, x, y, obrot, rozmiar }, i) => (
-              <g key={i} transform={`rotate(${obrot} ${x + rozmiar / 2} ${y + rozmiar / 2})`}>
-                <Ikona x={x} y={y} width={rozmiar} height={rozmiar} strokeWidth={1.6} />
-              </g>
-            ))}
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#m-szkic)" />
-      </svg>
-    </div>
-  );
-}
-
-/** Odręczne podkreślenie, które „rysuje się” po wczytaniu. */
-function Podkreslenie({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 300 24" preserveAspectRatio="none" className={`m-rysuj ${className}`}>
-      <path d="M4 16 C 60 6, 120 22, 180 12 S 270 8, 296 14" fill="none" stroke="#ff6400" strokeWidth="5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-const chip = (aktywny: boolean) =>
-  `m-reczna-ramka flex h-10 shrink-0 items-center gap-1.5 border-2 border-tekst px-4 text-sm font-extrabold transition active:translate-y-0.5 ${
-    aktywny ? "bg-[#ffd36e] shadow-none" : "bg-white shadow-[3px_3px_0_#1d1b19]"
-  }`;
+// Tło, podkreślenie, ramki i krój są wspólne z prawdziwą stroną: components/szkic.
 
 export function GlownaM03({ lokale, miejscowosci, nr, linki }: PropsGlownejM) {
   const k = useKatalog(lokale, miejscowosci);

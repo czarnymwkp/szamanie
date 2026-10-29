@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import BanerDlaLokali from "@/components/BanerDlaLokali";
-import Katalog from "@/components/Katalog";
+import GlownaSzkic from "@/components/szkic/GlownaSzkic";
 import { SITE_URL } from "@/lib/konfiguracja";
 import { pobierzLokale, pobierzMiejscowosci } from "@/lib/lokale";
 
@@ -35,8 +34,7 @@ export default async function StronaGlowna() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(DANE_WITRYNY).replace(/</g, "\\u003c") }}
       />
-      <Katalog lokale={lokale} miejscowosci={miejscowosci} />
-      <BanerDlaLokali />
+      <GlownaSzkic lokale={lokale} miejscowosci={miejscowosci} />
     </>
   );
 }

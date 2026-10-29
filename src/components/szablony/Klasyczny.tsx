@@ -43,7 +43,7 @@ const pigulka = "inline-flex items-center gap-1.5 rounded-full bg-krem px-3 py-1
 const dowoz = "inline-flex items-center gap-1.5 rounded-full bg-akcent px-3 py-1.5 text-na-akcencie";
 
 /** „Dostawa od 3 zł”, a gdy lokal nie podał cen — „Dostawa: cena u lokalu”. */
-function opisDostawy(dostawa: Dostawa) {
+export function opisDostawy(dostawa: Dostawa) {
   const ceny = dostawa.strefy.map((s) => s.cenaGr).filter((c) => c !== null);
   if (!ceny.length) return "Dostawa: cena u lokalu";
   const min = Math.min(...ceny);
@@ -348,7 +348,7 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
 }
 
 /** Strefy dostawy: miejscowość → cena i minimalne zamówienie (pierwsze widać od razu, resztę po rozwinięciu). */
-function KartaDostawy({ dostawa }: { dostawa: Dostawa }) {
+export function KartaDostawy({ dostawa }: { dostawa: Dostawa }) {
   const NA_START = 6;
   const wiersz = (s: Dostawa["strefy"][number]) => (
     <li key={s.nazwa} className="flex items-baseline justify-between gap-3 py-1.5">
