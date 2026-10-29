@@ -498,6 +498,12 @@ z menu, nie wszystkie mają podane aktualne”*.
   na piśmie (np. w regulaminie) przed włączeniem i nie śledzić poza pracą; śledzenie tylko w trakcie dostawy jest tu
   najbezpieczniejsze. Lokal = administrator danych kuriera, my = podmiot przetwarzający → umowa powierzenia
   w abonamencie. Śledzenie całej zmiany (nie tylko dostaw) możliwe, ale wtedy więcej obowiązków po stronie lokalu.
+  **Co widzi klient (user: „i wyświetlamy to klientowi?” — tak):** na stronie swojego zamówienia (w aplikacji
+  i w przeglądarce, z linku): mapa z pinezką kuriera, swoim adresem i „dojedzie za ok. 8 min”, status, numer #A12.
+  Na zegarku bez mapy: „Kurier jedzie · ok. 8 min”. Widać to dopiero od „wyszło do dostawy” do „dostarczone” — przed
+  wyjazdem tylko miejsce w kolejce i czas. Imię/telefon kuriera tylko, jeśli lokal włączy. Kurier wiezie kilka
+  zamówień: klient nie widzi trasy do innych adresów — przed jego kolejnym przystankiem pokazujemy „jesteś 2. na
+  trasie, ok. 15 min”, a pinezka pojawia się, gdy kurier jedzie już do niego.
   RODO: położenie kierowcy tylko w trakcie dostawy, widoczne tylko dla klienta tego zamówienia, kasowane po dostarczeniu
   (zostaje sam status); zgoda kierowcy; adres i telefon klienta → dopisać do polityki prywatności. Model: funkcja płatna
   dla lokali (abonament). Kolejność: 2 → 3 → 4; zegarek pokazuje te same statusy.
