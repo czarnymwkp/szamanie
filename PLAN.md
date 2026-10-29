@@ -469,3 +469,19 @@ z menu, nie wszystkie mają podane aktualne”*.
   (pakiet `pl.szamanie.app`); linki do telefonu, map i Facebooka otwierają się poza aplikacją, „Blisko mnie” pyta o
   położenie. Adres strony przy budowaniu: `-Padres=...` (domyślnie https://szamanie.pl). Do Google Play: konto
   dewelopera (w toku u usera), klucz podpisu, potem ewentualnie TWA zamiast WebView.
+- **Pomysł usera (29.10): „wyszło do dostawy” i położenie dostawcy — aplikacja po stronie właściciela.** Rozwinięcie
+  statusu zamówienia z 27.10. Etapy:
+  1. **Zamówienie w systemie.** Zamówienia idą telefonicznie, więc lokal musi je u nas mieć: klient podaje kod z listy
+     (#A12) albo lokal wpisuje zamówienie w panelu (numer klienta). Klient dostaje link do śledzenia (strona/aplikacja,
+     zapasowo SMS — płatna bramka).
+  2. **Statusy jednym dotknięciem w panelu** (tablet/telefon przy ladzie): przyjęte → w przygotowaniu → **wyszło do
+     dostawy** → dostarczone. Każda zmiana = powiadomienie u klienta (Web Push / aplikacja / zegarek). Najtańsze, panel już jest.
+  3. **Tryb kierowcy w panelu (przeglądarka):** kierowca otwiera zamówienie i „Jadę”; telefon wysyła położenie co
+     ~10 s, klient widzi pinezkę na mapie (OSM/Leaflet, już używamy) i szacowany czas (odległość/prędkość albo darmowy
+     OSRM). Ograniczenie: w przeglądarce działa tylko przy włączonym ekranie.
+  4. **Aplikacja „szamanie Lokal” dla właściciela i kierowcy (Android):** położenie także w tle (usługa pierwszoplanowa
+     z powiadomieniem „Udostępniasz położenie”), lista zamówień, dźwięk nowego zamówienia. Może to być tryb w tej samej
+     aplikacji co dla gości.
+  RODO: położenie kierowcy tylko w trakcie dostawy, widoczne tylko dla klienta tego zamówienia, kasowane po dostarczeniu
+  (zostaje sam status); zgoda kierowcy; adres i telefon klienta → dopisać do polityki prywatności. Model: funkcja płatna
+  dla lokali (abonament). Kolejność: 2 → 3 → 4; zegarek pokazuje te same statusy.
