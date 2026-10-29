@@ -485,3 +485,10 @@ z menu, nie wszystkie mają podane aktualne”*.
   RODO: położenie kierowcy tylko w trakcie dostawy, widoczne tylko dla klienta tego zamówienia, kasowane po dostarczeniu
   (zostaje sam status); zgoda kierowcy; adres i telefon klienta → dopisać do polityki prywatności. Model: funkcja płatna
   dla lokali (abonament). Kolejność: 2 → 3 → 4; zegarek pokazuje te same statusy.
+  **Kolejka (user, 29.10: „jeszcze kwestia kolejki”):** zamówienia w panelu ułożone w kolejce (kolejność przyjęcia,
+  lokal może przesunąć). Klient widzi swoje miejsce: „przed Tobą 3 zamówienia, ok. 25 min”. Czas = średni czas
+  przygotowania z ostatnich zamówień o tej porze (albo ustawiony przez lokal) × liczba zamówień przed nim, a przy
+  dostawie + dojazd. Liczy się na żywo, bo każde „gotowe” w panelu przesuwa kolejkę. Dla odbioru osobistego:
+  opcjonalny ekran w lokalu (telewizor/tablet) z numerami „przygotowujemy / gotowe do odbioru” jak w fast foodach,
+  plus powiadomienie na telefonie/zegarku „Twoje #A12 gotowe”. Lokal widzi w panelu obciążenie kuchni i może chwilowo
+  wydłużyć czas („duży ruch, ok. 60 min”) albo wstrzymać przyjmowanie zamówień.
