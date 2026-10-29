@@ -64,8 +64,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPOSITORY }}/${{ env.DOCKER_IMAGE_NAME }}
+          # latest on every run: pushes to main, and manual runs from any branch (to test a branch on Coolify)
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
             type=sha,format=long,prefix=
 
       - name: Build and push production image
