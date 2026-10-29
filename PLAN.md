@@ -482,6 +482,16 @@ z menu, nie wszystkie mają podane aktualne”*.
   4. **Aplikacja „szamanie Lokal” dla właściciela i kierowcy (Android):** położenie także w tle (usługa pierwszoplanowa
      z powiadomieniem „Udostępniasz położenie”), lista zamówień, dźwięk nowego zamówienia. Może to być tryb w tej samej
      aplikacji co dla gości.
+  **Jak namierzyć kuriera (29.10):** źródłem jest GPS w telefonie kuriera. Przebieg: lokal przypisuje zamówienie
+  kurierowi → kurier „Jadę” → telefon co ~10 s / 30 m wysyła położenie → serwer trzyma TYLKO ostatni punkt (bez
+  historii) → klient widzi pinezkę (Leaflet, odświeżanie co 5–10 s) i „dojedzie za ok. 8 min” (trasa z OSRM albo
+  odległość / średnia prędkość) → „Dostarczone” (albo sam, gdy kurier jest <50 m od adresu) kończy udostępnianie
+  i kasuje punkt. Warianty: (a) przeglądarka — `watchPosition`, nic do instalowania, ale tylko przy włączonym ekranie;
+  (b) aplikacja Android — usługa pierwszoplanowa z położeniem (FusedLocationProvider), działa z telefonem w kieszeni,
+  wystarczy zgoda „podczas używania aplikacji”, bo kurier sam włącza „Jadę”; (c) iPhone kuriera — przeglądarka albo
+  osobna aplikacja iOS (99 USD/rok); (d) lokale z własnymi autami — tracker GPS w aucie (np. Teltonika + karta SIM)
+  wysyłający do nas. Klient musi podać adres (do czasu dojazdu). Kafelki mapy przy większym ruchu nie z serwerów OSM
+  (ich zasady) — własne albo dostawca z darmowym progiem. Start: wariant (a) na Kwadracie, potem (b).
   RODO: położenie kierowcy tylko w trakcie dostawy, widoczne tylko dla klienta tego zamówienia, kasowane po dostarczeniu
   (zostaje sam status); zgoda kierowcy; adres i telefon klienta → dopisać do polityki prywatności. Model: funkcja płatna
   dla lokali (abonament). Kolejność: 2 → 3 → 4; zegarek pokazuje te same statusy.
