@@ -499,6 +499,12 @@ z menu, nie wszystkie mają podane aktualne”*.
   (lepiej, żeby jedzenie przyszło wcześniej niż później); lokal może podnieść swoje minimum w panelu.
   **W aplikacji przed zamówieniem (user):** ta sama plakietka w aplikacji na liście lokali i na stronie lokalu, a do
   tego na liście do zamówienia tuż nad „Zadzwoń i zamów” („Teraz: duży ruch, min. 60 min”) i na zegarku — klient
-  widzi czas oczekiwania, zanim zadzwoni. Liczone z kolejki w panelu
+  widzi czas oczekiwania, zanim zadzwoni.
+  **Sedno dla klienta (user): „widzę dużą kolejkę — zamawiam gdzie indziej”.** Gdy lokal ma duży ruch, od razu
+  podpowiedź: „Tu teraz min. 60 min. Podobne z krótszym czekaniem:” + 2–3 lokale tej samej kategorii (pizza → pizza),
+  otwarte, z dowozem w tę miejscowość, posortowane po czasie oczekiwania. Na liście filtr „Najkrócej czekasz”.
+  Dla lokali to też plus: zapchany lokal nie traci klienta na kłótnię „gdzie to jedzenie?”, a spokojny dostaje
+  zamówienia z przelewu. Uwaga: plakietka musi być prawdziwa (z kolejki albo ustawiona przez lokal) — bez danych
+  nie pokazujemy nic, nie zgadujemy. Liczone z kolejki w panelu
   (albo ustawione ręcznie przez lokal jednym dotknięciem, gdy zamówienia idą tylko telefonicznie). Klient wybiera
   świadomie, a lokal ma mniej telefonów „ile jeszcze?”. Bonus na liście: filtr/sortowanie „najkrótsze czekanie”.
