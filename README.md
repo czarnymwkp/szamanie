@@ -46,7 +46,9 @@ own peer, then resolves `*.tools.bngdev.com` through the router's DNS (`10.0.0.1
 Required in GitHub → Settings → Secrets and variables → Actions:
 
 - secrets: `DOCKER_REGISTRY_USERNAME`, `DOCKER_REGISTRY_PASSWORD`, `WIREGUARD_CONFIG` (a full `wg0.conf` of the CI
-  peer, without a `DNS =` line; `AllowedIPs = 192.168.88.205/32, 10.0.0.1/32`)
+  peer, without a `DNS =` line; `AllowedIPs = 192.168.88.205/32, 10.0.0.1/32`, plus the prod server's public IP
+  for the Coolify webhook), optionally `COOLIFY_WEBHOOK` + `COOLIFY_TOKEN` (after a build of `main` the job
+  redeploys the Coolify resource; skipped while unset)
 - variables: `ADMINISTRATOR`, `CONTACT_EMAIL`, optionally `NEXT_PUBLIC_SITE_URL` (baked into static pages at build time)
 
 **Coolify:** `deploy/docker-compose.coolify.yml` runs the registry image behind Coolify's proxy. Setup, copying the
