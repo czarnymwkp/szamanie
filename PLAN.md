@@ -496,6 +496,9 @@ z menu, nie wszystkie mają podane aktualne”*.
   „Zadzwoń” i na karcie na liście plakietka obciążenia: zielona „Spokojnie · czas oczekiwania min. 30 min”, żółta
   „Sporo zamówień · min. 45 min”, czerwona „Duży ruch · min. 60 min” albo „Teraz nie przyjmujemy zamówień”.
   **User (29.10): czas oczekiwania minimum 30 min** — nigdy nie pokazujemy mniej niż 30 min i zawsze jako „min. …”
-  (lepiej, żeby jedzenie przyszło wcześniej niż później); lokal może podnieść swoje minimum w panelu. Liczone z kolejki w panelu
+  (lepiej, żeby jedzenie przyszło wcześniej niż później); lokal może podnieść swoje minimum w panelu.
+  **W aplikacji przed zamówieniem (user):** ta sama plakietka w aplikacji na liście lokali i na stronie lokalu, a do
+  tego na liście do zamówienia tuż nad „Zadzwoń i zamów” („Teraz: duży ruch, min. 60 min”) i na zegarku — klient
+  widzi czas oczekiwania, zanim zadzwoni. Liczone z kolejki w panelu
   (albo ustawione ręcznie przez lokal jednym dotknięciem, gdy zamówienia idą tylko telefonicznie). Klient wybiera
   świadomie, a lokal ma mniej telefonów „ile jeszcze?”. Bonus na liście: filtr/sortowanie „najkrótsze czekanie”.
