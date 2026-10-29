@@ -40,6 +40,7 @@ of the data has to be obtained separately.
 
 **Docker image (CI):** every push to `main` builds the image and pushes it to
 `registry.tools.bngdev.com/registry/szamanie` (`:latest` and `:<sha>`), see `.github/workflows/deploy.yml`.
+Pull requests only build the image (no VPN, no push); manual runs from a branch push just `:<sha>`.
 The registry is reachable only from the home network and the VPN, so the job first joins the WireGuard VPN as its
 own peer, then resolves `*.tools.bngdev.com` through the router's DNS (`10.0.0.1`).
 Required in GitHub → Settings → Secrets and variables → Actions:

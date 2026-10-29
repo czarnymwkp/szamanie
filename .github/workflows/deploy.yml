@@ -1,11 +1,13 @@
-name: CD - Build and push image
+name: CI/CD - Build and push image
 
+# pull requests: build only (no VPN, no secrets, no push); main and manual runs: build and push
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch: {}
 
-# consecutive pushes to main don't build in parallel — the newest one gets the latest tag
+# consecutive pushes to main (or to a PR) don't build in parallel — the newest one wins
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
@@ -20,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      PUSH_IMAGE: ${{ github.event_name != 'pull_request' }}
 
     steps:
       - name: Checkout code
@@ -28,6 +32,7 @@ jobs:
       # the registry admits only the home network and the VPN: the job joins the VPN as its own peer
       # (WIREGUARD_CONFIG: a full wg0.conf without a DNS line, see README)
       - name: Connect to VPN
+        if: env.PUSH_IMAGE == 'true'
         env:
           WIREGUARD_CONFIG: ${{ secrets.WIREGUARD_CONFIG }}
         run: |
@@ -41,6 +46,7 @@ jobs:
           sudo resolvectl domain wg0 '~tools.bngdev.com'
 
       - name: Check registry is reachable
+        if: env.PUSH_IMAGE == 'true'
         run: |
           code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-all-errors --max-time 10 "https://$DOCKER_REGISTRY/v2/")
           echo "https://$DOCKER_REGISTRY/v2/ answered $code"
@@ -53,6 +59,7 @@ jobs:
           driver-opts: network=host
 
       - name: Login to Docker Registry
+        if: env.PUSH_IMAGE == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
@@ -73,7 +80,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: ${{ env.PUSH_IMAGE == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # shown publicly on the site (/polityka-prywatnosci, /dla-lokali), so repository variables, not secrets
@@ -85,5 +92,5 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Disconnect from VPN
-        if: always()
+        if: always() && env.PUSH_IMAGE == 'true'
         run: sudo wg-quick down wg0 || true
