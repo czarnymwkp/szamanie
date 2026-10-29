@@ -40,9 +40,13 @@ of the data has to be obtained separately.
 
 **Docker image (CI):** every push to `main` builds the image and pushes it to
 `registry.tools.bngdev.com/registry/szamanie` (`:latest` and `:<sha>`), see `.github/workflows/deploy.yml`.
+Pull requests only build the image (no VPN, no push); manual runs from a branch push just `:<sha>`.
+The registry is reachable only from the home network and the VPN, so the job first joins the WireGuard VPN as its
+own peer, then resolves `*.tools.bngdev.com` through the router's DNS (`10.0.0.1`).
 Required in GitHub → Settings → Secrets and variables → Actions:
 
-- secrets: `DOCKER_REGISTRY_USERNAME`, `DOCKER_REGISTRY_PASSWORD`
+- secrets: `DOCKER_REGISTRY_USERNAME`, `DOCKER_REGISTRY_PASSWORD`, `WIREGUARD_CONFIG` (a full `wg0.conf` of the CI
+  peer, without a `DNS =` line; `AllowedIPs = 192.168.88.205/32, 10.0.0.1/32`)
 - variables: `ADMINISTRATOR`, `CONTACT_EMAIL`, optionally `NEXT_PUBLIC_SITE_URL` (baked into static pages at build time)
 
 **Coolify:** `deploy/docker-compose.coolify.yml` runs the registry image behind Coolify's proxy. Setup, copying the
