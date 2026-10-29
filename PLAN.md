@@ -492,6 +492,12 @@ z menu, nie wszystkie mają podane aktualne”*.
   osobna aplikacja iOS (99 USD/rok); (d) lokale z własnymi autami — tracker GPS w aucie (np. Teltonika + karta SIM)
   wysyłający do nas. Klient musi podać adres (do czasu dojazdu). Kafelki mapy przy większym ruchu nie z serwerów OSM
   (ich zasady) — własne albo dostawca z darmowym progiem. Start: wariant (a) na Kwadracie, potem (b).
+  **Telefon firmowy kuriera (user, 29.10):** tak — instalujemy aplikację lokalu, kurier wybiera siebie z listy
+  kurierów lokalu (dostęp jak do panelu: link od właściciela, bez zakładania konta), położenie idzie tylko między
+  „Jadę” a „Dostarczone”. Kodeks pracy (art. 22³ — inny monitoring pracownika): lokal musi poinformować kurierów
+  na piśmie (np. w regulaminie) przed włączeniem i nie śledzić poza pracą; śledzenie tylko w trakcie dostawy jest tu
+  najbezpieczniejsze. Lokal = administrator danych kuriera, my = podmiot przetwarzający → umowa powierzenia
+  w abonamencie. Śledzenie całej zmiany (nie tylko dostaw) możliwe, ale wtedy więcej obowiązków po stronie lokalu.
   RODO: położenie kierowcy tylko w trakcie dostawy, widoczne tylko dla klienta tego zamówienia, kasowane po dostarczeniu
   (zostaje sam status); zgoda kierowcy; adres i telefon klienta → dopisać do polityki prywatności. Model: funkcja płatna
   dla lokali (abonament). Kolejność: 2 → 3 → 4; zegarek pokazuje te same statusy.
