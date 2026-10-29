@@ -19,8 +19,8 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
 
   return (
     <div className="mx-auto max-w-5xl px-5">
-      <section className="relative mx-auto max-w-2xl pt-8">
-        <SzamanM styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:-right-24 lg:w-36" />
+      <section className="relative pt-8">
+        <SzamanM styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
         <h1 className="animate-wjazd text-[2.9rem] leading-[0.95] font-black tracking-tight lg:text-6xl">
           Co dziś
           <span className={`${reka.className} relative ml-1 inline-block -rotate-2 text-[4.2rem] text-akcent-tekst lg:text-[5.5rem]`}>
@@ -62,7 +62,7 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
         </form>
       </section>
 
-      <BaneryReklamowe className="mx-auto mt-7 max-w-2xl [--promien-reklamy:0.6rem]" />
+      <BaneryReklamowe className="mt-7 [--promien-reklamy:0.6rem]" />
 
       <section aria-labelledby="kategorie" className="mt-7">
         <h2 id="kategorie" className={`${reka.className} text-[2.1rem] leading-none`}>

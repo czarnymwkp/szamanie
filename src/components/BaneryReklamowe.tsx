@@ -9,7 +9,7 @@ const IKONY = { megafon: Megaphone, menu: BookOpen, procent: BadgePercent };
 
 /**
  * Miejsce na banery reklamowe: przewijana taśma (następny baner wystaje z prawej), sama przewija się co 6 s,
- * dopóki ktoś jej nie dotknie. Zaokrąglenie z `--promien-reklamy`, żeby pasowało do wyglądu strony.
+ * dopóki ktoś jej nie dotknie. Na komputerze po trzy w rzędzie, na całą szerokość treści. Zaokrąglenie z `--promien-reklamy`, żeby pasowało do wyglądu strony.
  */
 export default function BaneryReklamowe({ className = "", ciemne = false }: { className?: string; ciemne?: boolean }) {
   const tasma = useRef<HTMLDivElement>(null);
@@ -54,7 +54,7 @@ export default function BaneryReklamowe({ className = "", ciemne = false }: { cl
             <Link
               key={r.id}
               href={r.href}
-              className={`relative flex h-40 w-[86%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[var(--promien-reklamy,1.5rem)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition active:scale-[0.98] sm:w-[22rem] ${
+              className={`relative flex h-40 w-[86%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[var(--promien-reklamy,1.5rem)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition active:scale-[0.98] sm:w-[22rem] lg:w-[calc((100%-1.5rem)/3)] ${
                 r.ciemna ? "text-white" : "text-[#111]"
               }`}
               style={{ background: r.tlo }}
@@ -88,7 +88,8 @@ export default function BaneryReklamowe({ className = "", ciemne = false }: { cl
           );
         })}
       </div>
-      <div className="mt-2.5 flex justify-center gap-1.5" aria-hidden>
+      {/* na komputerze trzy banery mieszczą się obok siebie — kropki tylko, gdy jest ich więcej */}
+      <div className={`mt-2.5 flex justify-center gap-1.5 ${REKLAMY.length <= 3 ? "lg:hidden" : ""}`} aria-hidden>
         {REKLAMY.map((r, i) => (
           <span
             key={r.id}

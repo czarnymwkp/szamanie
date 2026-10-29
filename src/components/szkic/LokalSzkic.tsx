@@ -31,7 +31,7 @@ export default async function LokalSzkic({ lokal, powrot = "/" }: { lokal: Lokal
   const uslugi = uslugiLokalu(lokal, { bezPlakietek: true });
 
   return (
-    <article className="mx-auto max-w-3xl px-5 pt-5 pb-4">
+    <article className="mx-auto max-w-5xl px-5 pt-5 pb-4">
       <Link href={powrot} className={`${reka.className} inline-flex items-center gap-1 text-2xl`}>
         <ArrowLeft className="size-5" aria-hidden /> wszystkie lokale
       </Link>
