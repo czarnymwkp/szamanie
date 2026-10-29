@@ -459,3 +459,13 @@ z menu, nie wszystkie mają podane aktualne”*.
   i listek Wege też), strona lokalu = `components/szkic/LokalSzkic.tsx` (z promocjami z panelu i „To Twój lokal?”).
   Lokale z własnym motywem (`motywyStron.ts`: Burger&Pizza, Parkowa) dalej mają Klasyczny w swoich barwach.
   Wspólne elementy Szkicownika (tło, ramki, krój Caveat, CSS) w `components/szkic/szkic.*`; propozycja 3 też z nich korzysta.
+- **Pomysł usera (29.10 wieczorem): aplikacja na zegarek (Wear OS / smartwatch) do zamówień.** Sedno: **dzwonisz
+  telefonem do lokalu, a na zegarku pokazuje się lista z zamówieniem** (telefon przy uchu, lista na nadgarstku). Na zegarku widzisz,
+  co zamawiasz albo co chcesz zamówić: lista do zamówienia z telefonu na nadgarstku (pozycje, ilości, suma, numer lokalu
+  i „Zadzwoń” z zegarka), a gdy kiedyś będzie status zamówienia — „przyjęte / w przygotowaniu / gotowe” i powiadomienie.
+  Technicznie: najpierw aplikacja na telefon (`D:\APLIKACJE\android\szamanie`, 29.10), potem moduł Wear OS, który
+  dostaje listę z telefonu (Data Layer API); bez telefonu zegarek nie zamawia. Do zrobienia po aplikacji na telefon.
+- **Aplikacja na Androida (29.10):** osobny projekt `D:\APLIKACJE\android\szamanie` — WebView ze stroną na całym ekranie
+  (pakiet `pl.szamanie.app`); linki do telefonu, map i Facebooka otwierają się poza aplikacją, „Blisko mnie” pyta o
+  położenie. Adres strony przy budowaniu: `-Padres=...` (domyślnie https://szamanie.pl). Do Google Play: konto
+  dewelopera (w toku u usera), klucz podpisu, potem ewentualnie TWA zamiast WebView.
