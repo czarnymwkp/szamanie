@@ -17,15 +17,40 @@ env:
 
 jobs:
   build-and-push:
-    # GitHub runner in minis' Runner VM (server-provisioning, role github_runner): the registry admits only
-    # the home network, the VPN and the CI Network, so GitHub-hosted runners can't reach it
-    runs-on: [self-hosted, minis]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # the registry admits only the home network and the VPN: the job joins the VPN as its own peer
+      # (WIREGUARD_CONFIG: a full wg0.conf without a DNS line, see README)
+      - name: Connect to VPN
+        env:
+          WIREGUARD_CONFIG: ${{ secrets.WIREGUARD_CONFIG }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wireguard-tools
+          echo "$WIREGUARD_CONFIG" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo chmod 600 /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          # the router's DNS resolves *.tools.bngdev.com to minis' LAN address; other names stay on the runner's DNS
+          sudo resolvectl dns wg0 10.0.0.1
+          sudo resolvectl domain wg0 '~tools.bngdev.com'
+
+      - name: Check registry is reachable
+        run: |
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-all-errors --max-time 10 "https://$DOCKER_REGISTRY/v2/")
+          echo "https://$DOCKER_REGISTRY/v2/ answered $code"
+          test "$code" = 401
+
+      # host network: BuildKit pushes through the VPN and uses the host's DNS
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
 
       - name: Login to Docker Registry
         uses: docker/login-action@v3
@@ -43,7 +68,6 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,format=long,prefix=
 
-      # the VM's own Docker builder: its layer cache stays on the runner between builds
       - name: Build and push production image
         uses: docker/build-push-action@v6
         with:
@@ -56,11 +80,9 @@ jobs:
             ADMINISTRATOR=${{ vars.ADMINISTRATOR }}
             CONTACT_EMAIL=${{ vars.CONTACT_EMAIL }}
             NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://szamanie.pl' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # the runner is persistent and its Docker is shared with the Forgejo runner: drop the pushed tags (the build
-      # cache stays), so images don't pile up on the VM's disk
-      - name: Remove local image tags
+      - name: Disconnect from VPN
         if: always()
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-        run: echo "$TAGS" | xargs -r docker image rm || true
+        run: sudo wg-quick down wg0 || true
