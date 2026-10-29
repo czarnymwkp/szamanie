@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Pigulki, Sekcja } from "@/components/StronaFrazy";
 import SzablonLokalu from "@/components/szablony";
 import { godzinySchemaOrg, parsujGodziny } from "@/lib/godziny";
-import { ADRES_SERWISU } from "@/lib/konfiguracja";
+import { SITE_URL } from "@/lib/konfiguracja";
 import { pobierzLokal, pobierzLokale, type Lokal } from "@/lib/lokale";
 import { pobierzMenu, type Menu } from "@/lib/menu";
 import { linkFacebooka, linkWww, nazwaKuchni, opisLokalu, pelnyAdres } from "@/lib/nazwy";
@@ -66,7 +66,7 @@ function daneStrukturalne(lokal: Lokal, menu: Menu | null) {
     "@context": "https://schema.org",
     "@type": TYPY_SCHEMA[lokal.typ] ?? "FoodEstablishment",
     name: lokal.nazwa,
-    url: `${ADRES_SERWISU}/lokal/${lokal.slug}`,
+    url: `${SITE_URL}/lokal/${lokal.slug}`,
     telephone: lokal.telefon ?? undefined,
     address: {
       "@type": "PostalAddress",
@@ -113,9 +113,9 @@ function daneStrukturalne(lokal: Lokal, menu: Menu | null) {
 /** Okruszki dla Google: szamanie.pl › Kraśnik › lokal (obszar tylko, gdy ma swoją stronę). */
 function okruszki(lokal: Lokal, obszar: Obszar | undefined) {
   const sciezka = [
-    { name: "szamanie.pl", item: ADRES_SERWISU },
-    ...(obszar ? [{ name: obszar.nazwa, item: `${ADRES_SERWISU}/${obszar.slug}` }] : []),
-    { name: lokal.nazwa, item: `${ADRES_SERWISU}/lokal/${lokal.slug}` },
+    { name: "szamanie.pl", item: SITE_URL },
+    ...(obszar ? [{ name: obszar.nazwa, item: `${SITE_URL}/${obszar.slug}` }] : []),
+    { name: lokal.nazwa, item: `${SITE_URL}/lokal/${lokal.slug}` },
   ];
   return {
     "@context": "https://schema.org",

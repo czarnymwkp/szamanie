@@ -7,7 +7,7 @@
 //   npm run popraw -- <slug> zwierzeta tak|nie    też: wozek (dostępny dla niepełnosprawnych), wege, wegan
 //   npm run popraw -- <slug> usun <pole>          cofa poprawkę
 //   npm run popraw -- lista
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 
 const POLA = {
   nazwa: "tekst",
@@ -32,7 +32,7 @@ const POLA = {
 };
 
 const [slug, pole, ...reszta] = process.argv.slice(2);
-const db = otworzBaze();
+const db = openDatabase();
 
 if (!slug || slug === "lista") {
   const wiersze = db

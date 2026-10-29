@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import BanerDlaLokali from "@/components/BanerDlaLokali";
 import Katalog from "@/components/Katalog";
-import { ADRES_SERWISU } from "@/lib/konfiguracja";
+import { SITE_URL } from "@/lib/konfiguracja";
 import { pobierzLokale, pobierzMiejscowosci } from "@/lib/lokale";
 
 export const metadata: Metadata = {
@@ -15,15 +15,15 @@ const DANE_WITRYNY = [
     "@type": "WebSite",
     name: "szamanie.pl",
     alternateName: "Szamanie",
-    url: `${ADRES_SERWISU}/`,
+    url: `${SITE_URL}/`,
     inLanguage: "pl",
   },
   {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "szamanie.pl",
-    url: `${ADRES_SERWISU}/`,
-    logo: `${ADRES_SERWISU}/logo.png`,
+    url: `${SITE_URL}/`,
+    logo: `${SITE_URL}/logo.png`,
   },
 ];
 

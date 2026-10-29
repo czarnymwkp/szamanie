@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ADMINISTRATOR, KONTAKT_EMAIL } from "@/lib/konfiguracja";
+import { ADMINISTRATOR, CONTACT_EMAIL } from "@/lib/konfiguracja";
 
 export const metadata: Metadata = {
   title: "Polityka prywatności",
@@ -22,9 +22,9 @@ function Punkt({ tytul, children }: { tytul: string; children: ReactNode }) {
 }
 
 export default function PolitykaPrywatnosci() {
-  const kontakt = KONTAKT_EMAIL ? (
-    <a href={`mailto:${KONTAKT_EMAIL}`} className="font-bold text-akcent-tekst underline">
-      {KONTAKT_EMAIL}
+  const kontakt = CONTACT_EMAIL ? (
+    <a href={`mailto:${CONTACT_EMAIL}`} className="font-bold text-akcent-tekst underline">
+      {CONTACT_EMAIL}
     </a>
   ) : (
     "adres podany na stronie Dla lokali"

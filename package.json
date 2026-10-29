@@ -12,7 +12,8 @@
     "dane:strony": "node scripts/dane-ze-stron.mjs",
     "popraw": "node scripts/popraw.mjs",
     "menu": "node scripts/menu.mjs",
-    "dodaj": "node scripts/dodaj.mjs"
+    "dodaj": "node scripts/dodaj.mjs",
+    "prebuild": "node scripts/init-db.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

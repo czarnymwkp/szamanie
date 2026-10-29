@@ -44,7 +44,7 @@ $S tar -xzf /tmp/szamanie-app.tgz -C "$K/app.nowa"
 $S cp /tmp/szamanie.db "$K/app.nowa/data/szamanie.db"   # tylko do buildu (generowanie stron)
 [ -d "$K/app" ] && { $S rm -rf "$K/app.stara"; $S mv "$K/app" "$K/app.stara"; }
 $S mv "$K/app.nowa" "$K/app"
-# ustawienia czytane przy buildzie (strony statyczne: ADMINISTRATOR, KONTAKT_EMAIL) — Next bierze je z .env.production
+# settings read at build time (static pages: ADMINISTRATOR, CONTACT_EMAIL) — Next reads them from .env.production
 [ -f "$K/.env" ] && $S cp "$K/.env" "$K/app/.env.production"
 
 COMPOSE="$S docker compose -f $K/app/deploy/docker-compose.yml"

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Space_Grotesk } from "next/font/google";
-import { ADRES_SERWISU } from "@/lib/konfiguracja";
+import { SITE_URL } from "@/lib/konfiguracja";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -15,7 +15,7 @@ const grotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(ADRES_SERWISU),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "szamanie.pl — gdzie zjeść w Kraśniku i okolicy",
     template: "%s | szamanie.pl",

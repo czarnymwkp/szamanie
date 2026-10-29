@@ -1,9 +1,9 @@
-// Ustawienia serwisu. Wartości z .env.local (lokalnie) albo ze zmiennych środowiska na serwerze.
-export const ADRES_SERWISU = process.env.NEXT_PUBLIC_ADRES_SERWISU ?? "https://szamanie.pl";
+// Site settings. Values come from .env.local (locally) or from environment variables on the server.
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://szamanie.pl";
 
-// Administrator danych na /polityka-prywatnosci: imię i nazwisko albo firma z adresem (np. „Jan Kowalski, ul. …, Kraśnik”).
-// Czytane przy buildzie — na serwerze deploy/wdroz.sh podaje /opt/szamanie/.env do buildu jako .env.production.
+// Data controller shown on /polityka-prywatnosci: full name or company with address (e.g. "Jan Kowalski, ul. …, Kraśnik").
+// Read at build time — on the server deploy/wdroz.sh passes /opt/szamanie/.env to the build as .env.production.
 export const ADMINISTRATOR = process.env.ADMINISTRATOR ?? "";
 
-// Adres, na który lokale piszą w sprawie pakietów. Pusty = na stronie „Dla lokali” nie ma przycisku kontaktu.
-export const KONTAKT_EMAIL = process.env.KONTAKT_EMAIL ?? "";
+// Address venues write to about packages. Empty = no contact button on the "Dla lokali" page.
+export const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? "";
