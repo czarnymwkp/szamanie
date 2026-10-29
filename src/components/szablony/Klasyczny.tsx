@@ -22,11 +22,13 @@ import { dataPl, zl } from "@/lib/ceny";
 import { parsujGodziny } from "@/lib/godziny";
 import type { Lokal } from "@/lib/lokale";
 import { pobierzDostawe, pobierzMenu, type Dostawa } from "@/lib/menu";
+import { pobierzPromocje } from "@/lib/promocje";
 import { motywStrony, type MotywStrony } from "@/lib/motywyStron";
 import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import BanerBelka from "./BanerBelka";
 import BanerSwietliki from "./BanerSwietliki";
+import PromocjeLokalu from "./PromocjeLokalu";
 import { KROJE } from "./kroje";
 import { adresMapy, plakietkiLokalu, uslugiLokalu } from "./wspolne";
 
@@ -67,7 +69,11 @@ function stylMotywu(m: MotywStrony | null) {
 
 /** Domyślny wygląd strony lokalu. Kolejne szablony (wybierane w abonamencie) mają ten sam interfejs. */
 export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal; powrot?: string }) {
-  const [menu, dostawa] = await Promise.all([pobierzMenu(lokal.id), pobierzDostawe(lokal.id)]);
+  const [menu, dostawa, promocje] = await Promise.all([
+    pobierzMenu(lokal.id),
+    pobierzDostawe(lokal.id),
+    pobierzPromocje(lokal.id),
+  ]);
   const tydzien = parsujGodziny(lokal.godziny);
   const plakietki = plakietkiLokalu(lokal);
   const uslugi = uslugiLokalu(lokal, { bezPlakietek: true });
@@ -223,6 +229,7 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
                 </a>
               )}
             </div>
+            {promocje.length > 0 && <PromocjeLokalu promocje={promocje} naglowek={naglowek} />}
           </div>
 
           <aside
@@ -323,13 +330,14 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
             <section className="pojawianie rounded-2xl bg-tekst p-5 text-tlo">
               <h2 className="text-lg font-black">To Twój lokal?</h2>
               <p className="mt-1 text-sm leading-relaxed opacity-85">
-                Dodaj menu z cenami, zdjęcia i wybierz własny wygląd tej strony.
+                Zmieniaj menu i ceny, godziny otwarcia i dodawaj promocje w panelu lokalu.
               </p>
               <Link
-                href="/dla-lokali"
+                href={`/panel/przejmij/${lokal.slug}`}
+                prefetch={false}
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-akcent px-4 py-2.5 text-sm font-black text-na-akcencie transition-all hover:gap-2.5"
               >
-                Sprawdź pakiety <ArrowRight className="size-4" aria-hidden />
+                Zarządzaj lokalem <ArrowRight className="size-4" aria-hidden />
               </Link>
             </section>
           </aside>

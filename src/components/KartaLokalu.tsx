@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { MapPin } from "lucide-react";
+import { BadgePercent, MapPin } from "lucide-react";
 import type { Lokal } from "@/lib/lokale";
 import { opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import Baner from "./Baner";
@@ -50,6 +50,12 @@ export default function KartaLokalu({
             <span className="truncate">{pelnyAdres(lokal)}</span>
           </p>
           <StatusOtwarcia godziny={lokal.godziny} className="mt-1 text-sm" />
+          {lokal.promocja && (
+            <p className="mt-1.5 flex items-center gap-1.5 text-sm font-extrabold text-akcent-tekst">
+              <BadgePercent className="size-4 shrink-0" aria-hidden />
+              <span className="truncate">{lokal.promocja}</span>
+            </p>
+          )}
         </div>
 
         {/* dowóz, dojazd i telefon w jednej linii na dole karty */}

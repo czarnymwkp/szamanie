@@ -82,6 +82,20 @@ export function parsujGodziny(tekst: string | null): Tydzien | null {
   return tydzien;
 }
 
+/** Odwrotność parsujGodziny: tydzień → „Mo-Fr 11:00-22:00; Sa 12:00-23:00; Su off” (sąsiednie takie same dni razem). */
+export function zapiszGodziny(tydzien: Tydzien): string {
+  const opis = (przedzialy: [number, number][]) =>
+    przedzialy.length ? przedzialy.map(([s, k]) => `${formatGodz(s)}-${formatGodz(k)}`).join(",") : "off";
+  const reguly: string[] = [];
+  for (let d = 0; d < 7; ) {
+    let koniec = d;
+    while (koniec + 1 < 7 && opis(tydzien[koniec + 1]) === opis(tydzien[d])) koniec++;
+    reguly.push(`${DNI_OSM[d]}${koniec > d ? `-${DNI_OSM[koniec]}` : ""} ${opis(tydzien[d])}`);
+    d = koniec + 1;
+  }
+  return reguly.length === 1 && reguly[0].startsWith("Mo-Su ") ? reguly[0].slice(6) : reguly.join("; ");
+}
+
 /** Numer dnia tygodnia, gdzie 0 = poniedziałek. */
 export const dzienTygodnia = (data: Date) => (data.getDay() + 6) % 7;
 

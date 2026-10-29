@@ -117,4 +117,91 @@ export const MIGRACJE = [
    ALTER TABLE lokale ADD COLUMN dostawa_zrodlo TEXT;
    ALTER TABLE lokale ADD COLUMN dostawa_sprawdzono TEXT;
    ALTER TABLE lokale ADD COLUMN dostawa_uwagi TEXT;`,
+  // 6: panel właściciela — konta (logowanie kodem z e-maila albo przez Google), sesje, przejęcie lokalu
+  //    weryfikowane ręcznie przez admina, promocje i historia cen (dyrektywa Omnibus: najniższa cena z 30 dni).
+  //    Na start bez logowania: właściciel wchodzi prywatnym linkiem od admina (konta.link), e-mail jest opcjonalny.
+  `CREATE TABLE konta (
+     id         INTEGER PRIMARY KEY,
+     email      TEXT UNIQUE,                  -- małymi literami; NULL = konto tylko z linkiem
+     imie       TEXT,
+     telefon    TEXT,                         -- na niego admin wysyła link do panelu
+     link       TEXT UNIQUE,                  -- SHA-256 tokenu z linku /panel/wejdz/<token>; NULL = bez linku
+     rola       TEXT NOT NULL DEFAULT 'wlasciciel' CHECK (rola IN ('wlasciciel', 'admin')),
+     utworzono  TEXT NOT NULL DEFAULT (datetime('now')),
+     ostatnio   TEXT                          -- ostatnie logowanie
+   );
+   -- konta zewnętrzne przypięte do konta (Google, później Apple); identyfikator = „sub” z tokenu
+   CREATE TABLE konta_zewnetrzne (
+     dostawca       TEXT NOT NULL,
+     identyfikator  TEXT NOT NULL,
+     konto_id       INTEGER NOT NULL REFERENCES konta(id) ON DELETE CASCADE,
+     PRIMARY KEY (dostawca, identyfikator)
+   );
+   -- id = SHA-256 tokenu z ciasteczka, więc wyciek bazy nie daje działających sesji
+   CREATE TABLE sesje (
+     id         TEXT PRIMARY KEY,
+     konto_id   INTEGER NOT NULL REFERENCES konta(id) ON DELETE CASCADE,
+     wygasa     TEXT NOT NULL,
+     utworzono  TEXT NOT NULL DEFAULT (datetime('now'))
+   );
+   CREATE INDEX sesje_konto ON sesje(konto_id);
+   -- jednorazowy kod logowania wysłany e-mailem (jeden aktywny na adres)
+   CREATE TABLE kody_logowania (
+     email      TEXT PRIMARY KEY,
+     kod_hash   TEXT NOT NULL,
+     wygasa     TEXT NOT NULL,
+     proby      INTEGER NOT NULL DEFAULT 0,
+     wyslano    TEXT NOT NULL DEFAULT (datetime('now'))
+   );
+   CREATE TABLE lokale_konta (
+     lokal_id   INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
+     konto_id   INTEGER NOT NULL REFERENCES konta(id) ON DELETE CASCADE,
+     utworzono  TEXT NOT NULL DEFAULT (datetime('now')),
+     PRIMARY KEY (lokal_id, konto_id)
+   );
+   CREATE TABLE zgloszenia (
+     id          INTEGER PRIMARY KEY,
+     lokal_id    INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
+     konto_id    INTEGER REFERENCES konta(id) ON DELETE CASCADE,  -- NULL = zgłoszenie bez konta; konto powstaje przy przyjęciu
+     imie        TEXT NOT NULL,
+     telefon     TEXT NOT NULL,
+     email       TEXT,
+     rola        TEXT NOT NULL,                -- właściciel, menedżer, pracownik
+     wiadomosc   TEXT,
+     status      TEXT NOT NULL DEFAULT 'nowe' CHECK (status IN ('nowe', 'przyjete', 'odrzucone')),
+     notatka     TEXT,                         -- admina, np. jak zweryfikował
+     utworzono   TEXT NOT NULL DEFAULT (datetime('now')),
+     rozpatrzono TEXT
+   );
+   CREATE INDEX zgloszenia_status ON zgloszenia(status, utworzono);
+   -- dni = JSON z numerami dni (0 = poniedziałek), [] = codziennie; daty i godziny NULL = bez ograniczenia.
+   -- danie + cena_gr = obniżka ceny jednego dania z menu: strona pokazuje przy niej najniższą cenę z 30 dni.
+   CREATE TABLE promocje (
+     id         INTEGER PRIMARY KEY,
+     lokal_id   INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
+     tytul      TEXT NOT NULL,
+     opis       TEXT,
+     danie      TEXT,                         -- nazwa dania z menu
+     wariant    TEXT,                         -- np. „32 cm”; NULL, gdy danie ma jedną cenę
+     cena_gr    INTEGER,                      -- cena promocyjna
+     od_dnia    TEXT,
+     do_dnia    TEXT,
+     dni        TEXT NOT NULL DEFAULT '[]',
+     od_godz    TEXT,
+     do_godz    TEXT,
+     aktywna    INTEGER NOT NULL DEFAULT 1,
+     kolejnosc  INTEGER NOT NULL DEFAULT 0,
+     utworzono  TEXT NOT NULL DEFAULT (datetime('now')),
+     usunieto   TEXT                          -- usunięta zostaje: jej cena liczy się do najniższej z 30 dni
+   );
+   CREATE INDEX promocje_lokal ON promocje(lokal_id, kolejnosc);
+   -- ceny dania od chwili zmiany; po nazwie, bo npm run menu wstawia pozycje od nowa (nowe id)
+   CREATE TABLE historia_cen (
+     lokal_id   INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
+     sekcja     TEXT NOT NULL,
+     nazwa      TEXT NOT NULL,
+     ceny       TEXT NOT NULL,
+     od         TEXT NOT NULL DEFAULT (datetime('now'))
+   );
+   CREATE INDEX historia_cen_danie ON historia_cen(lokal_id, nazwa, od);`,
 ];

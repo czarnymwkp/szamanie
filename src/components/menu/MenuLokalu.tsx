@@ -90,7 +90,9 @@ export default function MenuLokalu({
               Ceny z {dataPl(menu.sprawdzono)} — mogą być nieaktualne
             </p>
           ) : (
-            <p className="text-xs font-bold text-tekst-2">Ceny sprawdzone {dataPl(menu.sprawdzono)}</p>
+            <p className="text-xs font-bold text-tekst-2">
+              {menu.zrodlo === "panel" ? "Ceny od lokalu, zmienione" : "Ceny sprawdzone"} {dataPl(menu.sprawdzono)}
+            </p>
           ))}
       </div>
       <p className="mt-1.5 text-sm font-semibold text-tekst-2">
@@ -140,7 +142,13 @@ export default function MenuLokalu({
         </p>
       )}
 
-      {menu.zrodlo && (
+      {menu.zrodlo === "panel" ? (
+        // menu prowadzi sam lokal w panelu
+        <p className="mt-6 text-xs font-semibold text-tekst-2">
+          Menu i ceny podaje lokal. Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu. Zdjęcia działów są
+          poglądowe.
+        </p>
+      ) : menu.zrodlo && (
         <p className="mt-6 text-xs font-semibold text-tekst-2">
           Menu przepisane z{" "}
           {/^https?:/.test(menu.zrodlo) ? (

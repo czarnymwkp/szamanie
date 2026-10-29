@@ -3,6 +3,7 @@
 // bloku, którego w pliku nie ma, nie ruszamy.
 // Użycie: npm run menu                 wszystkie pliki
 //         npm run menu -- si-krasnik   jeden lokal
+//         npm run menu -- si-krasnik --wymus   także gdy lokal zmienia menu w panelu (nadpisze jego zmiany)
 //
 // Format pliku (puste linie i linie od „# ” są pomijane):
 //   źródło: https://…               skąd jest menu (adres strony, „zdjęcie karty”, „telefon”)
@@ -108,9 +109,11 @@ function czytaj(plik) {
 }
 
 const wybrany = process.argv[2];
+// Menu zmienione przez lokal w panelu jest ważniejsze niż plik — nadpisujemy je tylko na wyraźne życzenie.
+const wymus = process.argv.includes("--wymus");
 const pliki = readdirSync(KATALOG)
   .filter((p) => p.endsWith(".txt"))
-  .filter((p) => !wybrany || p === `${wybrany}.txt`);
+  .filter((p) => !wybrany || wybrany.startsWith("--") || p === `${wybrany}.txt`);
 if (!pliki.length) {
   console.error(wybrany ? `Nie ma pliku ${KATALOG}/${wybrany}.txt` : `Brak plików w ${KATALOG}/`);
   process.exit(1);
@@ -151,6 +154,15 @@ for (const plik of pliki) {
     console.error(`✗ ${blad.message}`);
     bledy++;
     continue;
+  }
+
+  // menu i strefy, które lokal zmienia w panelu, zostają (chyba że --wymus)
+  const zrodla = db.prepare("SELECT menu_zrodlo, dostawa_zrodlo FROM lokale WHERE id = ?").get(lokal.id);
+  for (const [blok, zrodlo] of [["menu", zrodla.menu_zrodlo], ["dostawa", zrodla.dostawa_zrodlo]]) {
+    if (dane[blok] && zrodlo === "panel" && !wymus) {
+      console.error(`! ${lokal.nazwa}: ${blok} zmienia lokal w panelu — pomijam (nadpisanie: npm run menu -- ${slug} --wymus)`);
+      dane[blok] = null;
+    }
   }
 
   db.exec("BEGIN");

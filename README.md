@@ -35,6 +35,27 @@ of the data has to be obtained separately.
 | `npm run menu -- <slug>` | loads the menu from `dane/lokale/<slug>.txt` |
 | `npm run popraw -- <slug> <field> <value>` | manual correction of a venue (e.g. `telefon`, `dostawa`, `zwierzeta`) |
 | `npm run pakiet -- <slug> <top\|galeria> <days>` | manually grants a paid package (`npm run pakiet -- lista` shows active ones) |
+| `npm run konto -- admin <e-mail>` | admin role in the panel and an entry link (`lista`, `link <e-mail>`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
+
+## Venue panel (`/panel`)
+
+No login for now. An owner asks for access to a venue ("To Twój lokal?" on the venue page), the admin confirms it by
+phone on the venue's number in `/panel/admin` and texts them a private link `/panel/wejdz/<token>` that opens the panel
+(90-day session; the same link works on more devices until the admin creates a new one or revokes access). The admin can
+also grant access without a request: venue panel → Dane tab → "Dostęp do panelu".
+The admin gets their own link from `npm run konto -- admin <e-mail>` (Coolify → Terminal:
+`node scripts/konto.mjs admin <e-mail>`; own server: `docker compose exec app node scripts/konto.mjs admin <e-mail>`).
+In the panel: details and opening hours, menu with prices, delivery zones, promotions.
+Changes show on the venue page right away. Menus and zones edited in the panel are not overwritten by `npm run menu`.
+
+Variables in `.env.local` (locally) or in the server environment, all optional:
+
+| Variable | Purpose |
+| --- | --- |
+| `PANEL_LOGOWANIE=1` | enables login with an e-mailed code and with Google (ready, disabled for now) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google login (Google Cloud → OAuth client ID, web application; redirect URI `https://szamanie.pl/panel/logowanie/google/powrot`) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_HASLO`, `SMTP_OD` | sending login codes; without them codes go to the server logs |
+| `CONTACT_EMAIL` | receives notifications about new venue requests |
 
 ## Deployment
 
