@@ -91,6 +91,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # only builds of main move :latest, so only they redeploy. The compose has pull_policy: always, so the
+      # redeploy pulls the new :latest. Runs while the VPN is up: Coolify answers 403 outside trusted networks.
+      - name: Redeploy in Coolify
+        if: github.ref == 'refs/heads/main' && env.PUSH_IMAGE == 'true'
+        env:
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          if [ -z "$COOLIFY_WEBHOOK" ]; then
+            echo "::notice::COOLIFY_WEBHOOK not set, skipping redeploy"
+            exit 0
+          fi
+          curl -fsS --max-time 30 -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK"
+
       - name: Disconnect from VPN
         if: always() && env.PUSH_IMAGE == 'true'
         run: sudo wg-quick down wg0 || true
