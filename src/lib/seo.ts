@@ -6,6 +6,7 @@ import { opisDnia, parsujGodziny } from "./godziny";
 import type { Lokal } from "./lokale";
 import { pobierzDostawe, pobierzMenu, szukajDan, type Danie } from "./menu";
 import { KATEGORIE } from "./nazwy";
+import { bezSamychSal } from "./przyjecia";
 import { bezPolskich } from "./slug.mjs";
 import type { KluczZdjecia } from "./zdjeciaKategorii";
 
@@ -201,7 +202,9 @@ const MIN_W_KATEGORII = 2;
 
 const pasuje = (k: KategoriaSeo) => k.pasuje ?? KATEGORIE.find((kat) => kat.id === k.id)!.pasuje;
 
-export function lokaleObszaru(lokale: Lokal[], o: Obszar) {
+export function lokaleObszaru(wszystkie: Lokal[], o: Obszar) {
+  // sale tylko na przyjęcia mają swoją stronę /sale-weselne, a nie „gdzie zjeść”
+  const lokale = bezSamychSal(wszystkie);
   return {
     w: lokale.filter((l) => l.gmina && o.gminy.includes(l.gmina)),
     okolica: lokale.filter((l) => l.gmina && o.okolica.includes(l.gmina)),

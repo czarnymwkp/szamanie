@@ -142,7 +142,7 @@ export function ListaNazw({ lokale, dopisek }: { lokale: Lokal[]; dopisek?: (l: 
       <Link href={`/lokal/${l.slug}`} className="font-extrabold text-akcent-tekst underline-offset-2 hover:underline">
         {l.nazwa}
       </Link>
-      {dopisek && ` (${dopisek(l)})`}
+      {dopisek?.(l) && ` (${dopisek(l)})`}
     </span>
   ));
 }

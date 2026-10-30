@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import GlownaSzkic from "@/components/szkic/GlownaSzkic";
 import { SITE_URL } from "@/lib/konfiguracja";
 import { pobierzLokale, pobierzMiejscowosci } from "@/lib/lokale";
+import { bezSamychSal } from "@/lib/przyjecia";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -34,7 +35,7 @@ export default async function StronaGlowna() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(DANE_WITRYNY).replace(/</g, "\\u003c") }}
       />
-      <GlownaSzkic lokale={lokale} miejscowosci={miejscowosci} />
+      <GlownaSzkic lokale={bezSamychSal(lokale)} miejscowosci={miejscowosci} />
     </>
   );
 }

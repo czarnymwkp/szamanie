@@ -162,3 +162,18 @@ współrzędne: 50.8868, 21.8384
 telefon: +48 15 861 30 29
 facebook: https://www.facebook.com/people/Bistro-Express-domowe-jedzenie-Annopol/61551406953431/
 opis: Domowe jedzenie przy ulicy Radomskiej w Annopolu.
+
+# ---- 31.10.2026: sale na wesela i przyjęcia (strona /sale-weselne, dane sal w src/lib/przyjecia.ts) ----
+# Fantazja (Kraśnik) — wg usera 31.10 już nie działa, w bazie ukryta.
+
+== Dom Weselny Gamma ==
+źródło: https://www.facebook.com/p/Dom-Weselny-Gamma-Piaskowa-18-I-sze-pi%C4%99tro-61590940461194/ (sprawdzono 2026-10-31, wpis z 18.07.2026)
+typ: restaurant
+kuchnie: polish
+gmina: Kraśnik
+miejscowość: Kraśnik
+adres: Piaskowa 18
+współrzędne: 50.9351819, 22.2166333
+telefon: +48 531 644 811
+facebook: https://www.facebook.com/p/Dom-Weselny-Gamma-Piaskowa-18-I-sze-pi%C4%99tro-61590940461194/
+opis: Rodzinny dom weselny od 2007 roku: wesela, komunie, chrzciny, urodziny i imieniny. Sala na I piętrze, wejście od strony boiska.

@@ -20,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.9,
     })),
+    { url: `${SITE_URL}/sale-weselne`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/dla-lokali`, changeFrequency: "monthly", priority: 0.5 },
     ...lokale
       .filter((_, i) => indeks[i])

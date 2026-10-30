@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { SzczegolyPrzyjec } from "@/components/Przyjecia";
 import { Pigulki, Sekcja } from "@/components/StronaFrazy";
 import SzablonLokalu from "@/components/szablony";
 import { godzinySchemaOrg, parsujGodziny } from "@/lib/godziny";
@@ -8,6 +9,7 @@ import { SITE_URL } from "@/lib/konfiguracja";
 import { pobierzLokal, pobierzLokale, type Lokal } from "@/lib/lokale";
 import { pobierzMenu, type Menu } from "@/lib/menu";
 import { linkFacebooka, linkWww, nazwaKuchni, opisLokalu, pelnyAdres } from "@/lib/nazwy";
+import { przyjeciaLokalu } from "@/lib/przyjecia";
 import { doIndeksu, kategorieZeStrona, lokaleKategorii, obszaryZeStrona, type Obszar } from "@/lib/seo";
 
 // Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
@@ -154,6 +156,8 @@ async function TrescLokalu({ params }: Pick<PageProps<"/lokal/[slug]">, "params"
         { nazwa: `Gdzie zjeść ${obszar.w}`, adres: `/${obszar.slug}` },
       ]
     : [];
+  const przyjecia = przyjeciaLokalu(lokal);
+  if (przyjecia) linki.push({ nazwa: "Sale weselne i na przyjęcia", adres: "/sale-weselne" });
 
   return (
     <>
@@ -164,6 +168,18 @@ async function TrescLokalu({ params }: Pick<PageProps<"/lokal/[slug]">, "params"
         }}
       />
       <SzablonLokalu lokal={lokal} />
+      {przyjecia && (
+        <div className="mx-auto max-w-5xl px-5">
+          <Sekcja id="przyjecia" tytul="Wesela i przyjęcia">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
+              <p className="font-semibold text-tekst-2">
+                {lokal.nazwa} organizuje przyjęcia. O wolny termin i menu zapytaj przez telefon.
+              </p>
+              <SzczegolyPrzyjec przyjecia={przyjecia} />
+            </div>
+          </Sekcja>
+        </div>
+      )}
       {linki.length > 0 && (
         <div className="mx-auto max-w-5xl px-5">
           <Sekcja id="zobacz-tez" tytul="Zobacz też">
