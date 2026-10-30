@@ -28,6 +28,7 @@ import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import BanerBelka from "./BanerBelka";
 import BanerKrata from "./BanerKrata";
+import BanerKreska from "./BanerKreska";
 import BanerSwietliki from "./BanerSwietliki";
 import PromocjeLokalu from "./PromocjeLokalu";
 import { KROJE } from "./kroje";
@@ -98,6 +99,8 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
             <BanerBelka nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : motyw?.baner?.rodzaj === "krata" ? (
             <BanerKrata nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
+          ) : motyw?.baner?.rodzaj === "kreska" ? (
+            <BanerKreska nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : (
             <Baner lokal={lokal} rozmiar="strona" className="h-44 sm:h-56 lg:h-72" />
           )}
@@ -268,6 +271,7 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
                 numerowane={motyw?.menuNumerowane}
                 belki={motyw?.menuBelki}
                 karty={motyw?.menuKarty}
+                spis={motyw?.menuSpis}
               />
             ) : (
               <section

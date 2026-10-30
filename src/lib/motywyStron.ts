@@ -20,7 +20,15 @@ export type TokenKoloru =
   | "zamkniete";
 
 /** Kroje z `components/szablony/kroje.ts`. */
-export type KrojLokalu = "playfair" | "karla" | "rokkitt" | "roboto-condensed" | "roboto" | "roboto-mono";
+export type KrojLokalu =
+  | "playfair"
+  | "karla"
+  | "rokkitt"
+  | "roboto-condensed"
+  | "roboto"
+  | "roboto-mono"
+  | "montserrat"
+  | "open-sans";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
@@ -30,17 +38,20 @@ export type MotywStrony = {
   /**
    * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
    * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
-   * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę.
+   * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę;
+   * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu).
    */
   baner?:
     | { rodzaj: "swietliki"; znak: string; podpis: string }
-    | { rodzaj: "belka" | "krata"; haslo?: string; podpis: string };
+    | { rodzaj: "belka" | "krata" | "kreska"; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
   /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
   menuBelki?: boolean;
   /** Dania na białych kartach w siatce, ceny na pigułkach krojem etykiet, działy jak przełączniki-pigułki. */
   menuKarty?: boolean;
+  /** Karta jak spis: działy podkreślone, nazwy dań rozstrzelonymi wersalikami, cena po prawej, skład po „|”. */
+  menuSpis?: boolean;
 };
 
 const MOTYWY: Record<string, MotywStrony> = {
@@ -110,6 +121,26 @@ const MOTYWY: Record<string, MotywStrony> = {
     kroje: { naglowki: "roboto", tekst: "roboto", etykiety: "roboto-mono" },
     baner: { rodzaj: "krata", haslo: "Na miejscu · na wynos · z dowozem", podpis: "Kraśnik · ul. ks. Jerzego Popiełuszki 1" },
     menuKarty: true,
+  },
+  // Karta z Facebooka lokalu (17.01.2026): białe tło, czarny tekst, „RESTAURACJA ▬ KWADRAT”, działy podkreślone,
+  // nazwy dań pogrubione rozstrzelonymi wersalikami, skład po „|”, listek przy wege. Ich logo (kwadrat
+  // z napisem) tylko za zgodą lokalu — na razie bez niego.
+  "kwadrat-miejsce-spotkan-stroza-kolonia": {
+    kolory: {
+      tlo: "#ffffff",
+      karta: "#ffffff",
+      krem: "#f4f4f3",
+      tekst: "#111111",
+      "tekst-2": "#4a4a4a",
+      obrys: "#e6e6e6",
+      "obrys-2": "#c8c8c8",
+      akcent: "#111111",
+      "akcent-tekst": "#111111",
+      "na-akcencie": "#ffffff",
+    },
+    kroje: { naglowki: "montserrat", tekst: "open-sans" },
+    baner: { rodzaj: "kreska", haslo: "Restauracja", podpis: "Stróża-Kolonia · ul. Dworska 6" },
+    menuSpis: true,
   },
 };
 

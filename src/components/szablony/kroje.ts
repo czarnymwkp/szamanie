@@ -1,4 +1,4 @@
-import { Karla, Playfair_Display, Roboto, Roboto_Condensed, Roboto_Mono, Rokkitt } from "next/font/google";
+import { Karla, Montserrat, Open_Sans, Playfair_Display, Roboto, Roboto_Condensed, Roboto_Mono, Rokkitt } from "next/font/google";
 import type { KrojLokalu } from "@/lib/motywyStron";
 
 // Kroje motywów lokali (lib/motywyStron.ts). Bez preload: pobierają się tylko na stronach lokali, które ich używają.
@@ -43,6 +43,19 @@ const robotoMono = Roboto_Mono({
   preload: false,
 });
 
+// Kwadrat: szeroki bezszeryfowy wersalikami z rozstrzeleniem w nagłówkach i nazwach dań, zwykły w składnikach.
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin", "latin-ext"],
+  preload: false,
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin", "latin-ext"],
+  preload: false,
+});
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
@@ -50,4 +63,6 @@ export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = 
   "roboto-condensed": { variable: robotoCondensed.variable, zmienna: "var(--font-roboto-condensed)" },
   roboto: { variable: roboto.variable, zmienna: "var(--font-roboto)" },
   "roboto-mono": { variable: robotoMono.variable, zmienna: "var(--font-roboto-mono)" },
+  montserrat: { variable: montserrat.variable, zmienna: "var(--font-montserrat)" },
+  "open-sans": { variable: openSans.variable, zmienna: "var(--font-open-sans)" },
 };

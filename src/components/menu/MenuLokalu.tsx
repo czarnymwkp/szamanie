@@ -52,6 +52,7 @@ export default function MenuLokalu({
   numerowane = false,
   belki = false,
   karty = false,
+  spis = false,
 }: {
   menu: Menu;
   dostawa: Dostawa | null;
@@ -61,6 +62,7 @@ export default function MenuLokalu({
   numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
   belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
   karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
+  spis?: boolean; // jak spis w karcie lokalu: podkreślone działy, nazwy rozstrzelonymi wersalikami (motyw lokalu)
 }) {
   const l = useLista(slug);
   const [szukaj, setSzukaj] = useState("");
@@ -140,6 +142,7 @@ export default function MenuLokalu({
             numerowane={numerowane}
             belki={belki}
             karty={karty}
+            spis={spis}
             // przy szukaniu pokazujemy od razu wszystkie trafienia
             stan={fraza ? true : wybor.get(s.nazwa)}
             desktop={desktop}
@@ -170,7 +173,7 @@ export default function MenuLokalu({
           ) : (
             menu.zrodlo
           )}
-          . Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu.{!belki && !karty && " Zdjęcia działów są poglądowe."}
+          . Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu.{!belki && !karty && !spis && " Zdjęcia działów są poglądowe."}
         </p>
       )}
 
@@ -198,6 +201,7 @@ function Dzial({
   numerowane,
   belki,
   karty,
+  spis,
   stan,
   desktop,
   przelacz,
@@ -208,6 +212,7 @@ function Dzial({
   numerowane: boolean;
   belki: boolean;
   karty: boolean;
+  spis: boolean;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
   przelacz: (otwarty: boolean) => void;
@@ -254,10 +259,13 @@ function Dzial({
                     "border-akcent bg-akcent text-na-akcencie",
                     "border-obrys bg-karta text-tekst lg:border-akcent lg:bg-akcent lg:text-na-akcencie",
                   )}`
-                : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
+                : spis
+                  ? // jak dział w karcie lokalu: sam podkreślony tytuł; tło strony, bo przyklejony zasłania dania
+                    "h-14 bg-tlo"
+                  : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
-          {s.okladka && !belki && !karty && (
+          {s.okladka && !belki && !karty && !spis && (
             <>
               <Image
                 src={s.okladka.plik}
@@ -272,10 +280,17 @@ function Dzial({
               <span className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15" />
             </>
           )}
-          <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : "pl-4"}`}>
+          <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : spis ? "" : "pl-4"}`}>
             <span
               className={`block truncate font-grotesk leading-tight ${
-                belki ? "text-2xl font-black uppercase" : karty ? "text-lg font-medium uppercase" : "text-xl font-bold"
+                belki
+                  ? "text-2xl font-black uppercase"
+                  : karty
+                    ? "text-lg font-medium uppercase"
+                    : spis
+                      ? // pb: miejsce na podkreślenie, które `truncate` (overflow: hidden) inaczej by obcięło
+                        "pb-2 text-xl font-bold tracking-[0.18em] uppercase underline decoration-2 underline-offset-[6px]"
+                      : "text-xl font-bold"
               }`}
             >
               {s.nazwa}
@@ -284,7 +299,7 @@ function Dzial({
               className={
                 karty
                   ? `${ETYKIETA} block text-[11px] tracking-[0.12em] opacity-70`
-                  : `block text-xs font-bold ${belki ? "text-tlo/70" : s.okladka ? "text-white/75" : "text-tekst-2"}`
+                  : `block text-xs font-bold ${spis ? "text-tekst-2" : belki ? "text-tlo/70" : s.okladka ? "text-white/75" : "text-tekst-2"}`
               }
             >
               {s.pozycje.length} {odmiana(s.pozycje.length, ["pozycja", "pozycje", "pozycji"])}
@@ -318,6 +333,12 @@ function Dzial({
             <ul className="grid gap-3 pt-3 pb-3 sm:grid-cols-2 lg:grid-cols-3">
               {s.pozycje.map((p) => (
                 <KartaDania key={p.id} p={p} l={l} />
+              ))}
+            </ul>
+          ) : spis ? (
+            <ul className="pb-3 lg:grid lg:grid-cols-2 lg:gap-x-12">
+              {s.pozycje.map((p) => (
+                <PozycjaSpisu key={p.id} p={p} l={l} />
               ))}
             </ul>
           ) : (
@@ -497,6 +518,56 @@ function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
       ) : (
         <Warianty p={p} l={l} className="mt-auto pt-3" />
       )}
+    </li>
+  );
+}
+
+/** Danie w karcie-spisie (motyw lokalu z `menuSpis`): nazwa rozstrzelonymi wersalikami, cechy ikonkami, cena po
+ *  prawej, skład rozdzielony „|” jak w karcie lokalu. */
+function PozycjaSpisu({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
+  const jednaCena = p.ceny.length <= 1;
+  const cena = p.ceny[0] ?? null;
+  const klucz = kluczPozycji(p.id, null);
+  const naLiscie = p.ceny.length
+    ? p.ceny.some((c) => l.ilosc(kluczPozycji(p.id, c.wariant)) > 0)
+    : l.ilosc(klucz) > 0;
+
+  return (
+    <li className="border-b border-obrys">
+      <div
+        className={`-mx-3 flex items-start gap-3 px-3 py-3.5 transition-colors duration-300 ${naLiscie ? "bg-krem" : ""}`}
+      >
+        <div className="min-w-0 flex-1">
+          <h4 className="flex items-baseline gap-2">
+            <span className="font-grotesk text-[15px] leading-snug font-bold tracking-[0.14em] uppercase">
+              {p.nazwa}
+              {p.cechy.map((c) => {
+                const { nazwa, ikona: Ikona } = CECHY[c];
+                return (
+                  <Ikona
+                    key={c}
+                    aria-label={nazwa}
+                    className={`ml-1.5 inline size-4 align-[-2px] ${c === "wege" ? "text-otwarte" : c === "ostre" ? "text-zamkniete" : ""}`}
+                  />
+                );
+              })}
+            </span>
+            {jednaCena && (
+              <span className="ml-auto shrink-0 pl-2 font-grotesk font-bold">{cena ? zl(cena.gr) : "w lokalu"}</span>
+            )}
+          </h4>
+          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{p.opis.split(/,\s*/).join(" | ")}</p>}
+          {!jednaCena && <Warianty p={p} l={l} className="mt-2" />}
+        </div>
+        {jednaCena && (
+          <Licznik
+            ile={l.ilosc(klucz)}
+            nazwa={p.nazwa}
+            dodaj={() => l.dodaj({ klucz, nazwa: p.nazwa, wariant: null, gr: cena?.gr ?? null })}
+            zmien={(o) => l.zmienIlosc(klucz, o)}
+          />
+        )}
+      </div>
     </li>
   );
 }
