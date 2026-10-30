@@ -1,6 +1,8 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "./db";
 import { kuchnieZNazwy } from "./nazwy";
+import { kluczDania, type KluczDania } from "./zdjeciaDan";
+import { daniaNaZdjecie, przydzielZdjecia, type ZdjecieLokalu } from "./zdjeciaLokali";
 
 export type Lokal = {
   id: number;
@@ -29,6 +31,7 @@ export type Lokal = {
   promowany: boolean;
   galeria: boolean;
   promocja: string | null; // tytuł pierwszej trwającej promocji (z panelu lokalu) — na karcie na liście
+  zdjecie?: ZdjecieLokalu | null; // zdjęcie poglądowe na kartę, każdy lokal inne (lib/zdjeciaLokali.ts)
 };
 
 /** Udogodnienia z OSM (scripts/import-osm.mjs → cechy), poprawek (npm run popraw) i menu (dania wege). */
@@ -141,7 +144,19 @@ export async function pobierzLokale(): Promise<Lokal[]> {
     (db.prepare("SELECT DISTINCT lokal_id FROM strefy_dostawy").all() as { lokal_id: number }[]).map((s) => s.lokal_id),
   );
 
-  return wiersze
+  // Dania z menu do wyboru zdjęcia poglądowego lokalu (np. lokal z karbonarą w karcie może dostać karbonarę).
+  const kluczeMenu = new Map<number, KluczDania[]>();
+  for (const d of db.prepare("SELECT lokal_id, sekcja, nazwa, opis FROM menu ORDER BY lokal_id, kolejnosc").all() as {
+    lokal_id: number;
+    sekcja: string;
+    nazwa: string;
+    opis: string | null;
+  }[]) {
+    const k = kluczDania(d.sekcja, d.nazwa, d.opis);
+    if (k) kluczeMenu.set(d.lokal_id, [...(kluczeMenu.get(d.lokal_id) ?? []), k]);
+  }
+
+  const lista = wiersze
     .map((wiersz) => {
       const p = poprawki.get(wiersz.id) ?? {};
       const { kuchnie: kuchniePoprawione, dostawa, na_wynos: naWynosPoprawione, ...reszta } = p;
@@ -171,6 +186,12 @@ export async function pobierzLokale(): Promise<Lokal[]> {
       galeria: w.galeria === 1,
     }))
     .sort((a, b) => Number(b.promowany) - Number(a.promowany) || a.nazwa.localeCompare(b.nazwa, "pl"));
+
+  const zdjecia = przydzielZdjecia(
+    lista,
+    new Map([...kluczeMenu].map(([id, klucze]) => [id, daniaNaZdjecie(klucze)])),
+  );
+  return lista.map((l) => ({ ...l, zdjecie: zdjecia.get(l.id) ?? null }));
 }
 
 /** Miejscowości powiatu (miasta i wsie), Kraśnik pierwszy — do wyboru „blisko …” bez GPS. */

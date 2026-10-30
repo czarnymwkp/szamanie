@@ -5,7 +5,7 @@ import IkonaTypu from "./IkonaTypu";
 
 /**
  * Zdjęcie lokalu w dowolnym kadrze (rozmiar z className). Dopóki lokal nie ma własnych zdjęć — zdjęcie poglądowe
- * kategorii z dyskretnym dopiskiem, a bez zdjęcia — kolor z ikoną.
+ * (każdy lokal inne — z jego menu albo kuchni) z dyskretnym dopiskiem, a bez zdjęcia — kolor z ikoną.
  */
 export default function Miniatura({
   lokal,
@@ -20,7 +20,9 @@ export default function Miniatura({
   priorytet?: boolean;
   dopisek?: boolean;
 }) {
-  const { kolor, ikona, zdjecie } = motywLokalu(lokal);
+  const { kolor, ikona, zdjecie: zKategorii } = motywLokalu(lokal);
+  // każdy lokal ma swoje zdjęcie poglądowe (pobierzLokale); zdjęcie kategorii tylko, gdy go nie dostał
+  const zdjecie = lokal.zdjecie ?? zKategorii;
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ backgroundColor: kolor }}>
       {zdjecie ? (
