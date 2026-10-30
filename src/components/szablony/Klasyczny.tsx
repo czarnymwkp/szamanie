@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Baner from "@/components/Baner";
 import EtykietaPromo from "@/components/EtykietaPromo";
+import MapaOsm from "@/components/MapaOsm";
 import StatusOtwarcia from "@/components/StatusOtwarcia";
 import TabelaGodzin from "@/components/TabelaGodzin";
 import MenuLokalu from "@/components/menu/MenuLokalu";
@@ -321,10 +322,9 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
                 <span className="text-tekst-2">· {lokal.gmina}</span>
               )}
             </p>
-            <iframe
+            <MapaOsm
               title={`Mapa: ${lokal.nazwa}`}
               src={mapa}
-              loading="lazy"
               className="mt-3 h-64 w-full rounded-2xl border-0 bg-krem shadow-sm lg:h-80"
             />
           </section>

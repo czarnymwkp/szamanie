@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen, ExternalLink, Globe, Mail, MapPin, Navigation, Phone, Star, Truck } from "lucide-react";
 import EtykietaPromo from "@/components/EtykietaPromo";
+import MapaOsm from "@/components/MapaOsm";
 import Miniatura from "@/components/Miniatura";
 import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import StatusOtwarcia from "@/components/StatusOtwarcia";
@@ -164,7 +165,7 @@ export default async function LokalSzkic({ lokal, powrot = "/" }: { lokal: Lokal
           {tydzien ? <TabelaGodzin tydzien={tydzien} /> : <p className="text-sm">{lokal.godziny ?? "Brak informacji."}</p>}
         </section>
         <section aria-label="Mapa" className="m-tasma relative rotate-[1deg] bg-white p-2 pb-8 shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-          <iframe title={`Mapa: ${lokal.nazwa}`} src={adresMapy(lokal)} loading="lazy" className="h-56 w-full border-0" />
+          <MapaOsm title={`Mapa: ${lokal.nazwa}`} src={adresMapy(lokal)} className="h-56 w-full border-0 bg-white" />
           <span className={`${reka.className} absolute bottom-1 left-3 text-xl`}>tu jesteśmy ✗</span>
         </section>
       </div>
