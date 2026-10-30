@@ -625,3 +625,20 @@ z menu, nie wszystkie mają podane aktualne”*.
   frazy „komunia/chrzciny Kraśnik” i na kompletność. **Do sprawdzenia/dodania:** Dom Weselny Biała Róża (Struga 5,
   FB ostatnio 2021), P.W. Ludmiła (Kraśnik), Dom Weselny w Annopolu (Radomska 28), Folwark Smaków (czy robi
   przyjęcia?). Później: pojemność i cena za osobę z panelu, płatne wyróżnienie sali (osobny, droższy pakiet).
+
+### 31.10 (popołudnie) — luki w Kraśniku, naklejki i odznaki (user: „dalej walcz z SEO, żebyśmy byli jak najlepiej”)
+- **Luki względem katalogów** (noclegikrasnik.pl, Restaurant Guru; każdy lokal sprawdzony na FB/stronie, aktywny
+  w październiku) — 684a977: **DajMi Sushi** (Urzędowska 16d, pierwsze sushi, dowóz), **Moja Pierożarnia**
+  (Urzędowska 435), **Restauracja Piwonia** (Piaskowa 18, menu dnia + przyjęcia), **Dom Bar** (MOSiR, Żwirki
+  i Wigury 2, obiady z dowozem), **Na Światłach** (Struga 5, pizza i obiady — dawna Biała Róża). Zajazd w Kowalinie
+  (OSM „Dom-bar Smacznie zdrowo…”, miejscowość z OSM błędnie Wólka Olbięcka) → poprawki: Dom Bar Kowalin, Kowalin 32,
+  tel., godziny, www; Piwonia i Dom Bar Kowalin na `/sale-weselne`. Widocznych lokali: 62 (Kraśnik 44).
+  **Do wyjaśnienia z userem:** Presto (FB: Krasińskiego 11G, tel. 81 826 00 88 — ten sam co Santorini; osobny lokal?),
+  Rarytas, lodziarnie bez profili (Marsjano, Gofrrondo, Kącik smaku, Lody Tradycyjne), Cukiernia u Mazura,
+  Kawiarenka Filiżanka, Jadłodajnia U Ali, Wiejski Młyn (Kolejowa 10c — czy to nasz Stary Młyn?).
+- **Naklejki i odznaki (408a373):** `/naklejka/<slug>` — do druku: „Znajdziesz nas na szamanie.pl”, nazwa lokalu,
+  kod QR do strony lokalu (uqr); pod spodem odznaka `public/odznaka.svg` z kodem HTML do wklejenia na stronę lokalu.
+  noindex + Disallow. **To jest nasz sposób na linki do nas (drugi najważniejszy sygnał dla Google po indeksowaniu):**
+  przy sprzedaży pakietów user zostawia naklejkę i prosi lokal z własną stroną o wklejenie odznaki. Lokale z własnym
+  www (31.10): Dom Bar (dombarkrasnik.pl, robiło webkrasnik.pl), Golińska, BD Star, Rubio (hotelkraft.pl), Brunoo,
+  U Górala, Parkowa, Zielony Dworek, Si!, MusiCaffe, Stolnik, Diamentowa, DajMi Sushi.
