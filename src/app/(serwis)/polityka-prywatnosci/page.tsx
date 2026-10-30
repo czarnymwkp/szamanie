@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ADMINISTRATOR, CONTACT_EMAIL } from "@/lib/konfiguracja";
+import { ADMINISTRATOR, CONTACT_EMAIL, UMAMI_ID } from "@/lib/konfiguracja";
 
 export const metadata: Metadata = {
   title: "Polityka prywatności",
@@ -8,8 +8,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/polityka-prywatnosci" },
 };
 
-// Opis zgodny z tym, co serwis faktycznie robi: bez kont, ciasteczek i analityki; ulubione i lista zamówienia
-// tylko w localStorage; lokalizacja liczona w przeglądarce. Przy zmianie tego (konta, statystyki) — zaktualizować.
+// Opis zgodny z tym, co serwis faktycznie robi: bez kont i ciasteczek; statystyki Umami (bez ciasteczek) tylko, gdy
+// ustawione UMAMI_ID — wtedy też nowa data aktualizacji; ulubione i lista zamówienia tylko w localStorage; lokalizacja
+// liczona w przeglądarce. Przy zmianie tego (konta, statystyki) — zaktualizować.
 const AKTUALIZACJA = "25 października 2026";
 
 function Punkt({ tytul, children }: { tytul: string; children: ReactNode }) {
@@ -44,10 +45,25 @@ export default function PolitykaPrywatnosci() {
       </Punkt>
 
       <Punkt tytul="Odwiedzający stronę">
-        <p>
-          Do korzystania z szamanie.pl nie potrzebujesz konta. Nie używamy ciasteczek śledzących, narzędzi analitycznych
-          ani reklam.
-        </p>
+        {UMAMI_ID ? (
+          <>
+            <p>
+              Do korzystania z szamanie.pl nie potrzebujesz konta. Nie używamy ciasteczek śledzących ani reklam.
+            </p>
+            <p>
+              Liczymy odwiedziny narzędziem Umami, które działa na naszym serwerze i nie zapisuje niczego na Twoim
+              urządzeniu (bez ciasteczek). Zbiera dane zbiorcze: otwarte strony, skąd przyszło wejście, rodzaj
+              urządzenia i przeglądarki, kraj oraz kliknięcia w telefon i dojazd do lokalu. Nie zapisuje adresu IP i nie
+              pozwala nam Cię rozpoznać. Służy nam do ulepszania serwisu i pokazywania lokalom zbiorczych statystyk.
+              Podstawą jest nasz prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO).
+            </p>
+          </>
+        ) : (
+          <p>
+            Do korzystania z szamanie.pl nie potrzebujesz konta. Nie używamy ciasteczek śledzących, narzędzi
+            analitycznych ani reklam.
+          </p>
+        )}
         <p>
           Ulubione lokale i lista do zamówienia zapisują się tylko w pamięci Twojej przeglądarki (localStorage). Nie
           trafiają na nasz serwer. Usuniesz je, czyszcząc dane tej strony w przeglądarce.

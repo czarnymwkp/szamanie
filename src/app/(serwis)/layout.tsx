@@ -1,4 +1,5 @@
 import Naglowek from "@/components/serwis/Naglowek";
+import Statystyki from "@/components/serwis/Statystyki";
 import Stopka from "@/components/serwis/Stopka";
 import { PAPIER, TloSzkic } from "@/components/szkic/szkic";
 
@@ -12,6 +13,7 @@ export default function UkladSerwisu({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <Stopka />
+      <Statystyki />
     </div>
   );
 }

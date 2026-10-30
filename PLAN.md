@@ -547,3 +547,38 @@ z menu, nie wszystkie mają podane aktualne”*.
   jedna lista z podziałem na osoby, suma całości i każdej osoby (przyda się, gdy kiedyś dojdzie podział płatności)
   i „Zadzwoń i zamów” (później kod #A12 i status). Jeden lokal = jedno zamówienie. Wersja 2: wspólny koszyk na żywo
   (link/QR, wszyscy dopisują naraz, zapis na serwerze) — też w aplikacji i na zegarku.
+
+### 30.10 — SEO na live: „żebyśmy byli najlepsi w rejonie” + „jak widzieć ruch”
+- **Audyt live (59 adresów z sitemap):** tytuły, opisy, canonical, h1, og:image, JSON-LD (lokale jako Restaurant/
+  FastFoodRestaurant z menu i cenami), 404 i przekierowania ze starej wersji — w porządku.
+- **Do zrobienia w Coolify (Kamil):** `www.szamanie.pl` nie ma certyfikatu HTTPS (przeglądarka pokaże błąd),
+  `http://www` daje 404 → dodać www jako domenę usługi z przekierowaniem 301 na `https://szamanie.pl`.
+  `http://szamanie.pl` przekierowuje 302 zamiast 301 (drobiazg).
+- **Wyszukiwarki znają jeszcze stare szamanie.pl:** Brave pokazuje „Offer to sell domain” (parking domeny) i stare
+  adresy typu `/zachodniopomorskie/kolobrzeg,p,804` (u nas 404 — dobrze). Google trzeba powiedzieć o nowej stronie:
+  **Search Console** (własność domeny rekordem TXT w DNS) → wysłać `sitemap.xml` → „Sprawdź adres → Poproś
+  o zindeksowanie” dla `/`, `/krasnik`, `/krasnik/pizza`, `/krasnik/kebab`, `/krasnik/dowoz`. Potem Bing Webmaster
+  Tools (import z Search Console jednym kliknięciem).
+- **Zrobione (1d3b9b3):** IndexNow — klucz w `public/`, `npm run indexnow` zgłasza Bingowi wszystkie adresy z mapy
+  strony (puszczać po większych wdrożeniach; z Binga korzystają DuckDuckGo, Ecosia, wyszukiwanie ChatGPT). Długie
+  nazwy lokali: tytuł bez „ | szamanie.pl”.
+- **Konkurencja (Brave, 30.10):** pizza/kebab Kraśnik → FB lokali, siwloska.pl, noclegikrasnik.pl (katalog 101 firm,
+  kategorie m.in. sushi, cukiernia, sala-weselna, karczma), restaurantguru, yelp; restauracje Kraśnik → tripadvisor,
+  krasnikowo.pl, naszemiasto „TOP 13”, nocowanie.pl, resto.com.pl; dowóz Kraśnik → dowozimy.pl, pyszne.pl, glovo,
+  naszemiasto, krasnik.eu. **Nikt nie ma menu z cenami całego miasta i dowozu w jednym miejscu — to nasza przewaga.**
+- **Plan, w tej kolejności:**
+  1. Search Console + Bing (user, bo konto Google; mogę przeprowadzić w jego Chrome).
+  2. **Pokrycie** — wszystkie lokale powiatu. Dziś 47 widocznych, 39 w Kraśniku; Urzędów, Zakrzówek, Dzierzkowice,
+     Trzydnik Duży — 0. Każdy lokal = osobna strona w Google, gmina dostaje swoją stronę od 3 lokali.
+  3. Menu z cenami u kolejnych lokali (strona „menu i ceny” wygrywa z samym FB lokalu).
+  4. **Linki do nas:** naklejka/QR „Jesteśmy na szamanie.pl” dla lokali (drzwi, karta, ulotka) + prośba o link z ich
+     www/FB; lokalne media (krasnik.naszemiasto.pl, krasnik.eu — oficjalny portal miasta, Gazeta/Kurier), grupy FB
+     Kraśnika. Bez kupowania linków.
+  5. Nowe strony fraz, gdy będą lokale: sushi, cukiernie, sale na wesela/komunie (Fantazja, Folwark, Zielony Dworek,
+     U Bacy).
+  6. Świeżość: `lastmod` w sitemap z `lokale.zaktualizowano` (dziś na live wszystkie mają datę wgrania bazy).
+- **Ruch (user: „jak podpiąć, żebym widział, jak ruch wygląda?”).** Propozycja: Search Console (co ludzie wpisują
+  w Google, pozycje, kliknięcia) + **Umami w Coolify** (statystyki odwiedzin bez ciasteczek → bez banera zgód
+  i bez zmiany polityki prywatności; dane u nas). Zdarzenia: klik „Zadzwoń”, „dodaj do listy”, „Zadzwoń i zamów” per
+  lokal → później statystyki dla lokali w abonamencie. Czeka na decyzję usera i Kamila (usługa Umami w Coolify,
+  subdomena np. `statystyki.szamanie.pl`). Google Analytics odradzam: ciasteczka = baner zgód.
