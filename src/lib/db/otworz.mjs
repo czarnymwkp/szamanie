@@ -1,10 +1,12 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { wczytajDaneStartowe } from "./dane-startowe.mjs";
 import { MIGRACJE, SCHEMAT } from "./schemat.mjs";
 
 /**
- * Otwiera bazę SQLite, zakłada brakujące tabele i wykonuje zaległe migracje.
+ * Otwiera bazę SQLite, zakłada brakujące tabele i wykonuje zaległe migracje. Pustą bazę (bez lokali) wypełnia
+ * danymi startowymi z repozytorium.
  * Ścieżka: zmienna SZAMANIE_DB albo data/szamanie.db względem katalogu projektu.
  * @returns {DatabaseSync}
  */
@@ -30,5 +32,6 @@ export function openDatabase(sciezka = process.env.SZAMANIE_DB ?? "data/szamanie
       throw blad;
     }
   }
+  wczytajDaneStartowe(db);
   return db;
 }

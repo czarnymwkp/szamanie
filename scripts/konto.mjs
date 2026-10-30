@@ -7,10 +7,10 @@
 //   npm run konto -- odbierz jan@example.com <slug>
 // Link z domeną z DOMENA (na serwerze, z /opt/szamanie/.env), lokalnie http://localhost:3000.
 import { createHash, randomBytes } from "node:crypto";
-import { otworzBaze } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/otworz.mjs";
 
 const [polecenie, emailSurowy, slug] = process.argv.slice(2);
-const db = otworzBaze();
+const db = openDatabase();
 const email = emailSurowy?.trim().toLowerCase();
 
 function konto() {

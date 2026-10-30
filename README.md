@@ -12,8 +12,19 @@ npm ci
 npm run dev        # http://localhost:3000
 ```
 
-The database `data/szamanie.db` **is not in the repository** (`/data` is in `.gitignore`). The schema is created on first
-open. An empty database is filled from OpenStreetMap and menu files:
+The database `data/szamanie.db` is not in the repository (`/data` is in `.gitignore`), but its catalog is:
+`dane/baza-startowa.json` holds venues, menus, delivery zones, towns and manual corrections. When the database has no
+venues (fresh clone, CI, a new server volume), the app creates the schema and loads that file on first open — no setup
+needed. Accounts, sessions, owner requests, promotions and paid packages are never exported (the repository is public).
+
+After changing data locally, refresh the file and commit it:
+
+```bash
+npm run baza:eksport               # data/szamanie.db → dane/baza-startowa.json
+```
+
+The file only fills an empty database: a server that already has venues keeps its own data (edits from the owner panel).
+To rebuild the catalog from scratch instead:
 
 ```bash
 npm run import:osm                 # venues from OSM (Overpass API)
@@ -21,10 +32,7 @@ npm run dodaj                      # venues missing from OSM, from dane/lokale-s
 npm run menu -- <slug>             # menu from dane/lokale/<slug>.txt
 ```
 
-Manual corrections (phone numbers, addresses, hidden venues, amenities) are stored only in the database, so a full copy
-of the data has to be obtained separately.
-
-`npm run build` runs `scripts/init-db.mjs` first (npm `prebuild`), so the build also works on a fresh, empty database.
+`npm run build` runs `scripts/init-db.mjs` first (npm `prebuild`), so the build also works on a fresh database.
 
 ## Data scripts
 
@@ -36,6 +44,7 @@ of the data has to be obtained separately.
 | `npm run popraw -- <slug> <field> <value>` | manual correction of a venue (e.g. `telefon`, `dostawa`, `zwierzeta`) |
 | `npm run pakiet -- <slug> <top\|galeria> <days>` | manually grants a paid package (`npm run pakiet -- lista` shows active ones) |
 | `npm run konto -- admin <e-mail>` | admin role in the panel and an entry link (`lista`, `link <e-mail>`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
+| `npm run baza:eksport` | writes the catalog from the local database to `dane/baza-startowa.json` (commit it afterwards) |
 
 ## Venue panel (`/panel`)
 
