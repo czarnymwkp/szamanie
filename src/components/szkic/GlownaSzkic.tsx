@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Leaf, Search } from "lucide-react";
+import { Leaf, Search, Truck } from "lucide-react";
 import type { Lokal, Miejscowosc } from "@/lib/lokale";
 import { odmiana, opisLokalu } from "@/lib/nazwy";
 import BaneryReklamowe from "../BaneryReklamowe";
@@ -131,6 +131,19 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
               >
                 <div className="relative">
                   <Miniatura lokal={l} className="aspect-square" sizes="(min-width: 1024px) 240px, 50vw" dopisek={false} />
+                  {l.dostawa && (
+                    // jak plakietka „Dowóz” ze starej karty: autko podskakuje, za nim smużki (.dowoz-auto w globals.css)
+                    <span
+                      role="img"
+                      aria-label="Dowozi"
+                      className="absolute -bottom-2 -left-2 flex h-8 -rotate-3 items-center gap-1.5 overflow-hidden rounded-full border-2 border-tekst bg-akcent pr-2.5 pl-3 text-xs font-black text-na-akcencie"
+                    >
+                      <span aria-hidden className="dowoz-auto relative flex">
+                        <Truck className="size-4" />
+                      </span>
+                      <span aria-hidden>Dowóz</span>
+                    </span>
+                  )}
                   {(l.cechy.wege || l.cechy.wegan) && (
                     <span className="absolute -right-2 -bottom-2 flex size-8 rotate-12 items-center justify-center rounded-full border-2 border-tekst bg-[#86efac]">
                       <Leaf className="size-4 text-[#15803d]" aria-label="wege" />
