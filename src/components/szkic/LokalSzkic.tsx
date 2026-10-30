@@ -140,7 +140,10 @@ export default async function LokalSzkic({ lokal, powrot = "/" }: { lokal: Lokal
       {promocje.length > 0 && <PromocjeLokalu promocje={promocje} naglowek="" />}
 
       {menu ? (
-        <div className="relative mt-10 rotate-[0.4deg] bg-white px-4 pt-1 pb-5 shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
+        // obrócona jest tylko kartka pod spodem: obrót (transform) na przodku menu przypinałby pasek „Twoja lista”
+        // (position: fixed) do tej kartki zamiast do dołu ekranu
+        <div className="relative isolate mt-10 px-4 pt-1 pb-5">
+          <span aria-hidden className="absolute inset-0 -z-10 rotate-[0.4deg] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)]" />
           <span aria-hidden className="m-tasma absolute inset-x-0 top-0" />
           <MenuLokalu menu={menu} dostawa={dostawa} slug={lokal.slug} nazwa={lokal.nazwa} telefon={lokal.telefon} numerowane />
         </div>
