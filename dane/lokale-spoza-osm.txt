@@ -90,3 +90,75 @@ www: https://diamentowa.pl
 facebook: https://www.facebook.com/diamentowa.wilkolaz/
 e-mail: info@diamentowa.pl
 opis: Sala na wesela, komunie, chrzciny i imprezy firmowe do 300 osób, 10 minut od Kraśnika i 20 od Lublina.
+
+# ---- 30.10.2026 (noc): kolejne lokale, user: „dodaj je, bo chyba działają” ----
+# Nie dodane: AmAm Kebab Urzędów (food truck, Rynek 28, tel. 661 378 426) — ostatni wpis na FB 20.12.2023
+# „nieczynny do 07.01.2024 z przyczyn technicznych”, w katalogach „tymczasowo zamknięte”; Kebab Alibaba Zdrapy
+# (Wilkołaz, tel. 791 192 299) — ostatni wpis 30.09.2017 to ogłoszenie sprzedaży przyczepy gastronomicznej.
+
+== Bar Lawenda ==
+źródło: https://www.facebook.com/people/BAR-Lawenda/61551573335787/ (sprawdzono 2026-10-30, wpis z 30.10.2026; adres i godziny z ich wpisu „Bar Lawenda Zakrzówek Żeromskiego 27 czynny od poniedziałku do piątku 10-17”)
+typ: restaurant
+kuchnie: polish
+gmina: gm. Zakrzówek
+miejscowość: Zakrzówek
+adres: Żeromskiego 27
+współrzędne: 50.9539662, 22.3884411
+telefon: +48 572 001 256
+facebook: https://www.facebook.com/people/BAR-Lawenda/61551573335787/
+godziny: Mo-Fr 10:00-17:00
+opis: Bar obiadowy: rosół, flaki, mielony z buraczkami, pierś panierowana. W soboty katering i imprezy.
+
+== U Boryny ==
+źródło: https://baruboryny.eatbu.com (strona lokalu, sprawdzono 2026-10-30)
+typ: restaurant
+kuchnie: pizza
+gmina: gm. Zakrzówek
+miejscowość: Zakrzówek
+adres: Żeromskiego 13
+współrzędne: 50.9513790, 22.3856624
+telefon: +48 781 881 871
+www: https://baruboryny.eatbu.com
+godziny: We-Su 15:00-24:00
+na wynos: tak
+opis: Pizzeria, restauracja i pub w Zakrzówku: pizza 30, 42 i 50 cm, ogródek i imprezy prywatne.
+
+== Bistro Restauracja ==
+# ten sam adres co dawny Głodny KOYOT (facebook.com/glodnykoyotzakrzowek, wpisy do 2015)
+źródło: https://www.facebook.com/people/Bistro-Restauracja/100089850787052/ (sprawdzono 2026-10-30, ostatni wpis 20.11.2023)
+typ: fast_food
+kuchnie: kebab, burger
+gmina: gm. Zakrzówek
+miejscowość: Zakrzówek
+adres: Kościuszki 18
+współrzędne: 50.9506400, 22.3843074
+telefon: +48 786 401 700
+facebook: https://www.facebook.com/people/Bistro-Restauracja/100089850787052/
+na wynos: tak
+opis: Kebaby, burgery, sałatki i zapiekanki z mięsem z kraty, na miejscu i na wynos.
+
+== Niebo w Gębie ==
+# profil FB (facebook.com/people/Niebo-w-Gębie-Zakrzówek/61574970650857, wpisy 01.2026) jest teraz niedostępny,
+# więc bez linku; adres i telefon z katalogu Restaurant Guru — do potwierdzenia przez lokal
+źródło: https://pl.restaurantguru.com/Niebo-w-gebie-Zakrzowek (sprawdzono 2026-10-30)
+typ: fast_food
+kuchnie: kebab
+gmina: gm. Zakrzówek
+miejscowość: Zakrzówek
+adres: Żeromskiego 21
+współrzędne: 50.9528308, 22.3869218
+telefon: +48 729 059 207
+opis: Kebab z rożna w tortilli, w bułce, w boxie i jako danie, a do tego hot dogi.
+
+== Bistro Express ==
+# FB bez nowych wpisów od 2014; współrzędne z katalogu Restaurant Guru (ul. Radomska bez numeru)
+źródło: https://www.facebook.com/people/Bistro-Express-domowe-jedzenie-Annopol/61551406953431/ (sprawdzono 2026-10-30)
+typ: restaurant
+kuchnie: polish
+gmina: gm. Annopol
+miejscowość: Annopol
+adres: Radomska
+współrzędne: 50.8868, 21.8384
+telefon: +48 15 861 30 29
+facebook: https://www.facebook.com/people/Bistro-Express-domowe-jedzenie-Annopol/61551406953431/
+opis: Domowe jedzenie przy ulicy Radomskiej w Annopolu.
