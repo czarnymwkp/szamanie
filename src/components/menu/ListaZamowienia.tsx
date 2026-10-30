@@ -1,32 +1,91 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ClipboardList, Phone, Share2, Trash2, X } from "lucide-react";
+import { ArrowLeft, ClipboardList, Phone, Share2, Trash2, Users, X } from "lucide-react";
+import { renderSVG } from "uqr";
 import { zl } from "@/lib/ceny";
 import type { Dostawa } from "@/lib/menu";
-import { linkTelefonu } from "@/lib/nazwy";
+import { linkTelefonu, odmiana } from "@/lib/nazwy";
 import Licznik from "./Licznik";
-import { ODBIOR, type ListaLokalu } from "./useLista";
+import { ZNACZNIK, odkoduj, zakoduj } from "./razem";
+import { ODBIOR, type ListaLokalu, type PozycjaListy } from "./useLista";
+
+// imię do „Zamawiamy razem” pamiętamy w przeglądarce, żeby nie wpisywać go przy każdym zamówieniu
+const IMIE = "szamanie:imie";
+function czytajImie() {
+  try {
+    return localStorage.getItem(IMIE) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const sumaPozycji = (pozycje: PozycjaListy[]) => pozycje.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
 
 /**
  * Pasek „Twoja lista” na dole ekranu i okno z listą. Przy dzwonieniu lista przełącza się w „ściągawkę”:
- * duże litery, ekran nie gaśnie — żeby zamawiać z telefonu, a nie z kartki.
+ * duże litery, ekran nie gaśnie — żeby zamawiać z telefonu, a nie z kartki. „Zamawiamy razem”: kod QR i link
+ * z listą, druga osoba dopisuje swoje i podaje dalej (razem.ts); na liście pozycje są wtedy pogrupowane po osobach.
  */
 export default function ListaZamowienia({
   l,
+  slug,
+  dania,
   nazwa,
   telefon,
   dostawa,
 }: {
   l: ListaLokalu;
+  // bez nich (stare propozycje wyglądu) nie ma „Zamawiamy razem”
+  slug?: string;
+  dania?: Map<string, Omit<PozycjaListy, "ilosc" | "kto">>;
   nazwa: string;
   telefon: string | null;
   dostawa: Dostawa | null;
 }) {
   const okno = useRef<HTMLDialogElement>(null);
   const [sciagawka, setSciagawka] = useState(false);
+  const [razemOtwarte, setRazemOtwarte] = useState(false);
+  const [imie, setImie] = useState("");
   const [skopiowano, setSkopiowano] = useState(false);
   const { lista, liczba, sumaGr } = l;
+
+  // Link „Zamawiamy razem” (…#razem=…): przyjmujemy listę i od razu ją pokazujemy. Znacznik znika z adresu,
+  // żeby odświeżenie strony nie wczytało jej drugi raz.
+  useEffect(() => {
+    if (!dania) return;
+    const przyjmij = () => {
+      if (!location.hash.startsWith(ZNACZNIK)) return;
+      const dane = odkoduj(location.hash.slice(ZNACZNIK.length), (k) => dania.get(k));
+      history.replaceState(null, "", location.pathname + location.search);
+      if (!dane?.pozycje.length) return;
+      l.przyjmijRazem(dane.pozycje, dane.uwagi, czytajImie());
+      if (!okno.current?.open) okno.current?.showModal();
+    };
+    przyjmij();
+    // link otwarty, gdy ta strona lokalu już jest otwarta — zmienia się tylko część po „#”, bez przeładowania
+    window.addEventListener("hashchange", przyjmij);
+    return () => window.removeEventListener("hashchange", przyjmij);
+  }, [dania, l]);
+
+  // Do dzwonienia i wysyłki te same dania od różnych osób idą razem („3 × Margherita”).
+  const zebrane = [
+    ...lista.pozycje
+      .reduce((m, p) => {
+        const z = m.get(p.klucz);
+        return m.set(p.klucz, z ? { ...z, ilosc: z.ilosc + p.ilosc } : { ...p, kto: undefined });
+      }, new Map<string, PozycjaListy>())
+      .values(),
+  ];
+  // Pozycje innych osób (z linku) pogrupowane po imionach, moje na końcu; bez „Zamawiamy razem” — jedna lista.
+  const osoby = [...new Set(lista.pozycje.flatMap((p) => (p.kto ? [p.kto] : [])))];
+  const grupy = osoby.length
+    ? [...osoby, undefined].map((kto) => ({ kto, pozycje: lista.pozycje.filter((p) => p.kto === kto) }))
+    : [{ kto: undefined, pozycje: lista.pozycje }];
+  const linkRazem =
+    razemOtwarte && imie.trim()
+      ? `${location.origin}/lokal/${slug}${ZNACZNIK}${zakoduj(lista.pozycje, lista.uwagi, imie.trim())}`
+      : "";
 
   const strefa = dostawa?.strefy.find((s) => s.nazwa === lista.strefa) ?? null;
   const odbior = lista.strefa === ODBIOR;
@@ -62,7 +121,7 @@ export default function ListaZamowienia({
   const tekst = () =>
     [
       `Zamówienie — ${nazwa}`,
-      ...lista.pozycje.map((p) => `${p.ilosc} × ${p.nazwa}${p.wariant ? ` (${p.wariant})` : ""}`),
+      ...zebrane.map((p) => `${p.ilosc} × ${p.nazwa}${p.wariant ? ` (${p.wariant})` : ""}`),
       lista.uwagi && `Uwagi: ${lista.uwagi}`,
       strefa ? `Dostawa: ${strefa.nazwa}` : odbior ? "Odbiór osobisty" : "",
       sumaGr ? `Razem ok. ${zl(razem)}` : "",
@@ -81,10 +140,40 @@ export default function ListaZamowienia({
     } catch {}
   };
 
+  const wyslijRazem = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: `Zamawiamy razem — ${nazwa}`, url: linkRazem });
+      else {
+        await navigator.clipboard.writeText(linkRazem);
+        setSkopiowano(true);
+        setTimeout(() => setSkopiowano(false), 2000);
+      }
+    } catch {}
+  };
+
   const zamknij = () => {
     okno.current?.close();
     setSciagawka(false);
+    setRazemOtwarte(false);
   };
+
+  const wiersz = (p: PozycjaListy) => (
+    <li key={`${p.kto ?? ""}|${p.klucz}`} className="flex items-center gap-3 py-3">
+      <div className="min-w-0 flex-1">
+        <p className="leading-snug font-extrabold">
+          {p.nazwa}
+          {p.wariant && <span className="font-bold text-tekst-2"> · {p.wariant}</span>}
+        </p>
+        <p className="text-sm font-bold text-tekst-2">{p.gr === null ? "cena w lokalu" : `${p.ilosc} × ${zl(p.gr)}`}</p>
+      </div>
+      <Licznik
+        ile={p.ilosc}
+        nazwa={p.nazwa}
+        dodaj={() => l.zmienIlosc(p.klucz, 1, p.kto)}
+        zmien={(o) => l.zmienIlosc(p.klucz, o, p.kto)}
+      />
+    </li>
+  );
 
   return (
     <>
@@ -108,13 +197,23 @@ export default function ListaZamowienia({
         ref={okno}
         aria-label="Twoja lista do zamówienia"
         onClick={(e) => e.target === e.currentTarget && zamknij()}
-        onClose={() => setSciagawka(false)}
+        onClose={() => {
+          setSciagawka(false);
+          setRazemOtwarte(false);
+        }}
         className="mx-0 mt-auto mb-0 max-h-[92dvh] w-full max-w-none overflow-hidden rounded-t-[1.75rem] bg-tlo p-0 text-tekst shadow-2xl backdrop:bg-black/55 open:flex open:animate-wysun open:flex-col sm:m-auto sm:max-w-lg sm:rounded-[1.75rem]"
       >
         <div className="flex items-center gap-3 border-b border-obrys px-5 py-4">
-          {sciagawka ? (
-            <button type="button" onClick={() => setSciagawka(false)} className="flex items-center gap-1.5 text-sm font-extrabold">
-              <ArrowLeft className="size-4" aria-hidden /> Edytuj listę
+          {sciagawka || razemOtwarte ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSciagawka(false);
+                setRazemOtwarte(false);
+              }}
+              className="flex items-center gap-1.5 text-sm font-extrabold"
+            >
+              <ArrowLeft className="size-4" aria-hidden /> {sciagawka ? "Edytuj listę" : "Wróć do listy"}
             </button>
           ) : (
             <h2 className="flex items-center gap-2 font-grotesk text-xl font-bold">
@@ -130,7 +229,7 @@ export default function ListaZamowienia({
           <div className="flex-1 overflow-y-auto px-5 py-6">
             <p className="text-sm font-extrabold text-tekst-2 uppercase">Zamawiasz w: {nazwa}</p>
             <ul className="mt-4 space-y-3">
-              {lista.pozycje.map((p) => (
+              {zebrane.map((p) => (
                 <li key={p.klucz} className="text-[1.75rem] leading-tight font-black">
                   <span className="text-akcent-tekst">{p.ilosc} ×</span> {p.nazwa}
                   {p.wariant && <span className="font-bold text-tekst-2"> ({p.wariant})</span>}
@@ -144,30 +243,71 @@ export default function ListaZamowienia({
             {sumaGr > 0 && <p className="mt-1 text-xl font-extrabold">Razem ok. {zl(razem)}</p>}
             <p className="mt-6 text-xs font-semibold text-tekst-2">Ekran nie zgaśnie, dopóki ta lista jest otwarta.</p>
           </div>
+        ) : razemOtwarte ? (
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            <h3 className="flex items-center gap-2 font-grotesk text-xl font-bold">
+              <Users className="size-5 text-akcent-tekst" aria-hidden /> Zamawiamy razem
+            </h3>
+            <p className="mt-1 text-sm font-semibold text-tekst-2">
+              Druga osoba skanuje kod aparatem w telefonie (albo dostaje link), dopisuje swoje dania i podaje dalej.
+              Ostatnia dzwoni i zamawia wszystko naraz.
+            </p>
+            <label className="mt-4 block">
+              <span className="text-sm font-extrabold">Twoje imię</span>
+              <input
+                value={imie}
+                onChange={(e) => {
+                  setImie(e.target.value);
+                  try {
+                    localStorage.setItem(IMIE, e.target.value.trim());
+                  } catch {}
+                }}
+                maxLength={30}
+                placeholder="np. Ania"
+                className="mt-1 h-12 w-full rounded-2xl border-[1.5px] border-obrys-2 bg-karta px-4 font-bold outline-none focus:border-tekst"
+              />
+            </label>
+            {linkRazem ? (
+              <>
+                {/* SVG z biblioteki uqr — same kwadraty kodu, bez tekstu z zewnątrz */}
+                <div
+                  role="img"
+                  aria-label="Kod QR z listą do zamówienia"
+                  className="mx-auto mt-5 w-60 max-w-full rounded-2xl bg-white p-2 shadow-sm"
+                  dangerouslySetInnerHTML={{ __html: renderSVG(linkRazem, { border: 1 }) }}
+                />
+                <p className="mt-2 text-center text-xs font-bold text-tekst-2">
+                  {liczba} {odmiana(liczba, ["pozycja", "pozycje", "pozycji"])} od: {[...osoby.filter((o) => o !== imie.trim()), imie.trim()].join(", ")}
+                </p>
+              </>
+            ) : (
+              <p className="mt-4 rounded-2xl bg-krem p-4 text-sm font-bold">
+                Wpisz imię — inni zobaczą, które dania są Twoje.
+              </p>
+            )}
+          </div>
         ) : (
           <div className="flex-1 overflow-y-auto px-5 pb-4">
             <p className="pt-3 text-sm font-bold text-tekst-2">{nazwa}</p>
-            <ul className="divide-y divide-obrys">
-              {lista.pozycje.map((p) => (
-                <li key={p.klucz} className="flex items-center gap-3 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="leading-snug font-extrabold">
-                      {p.nazwa}
-                      {p.wariant && <span className="font-bold text-tekst-2"> · {p.wariant}</span>}
-                    </p>
-                    <p className="text-sm font-bold text-tekst-2">
-                      {p.gr === null ? "cena w lokalu" : `${p.ilosc} × ${zl(p.gr)}`}
-                    </p>
-                  </div>
-                  <Licznik
-                    ile={p.ilosc}
-                    nazwa={p.nazwa}
-                    dodaj={() => l.zmienIlosc(p.klucz, 1)}
-                    zmien={(o) => l.zmienIlosc(p.klucz, o)}
-                  />
-                </li>
-              ))}
-            </ul>
+            {grupy.map((g) =>
+              osoby.length ? (
+                <section key={g.kto ?? ""} className="mt-3">
+                  <h3 className="flex justify-between border-b-2 border-tekst pb-1 text-sm font-black">
+                    <span>{g.kto ?? "Ty"}</span>
+                    {sumaPozycji(g.pozycje) > 0 && <span>{zl(sumaPozycji(g.pozycje))}</span>}
+                  </h3>
+                  {g.pozycje.length ? (
+                    <ul className="divide-y divide-obrys">{g.pozycje.map(wiersz)}</ul>
+                  ) : (
+                    <p className="py-3 text-sm font-semibold text-tekst-2">Dodaj swoje dania przyciskiem + w menu.</p>
+                  )}
+                </section>
+              ) : (
+                <ul key="lista" className="divide-y divide-obrys">
+                  {g.pozycje.map(wiersz)}
+                </ul>
+              ),
+            )}
 
             <label className="mt-3 block">
               <span className="text-sm font-extrabold">Uwagi do zamówienia</span>
@@ -232,7 +372,16 @@ export default function ListaZamowienia({
         )}
 
         <div className="space-y-2 border-t border-obrys bg-tlo px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          {telefon ? (
+          {razemOtwarte ? (
+            <button
+              type="button"
+              onClick={wyslijRazem}
+              disabled={!linkRazem}
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-akcent text-lg font-black text-na-akcencie transition active:scale-[0.98] disabled:opacity-40"
+            >
+              <Share2 className="size-5" aria-hidden /> {skopiowano ? "Link skopiowany" : "Wyślij link"}
+            </button>
+          ) : telefon ? (
             <a
               href={linkTelefonu(telefon)}
               onClick={() => setSciagawka(true)}
@@ -243,7 +392,19 @@ export default function ListaZamowienia({
           ) : (
             <p className="text-center text-sm font-bold text-tekst-2">Lokal nie podał telefonu — zamówisz na miejscu.</p>
           )}
-          {!sciagawka && (
+          {!sciagawka && !razemOtwarte && slug && (
+            <button
+              type="button"
+              onClick={() => {
+                setImie((i) => i || czytajImie());
+                setRazemOtwarte(true);
+              }}
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-tekst text-sm font-extrabold"
+            >
+              <Users className="size-4" aria-hidden /> Zamawiamy razem — kod QR
+            </button>
+          )}
+          {!sciagawka && !razemOtwarte && (
             <div className="flex gap-2">
               <button
                 type="button"

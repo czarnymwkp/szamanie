@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, Flame, Leaf, Plus, Search, Star, Sun, X } from "lucide-react";
 import { dataPl, zl } from "@/lib/ceny";
 import type { CechaDania, Dostawa, Menu, PozycjaMenu, SekcjaMenu } from "@/lib/menu";
@@ -10,7 +10,7 @@ import { bezPolskich, slugify } from "@/lib/slug.mjs";
 import Licznik from "./Licznik";
 import Trikolor from "../szablony/Trikolor";
 import ListaZamowienia from "./ListaZamowienia";
-import { kluczPozycji, useLista, type ListaLokalu } from "./useLista";
+import { kluczPozycji, useLista, type ListaLokalu, type PozycjaListy } from "./useLista";
 
 // Pełne pigułki w kolorach tokenów: kontrast ≥ 4,9:1 i w jasnym, i w ciemnym motywie lokalu
 // (półprzezroczyste tło z kolorowym tekstem nie przechodziło 4,5:1 na kremowym tle).
@@ -66,6 +66,22 @@ export default function MenuLokalu({
   spis?: "wersaliki" | "tablica"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
 }) {
   const l = useLista(slug);
+  // klucz pozycji → nazwa, wariant i cena: lista z linku „Zamawiamy razem” ma same klucze
+  const dania = useMemo(() => {
+    const m = new Map<string, Omit<PozycjaListy, "ilosc" | "kto">>();
+    for (const p of menu.sekcje.flatMap((s) => s.pozycje)) {
+      if (p.ceny.length <= 1) {
+        const klucz = kluczPozycji(p.id, null);
+        m.set(klucz, { klucz, nazwa: p.nazwa, wariant: null, gr: p.ceny[0]?.gr ?? null });
+      } else {
+        for (const c of p.ceny) {
+          const klucz = kluczPozycji(p.id, c.wariant);
+          m.set(klucz, { klucz, nazwa: p.nazwa, wariant: c.wariant, gr: c.gr });
+        }
+      }
+    }
+    return m;
+  }, [menu]);
   const [szukaj, setSzukaj] = useState("");
   const desktop = useDesktop();
   // Działy, które ktoś sam rozwinął (true) albo zwinął (false); reszta ma stan domyślny dla ekranu.
@@ -178,7 +194,7 @@ export default function MenuLokalu({
         </p>
       )}
 
-      <ListaZamowienia l={l} nazwa={nazwa} telefon={telefon} dostawa={dostawa} />
+      <ListaZamowienia l={l} slug={slug} dania={dania} nazwa={nazwa} telefon={telefon} dostawa={dostawa} />
     </section>
   );
 }

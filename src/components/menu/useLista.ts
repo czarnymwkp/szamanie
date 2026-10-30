@@ -2,8 +2,18 @@
 
 import { useSyncExternalStore } from "react";
 
-/** Jedna pozycja na liście do zamówienia. gr = null, gdy lokal nie podał ceny. */
-export type PozycjaListy = { klucz: string; nazwa: string; wariant: string | null; gr: number | null; ilosc: number };
+/**
+ * Jedna pozycja na liście do zamówienia. gr = null, gdy lokal nie podał ceny.
+ * kto = imię osoby, od której pozycja przyszła w linku „Zamawiamy razem” (razem.ts); bez niego — moja.
+ */
+export type PozycjaListy = {
+  klucz: string;
+  nazwa: string;
+  wariant: string | null;
+  gr: number | null;
+  ilosc: number;
+  kto?: string;
+};
 /** strefa = nazwa strefy dostawy albo ODBIOR; null = jeszcze nie wybrano. */
 export type Lista = { pozycje: PozycjaListy[]; uwagi: string; strefa: string | null };
 
@@ -64,17 +74,18 @@ export function useLista(slug: string) {
 
   const dodaj = (p: Omit<PozycjaListy, "ilosc">) => {
     const pozycje = czytaj(slug).pozycje;
-    const jest = pozycje.find((x) => x.klucz === p.klucz);
+    const jest = pozycje.find((x) => x.klucz === p.klucz && !x.kto);
     zmien({
       pozycje: jest
         ? pozycje.map((x) => (x === jest ? { ...x, ilosc: x.ilosc + 1 } : x))
         : [...pozycje, { ...p, ilosc: 1 }],
     });
   };
-  const zmienIlosc = (kluczPoz: string, o: number) =>
+  /** kto: czyja pozycja (z „Zamawiamy razem”); bez niego — moja. */
+  const zmienIlosc = (kluczPoz: string, o: number, kto?: string) =>
     zmien({
       pozycje: czytaj(slug)
-        .pozycje.map((x) => (x.klucz === kluczPoz ? { ...x, ilosc: x.ilosc + o } : x))
+        .pozycje.map((x) => (x.klucz === kluczPoz && x.kto === kto ? { ...x, ilosc: x.ilosc + o } : x))
         .filter((x) => x.ilosc > 0),
     });
 
@@ -85,12 +96,22 @@ export function useLista(slug: string) {
     liczba,
     sumaGr,
     bezCeny: lista.pozycje.some((p) => p.gr === null),
-    ilosc: (kluczPoz: string) => lista.pozycje.find((x) => x.klucz === kluczPoz)?.ilosc ?? 0,
+    // licznik przy daniu w menu pokazuje tylko moje sztuki — cudze zmienia się na liście
+    ilosc: (kluczPoz: string) => lista.pozycje.find((x) => x.klucz === kluczPoz && !x.kto)?.ilosc ?? 0,
     dodaj,
     zmienIlosc,
     ustawUwagi: (uwagi: string) => zmien({ uwagi }),
     ustawStrefe: (strefa: string | null) => zmien({ strefa }),
     wyczysc: () => zmien({ pozycje: [], uwagi: "" }),
+    /**
+     * Lista z linku „Zamawiamy razem”. Pozycje pod moim imieniem wracają jako moje; gdy link mnie nie zna,
+     * dochodzą do niego moje dotychczasowe pozycje (dopisane, zanim ktoś przysłał link).
+     */
+    przyjmijRazem: (pozycje: PozycjaListy[], uwagi: string, mojeImie: string) => {
+      const zLinku = pozycje.map((p) => (mojeImie && p.kto === mojeImie ? { ...p, kto: undefined } : p));
+      const moje = zLinku.some((p) => !p.kto) ? [] : czytaj(slug).pozycje.filter((p) => !p.kto);
+      zmien({ pozycje: [...zLinku, ...moje], uwagi: uwagi || czytaj(slug).uwagi });
+    },
   };
 }
 
