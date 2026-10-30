@@ -1,9 +1,34 @@
-# Kinowa (Craft Food Pub), Kraśnik — menu przepisane ze zdjęcia karty na Facebooku lokalu (strona z pizzą).
-# Pozostałe działy karty (dania główne itd.) — gdy będą zdjęcia kolejnych stron.
+# Kinowa (Craft Food Pub), Kraśnik — menu przepisane ze zdjęć karty na Facebooku lokalu (4 strony: przystawki
+# i sałatki, dania główne, pizza neapolitana, karta napojów). Nazwy działów jak w karcie.
 źródło: https://www.facebook.com/Kinowa.CraftFoodPub
 sprawdzono: 2026-10-31
 
 == MENU ==
+## Mistrzowski kadr smaku | Przegląd przedpremierowy — przystawki na czerwony dywan.
+Labneh | ser labneh z oliwą cytrynową, pomidorami i pieczywem | 22 | wege
+Hummus | hummus z oliwą, pomidorami i pieczywem | 22 | wege
+Mix labneh & hummus | labneh z hummusem, oliwą cytrynową, pomidorami i pieczywem | 22 | wege
+
+## Sałatki | Chrupiące warzywa, wyraziste sery i autorskie dressingi.
+Sałatka cesarska z grillowanym kurczakiem |  | 30 |
+Sałatka cesarska z wołowiną |  | 35 |
+Sałatka z mozzarellą | pomidor, sałata, oliwki, oliwa, cebula | 28 | wege
+Sałatka grecka z focaccią |  | 28 |
+
+## Smash burgers | Puszysta bułka maślana, wyraziste sery i idealnie wysmażone mięso.
+Crispy smash | wołowina, cheddar, pikle, sos burgerowy, bułka maślana | single: 18; double: 28; triple: 38 |
+Master smash | wołowina, biała cebula, cheddar, bekon, pikle, sos burgerowy, bułka maślana | single: 20; double: 30; triple: 40 |
+Hot smash | wołowina, biała cebula, cheddar, jalapeño, sos burgerowy, ostre pomidory, sałata lodowa, bułka maślana | single: 20; double: 30; triple: 40 | ostre
+
+## Burgery
+Classic burger | wołowina 150 g, cheddar, sałata, pomidor, pikle, cebula, bułka maślana, sos do wyboru | 28 |
+Kozak burger | wołowina 2 × 150 g, podwójny cheddar, grillowany bekon, cebula, sałata, pikle, sos do wyboru | 48 |
+Kurczak burger | kawałki panierowanego kurczaka, cheddar, sałata, pikle, pomidor, cebula, bułka maślana, sos do wyboru | 26 |
+
+## Chicken strips
+Chicken strips | kurczak 150 g, frytki, surówka | 28 |
+Tortilla z panierowanym kurczakiem |  | 26 |
+
 ## Pizza neapolitana | Pieczona w żywym ogniu, w temperaturze ponad 450°C: sprężysty brzeg, wypieczona panterka i lekkość.
 Margherita | sos pomidorowy, mozzarella fior di latte, bazylia | 28 | wege
 Pepperoni | sos pomidorowy, mozzarella fior di latte, salami piccante | 30 | ostre
@@ -11,3 +36,24 @@ Cotto | sos pomidorowy, mozzarella fior di latte, prosciutto cotto | 30 |
 Döner kurczak | sos pomidorowy, mozzarella fior di latte, kurczak Berlin Gemüse | 35 |
 Döner stekowa wołowina yaprak | sos pomidorowy, mozzarella fior di latte, stekowa wołowina yaprak, czerwona cebula | 40 |
 Pizza wersja reżyserska (3 składniki) | skomponuj własną wersję; do wyboru: grillowany kurczak, szynka prosciutto cotto, boczek wędzony, włoskie salami, oliwki, cebula czerwona, kapary, papryczka chilli, pieczarki, pomidorki koktajlowe, ogórek kiszony | 35 |
+
+## Cocktaile i aperitif
+Aperol Spritz | Aperol, prosecco | 28 |
+Hugo Spritz | prosecco, syrop z kwiatów czarnego bzu, limonka | 28 |
+Mojito | biały rum, limonka, mięta, cukier trzcinowy, Sprite | 25 |
+Sex on the Beach | sok pomarańczowy, wódka, likier brzoskwiniowy, grenadyna | 25 |
+Whisky Sour |  | 24 |
+
+## Piwo lane i butelkowe
+Perła lane |  | 0,3 l: 7; 0,5 l: 10 |
+Perła / Żywiec / Heineken 0,5 l | butelka | 10 |
+Desperados 0,4 l / Lech 0% 0,5 l / Peroni 0% 0,33 l | butelka | 10 |
+Grzane piwo |  | 15 |
+
+## Alkohole mocne
+Wódka Jarzębiak / Strumbras / Baczewski |  | 50 ml: 10; 0,5 l: 100 |
+Jack Daniel's |  | 50 ml: 17; 0,5 l: 180 |
+Jim Beam |  | 50 ml: 15; 0,5 l: 150 |
+Grant's / Jameson |  | 50 ml: 14 |
+Gin |  | 50 ml: 15 |
+Jägermeister |  | 50 ml: 18 |

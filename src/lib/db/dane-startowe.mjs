@@ -34,7 +34,7 @@ export function wczytajDaneStartowe(db, sciezka = PLIK_DANYCH) {
     // sprawdzane dopiero z blokadą: inny proces (worker buildu) mógł wstawić dane przed nami
     let opis;
     if (db.prepare("SELECT 1 FROM lokale LIMIT 1").get()) {
-      const [lokale, poprawki, menu, ukryte] = [dosiejNoweLokale, uzupelnijPoprawki, uzupelnijMenu, ukryjZamkniete].map(
+      const [lokale, poprawki, menu, ukryte] = [dosiejNoweLokale, uzupelnijPoprawki, zsynchronizujMenu, ukryjZamkniete].map(
         (f) => f(db, tabele),
       );
       opis = { "nowe lokale": lokale, poprawki, "pozycje menu i stref": menu, "ukryte lokale": ukryte };
@@ -140,55 +140,69 @@ function uzupelnijPoprawki(db, tabele) {
 }
 
 /**
- * Menu i strefy dostawy z pliku dla lokali, które w bazie już są, ale ich nie mają (np. menu przepisane z karty
- * lokalu po pierwszym wdrożeniu). Lokal z jakimkolwiek menu albo z menu prowadzonym w panelu zostaje nietknięty.
+ * Menu i strefy dostawy przepisane z kart lokali (dane/lokale/*.txt) są na serwerze takie jak w pliku: lokal bez menu
+ * je dostaje, a menu inne niż w pliku (karta przepisana na nowo albo uzupełniona) zostaje zastąpione. Menu albo
+ * dostawa prowadzone w panelu (źródło „panel”) i lokale, których menu w pliku nie ma, zostają nietknięte.
  */
-function uzupelnijMenu(db, tabele) {
+const GRUPY_LOKALU = [
+  { tabele: ["menu_sekcje", "menu"], zrodlo: "menu_zrodlo", pola: ["menu_zrodlo", "menu_sprawdzono"] },
+  { tabele: ["strefy_dostawy"], zrodlo: "dostawa_zrodlo", pola: ["dostawa_zrodlo", "dostawa_sprawdzono", "dostawa_uwagi"] },
+];
+
+function zsynchronizujMenu(db, tabele) {
   const { lokale } = tabele;
   if (!lokale?.wiersze.length) return 0;
   const kol = (tabela, nazwa) => tabela.kolumny.indexOf(nazwa);
-  const slugZPliku = new Map(lokale.wiersze.map((w) => [w[kol(lokale, "id")], w[kol(lokale, "slug")]]));
-  const wierszZPliku = new Map(lokale.wiersze.map((w) => [w[kol(lokale, "slug")], w]));
-  const wBazie = db.prepare("SELECT id, menu_zrodlo FROM lokale WHERE slug = ?");
-  const ma = (tabela) => db.prepare(`SELECT 1 FROM ${tabela} WHERE lokal_id = ? LIMIT 1`);
-  const [maMenu, maSekcje, maStrefy] = [ma("menu"), ma("menu_sekcje"), ma("strefy_dostawy")];
+  const lokalWBazie = db.prepare("SELECT id, menu_zrodlo, dostawa_zrodlo FROM lokale WHERE slug = ?");
 
-  // które tabele komu dosiać: id w pliku → id w bazie
-  const doMenu = new Map();
-  const doStref = new Map();
-  for (const [idPliku, slug] of slugZPliku) {
-    const lokal = wBazie.get(slug);
-    if (!lokal) continue;
-    if (lokal.menu_zrodlo !== "panel" && !maMenu.get(lokal.id) && !maSekcje.get(lokal.id)) doMenu.set(idPliku, lokal.id);
-    if (!maStrefy.get(lokal.id)) doStref.set(idPliku, lokal.id);
-  }
+  // kolumny porównywane i przepisywane: z pliku i z bazy naraz, bez własnego id wiersza i lokal_id
+  const kolumny = Object.fromEntries(
+    GRUPY_LOKALU.flatMap((g) => g.tabele).map((nazwa) => {
+      const wBazie = new Set(db.prepare(`PRAGMA table_info(${nazwa})`).all().map((k) => k.name));
+      return [nazwa, (tabele[nazwa]?.kolumny ?? []).filter((k) => wBazie.has(k) && k !== "id" && k !== "lokal_id")];
+    }),
+  );
+  const zPliku = (nazwa, idPliku) => {
+    const t = tabele[nazwa];
+    if (!t?.wiersze.length) return [];
+    const iLokal = kol(t, "lokal_id");
+    return t.wiersze.filter((w) => w[iLokal] === idPliku);
+  };
+  // odcisk: wiersze jako tekst, posortowane (kolejność trzyma kolumna „kolejnosc”)
+  const odciskPliku = (nazwa, wiersze) =>
+    wiersze.map((w) => JSON.stringify(kolumny[nazwa].map((k) => w[kol(tabele[nazwa], k)]))).sort();
+  const odciskBazy = (nazwa, id) =>
+    db
+      .prepare(`SELECT ${kolumny[nazwa].map((k) => `"${k}"`).join(", ")} FROM ${nazwa} WHERE lokal_id = ?`)
+      .all(id)
+      .map((w) => JSON.stringify(kolumny[nazwa].map((k) => w[k])))
+      .sort();
 
   let zmiany = 0;
-  for (const [nazwa, komu] of [
-    ["menu_sekcje", doMenu],
-    ["menu", doMenu],
-    ["strefy_dostawy", doStref],
-  ]) {
-    const tabela = tabele[nazwa];
-    if (!tabela?.wiersze.length || !komu.size) continue;
-    const iLokal = kol(tabela, "lokal_id");
-    const wstaw = wstawiacz(db, nazwa, tabela.kolumny, { bez: ["id"] });
-    for (const w of tabela.wiersze) {
-      if (!komu.has(w[iLokal])) continue;
-      wstaw(w, { lokal_id: komu.get(w[iLokal]) });
-      zmiany++;
+  for (const wLokal of lokale.wiersze) {
+    const lokal = lokalWBazie.get(wLokal[kol(lokale, "slug")]);
+    if (!lokal) continue;
+    for (const grupa of GRUPY_LOKALU) {
+      if (lokal[grupa.zrodlo] === "panel") continue;
+      const wiersze = Object.fromEntries(grupa.tabele.map((n) => [n, zPliku(n, wLokal[kol(lokale, "id")])]));
+      if (!Object.values(wiersze).some((w) => w.length)) continue;
+      const takieSame = grupa.tabele.every(
+        (n) => JSON.stringify(odciskPliku(n, wiersze[n])) === JSON.stringify(odciskBazy(n, lokal.id)),
+      );
+      if (takieSame) continue;
+      for (const n of grupa.tabele) {
+        db.prepare(`DELETE FROM ${n} WHERE lokal_id = ?`).run(lokal.id);
+        const wstaw = wstawiacz(db, n, tabele[n].kolumny, { bez: ["id"] });
+        for (const w of wiersze[n]) wstaw(w, { lokal_id: lokal.id });
+        zmiany += wiersze[n].length;
+      }
+      // skąd menu i kiedy sprawdzone (napis „Ceny sprawdzone …”)
+      const pola = grupa.pola.filter((p) => kol(lokale, p) >= 0);
+      db.prepare(`UPDATE lokale SET ${pola.map((p) => `${p} = ?`).join(", ")} WHERE id = ?`).run(
+        ...pola.map((p) => wLokal[kol(lokale, p)]),
+        lokal.id,
+      );
     }
-  }
-  // skąd menu i kiedy sprawdzone (napis „Ceny sprawdzone …”) — tylko tam, gdzie menu właśnie doszło
-  const pola = ["menu_zrodlo", "menu_sprawdzono", "dostawa_zrodlo", "dostawa_sprawdzono", "dostawa_uwagi"].filter(
-    (p) => kol(lokale, p) >= 0,
-  );
-  for (const [idPliku, id] of doMenu) {
-    const w = wierszZPliku.get(slugZPliku.get(idPliku));
-    db.prepare(`UPDATE lokale SET ${pola.map((p) => `${p} = COALESCE(${p}, ?)`).join(", ")} WHERE id = ?`).run(
-      ...pola.map((p) => w[kol(lokale, p)]),
-      id,
-    );
   }
   return zmiany;
 }
