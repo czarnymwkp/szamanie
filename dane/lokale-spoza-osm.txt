@@ -19,3 +19,74 @@ godziny: Mo off; Tu-Su 10:00-23:00
 dostawa: tak
 na wynos: tak
 opis: Pizza, kebab, burgery, zapiekanki i hot-dogi przy Rynku w Urzędowie.
+# 30.10.2026: profil FB Małego Baru (facebook.com/MalyBarPizza) to teraz lodziarnia Dolce Vita, Rynek 5 (niżej);
+# pod Rynkiem 9 po Małym Barze był Kebab Zone Urzędów — na FB ostatnio 01.2025, w katalogach „tymczasowo zamknięte”
+
+# ---- 30.10.2026: gminy bez lokali (user: „Urzędów, Zakrzówek, Dzierzkowice i Trzydnik mają po 0”) ----
+# Dane z profili lokali na Facebooku (strona bez logowania: adres, telefon, data ostatniego wpisu), współrzędne
+# z adresu w OpenStreetMap (Nominatim). Godzin FB bez logowania nie pokazuje — do uzupełnienia przez lokal w panelu.
+
+== Ankara Doner ==
+źródło: https://www.facebook.com/AnkaraDonerDzierzkowice (sprawdzono 2026-10-30, ostatni wpis 17.10.2026)
+typ: fast_food
+kuchnie: kebab
+gmina: gm. Dzierzkowice
+miejscowość: Dzierzkowice-Rynek
+adres: Dzierzkowice-Rynek 143
+współrzędne: 50.9571093, 22.0847908
+telefon: +48 577 434 001
+facebook: https://www.facebook.com/AnkaraDonerDzierzkowice
+na wynos: tak
+opis: Kebab i zapiekanki na wynos w Dzierzkowicach-Rynku, a na domówki „party box” z mięsem i dodatkami.
+
+== Kawiarnia „Starościanka” ==
+źródło: https://www.facebook.com/tortywiolettamazik/ (sprawdzono 2026-10-30, wpis z 30.10.2026)
+typ: cafe
+kuchnie: coffee_shop, cake
+gmina: gm. Urzędów
+miejscowość: Urzędów
+adres: Dzikowskiego 1
+współrzędne: 50.9948500, 22.1457327
+telefon: +48 607 219 091
+facebook: https://www.facebook.com/tortywiolettamazik/
+opis: Kawiarnia z obiadami w centrum Urzędowa, przy ulicy Dzikowskiego.
+
+== Dolce Vita ==
+źródło: https://www.facebook.com/MalyBarPizza (sprawdzono 2026-10-30, wpis z 30.09.2026)
+typ: ice_cream
+kuchnie: ice_cream, coffee_shop
+gmina: gm. Urzędów
+miejscowość: Urzędów
+adres: Rynek 5
+współrzędne: 50.9934082, 22.1437118
+facebook: https://www.facebook.com/MalyBarPizza
+na wynos: tak
+opis: Lody włoskie z automatu i gałkowe Carte d'Or, gofry z bitą śmietaną i owocami oraz kawa przy Rynku w Urzędowie.
+
+== Kebab Point ==
+# współrzędne: środek Rynku w Annopolu (OSM nie ma numeru 7)
+źródło: https://www.facebook.com/p/Kebab-Point-Annopol-100083046355228/ (sprawdzono 2026-10-30, wpis z 30.10.2026)
+typ: fast_food
+kuchnie: kebab, turkish
+gmina: gm. Annopol
+miejscowość: Annopol
+adres: Rynek 7
+współrzędne: 50.8853037, 21.8570072
+telefon: +48 887 735 951
+facebook: https://www.facebook.com/p/Kebab-Point-Annopol-100083046355228/
+opis: Kebab w tureckim stylu przy Rynku w Annopolu, do zjedzenia na miejscu albo przy stolikach na zewnątrz.
+
+== Restauracja Diamentowa ==
+# w OSM jest (Wilkołaz Pierwszy 16A), ale nie jako restaurant/fast_food, więc import:osm jej nie bierze
+źródło: https://www.facebook.com/diamentowa.wilkolaz/ (sprawdzono 2026-10-30, wpis z 28.10.2026)
+typ: restaurant
+kuchnie: polish
+gmina: gm. Wilkołaz
+miejscowość: Wilkołaz Pierwszy
+adres: Wilkołaz Pierwszy 16A
+współrzędne: 51.0041646, 22.3388476
+telefon: +48 502 625 802
+www: https://diamentowa.pl
+facebook: https://www.facebook.com/diamentowa.wilkolaz/
+e-mail: info@diamentowa.pl
+opis: Sala na wesela, komunie, chrzciny i imprezy firmowe do 300 osób, 10 minut od Kraśnika i 20 od Lublina.
