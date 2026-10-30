@@ -204,23 +204,41 @@ export default function ListaZamowienia({
         className="mx-0 mt-auto mb-0 max-h-[92dvh] w-full max-w-none overflow-hidden rounded-t-[1.75rem] bg-tlo p-0 text-tekst shadow-2xl backdrop:bg-black/55 open:flex open:animate-wysun open:flex-col sm:m-auto sm:max-w-lg sm:rounded-[1.75rem]"
       >
         <div className="flex items-center gap-3 border-b border-obrys px-5 py-4">
-          {sciagawka || razemOtwarte ? (
-            <button
-              type="button"
-              onClick={() => {
-                setSciagawka(false);
-                setRazemOtwarte(false);
-              }}
-              className="flex items-center gap-1.5 text-sm font-extrabold"
-            >
-              <ArrowLeft className="size-4" aria-hidden /> {sciagawka ? "Edytuj listę" : "Wróć do listy"}
+          {sciagawka ? (
+            <button type="button" onClick={() => setSciagawka(false)} className="flex items-center gap-1.5 text-sm font-extrabold">
+              <ArrowLeft className="size-4" aria-hidden /> Edytuj listę
             </button>
+          ) : razemOtwarte ? (
+            <h2 className="flex items-center gap-2 font-grotesk text-xl font-bold">
+              <button type="button" onClick={() => setRazemOtwarte(false)} aria-label="Wróć do listy" className="-ml-1 flex size-8 items-center justify-center">
+                <ArrowLeft className="size-5" aria-hidden />
+              </button>
+              Zamawiamy razem
+            </h2>
           ) : (
             <h2 className="flex items-center gap-2 font-grotesk text-xl font-bold">
               <ClipboardList className="size-5 text-akcent-tekst" aria-hidden /> Twoja lista
             </h2>
           )}
-          <button type="button" onClick={zamknij} aria-label="Zamknij" className="ml-auto flex size-9 items-center justify-center rounded-full bg-krem">
+          {/* w nagłówku, nie w stopce: na małych telefonach (iPhone mini) stopka z trzema rzędami zjadała pół okna */}
+          {!sciagawka && !razemOtwarte && slug && (
+            <button
+              type="button"
+              onClick={() => {
+                setImie((i) => i || czytajImie());
+                setRazemOtwarte(true);
+              }}
+              className="ml-auto flex h-9 items-center gap-1.5 rounded-full border-[1.5px] border-tekst px-3 text-sm font-extrabold"
+            >
+              <Users className="size-4" aria-hidden /> Razem
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={zamknij}
+            aria-label="Zamknij"
+            className={`${!sciagawka && !razemOtwarte && slug ? "" : "ml-auto"} flex size-9 shrink-0 items-center justify-center rounded-full bg-krem`}
+          >
             <X className="size-5" aria-hidden />
           </button>
         </div>
@@ -244,15 +262,11 @@ export default function ListaZamowienia({
             <p className="mt-6 text-xs font-semibold text-tekst-2">Ekran nie zgaśnie, dopóki ta lista jest otwarta.</p>
           </div>
         ) : razemOtwarte ? (
-          <div className="flex-1 overflow-y-auto px-5 py-5">
-            <h3 className="flex items-center gap-2 font-grotesk text-xl font-bold">
-              <Users className="size-5 text-akcent-tekst" aria-hidden /> Zamawiamy razem
-            </h3>
-            <p className="mt-1 text-sm font-semibold text-tekst-2">
-              Druga osoba skanuje kod aparatem w telefonie (albo dostaje link), dopisuje swoje dania i podaje dalej.
-              Ostatnia dzwoni i zamawia wszystko naraz.
+          <div className="flex-1 overflow-y-auto px-5 py-4">
+            <p className="text-sm font-semibold text-tekst-2">
+              Druga osoba skanuje kod aparatem (albo dostaje link), dopisuje swoje i podaje dalej. Ostatnia dzwoni.
             </p>
-            <label className="mt-4 block">
+            <label className="mt-3 block">
               <span className="text-sm font-extrabold">Twoje imię</span>
               <input
                 value={imie}
@@ -273,7 +287,8 @@ export default function ListaZamowienia({
                 <div
                   role="img"
                   aria-label="Kod QR z listą do zamówienia"
-                  className="mx-auto mt-5 w-60 max-w-full rounded-2xl bg-white p-2 shadow-sm"
+                  // na niskich ekranach mniejszy, żeby cały był widać nad przyciskiem „Wyślij link”
+                  className="mx-auto mt-4 w-[min(15rem,30dvh)] max-w-full rounded-2xl bg-white p-2 shadow-sm"
                   dangerouslySetInnerHTML={{ __html: renderSVG(linkRazem, { border: 1 }) }}
                 />
                 <p className="mt-2 text-center text-xs font-bold text-tekst-2">
@@ -391,18 +406,6 @@ export default function ListaZamowienia({
             </a>
           ) : (
             <p className="text-center text-sm font-bold text-tekst-2">Lokal nie podał telefonu — zamówisz na miejscu.</p>
-          )}
-          {!sciagawka && !razemOtwarte && slug && (
-            <button
-              type="button"
-              onClick={() => {
-                setImie((i) => i || czytajImie());
-                setRazemOtwarte(true);
-              }}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-tekst text-sm font-extrabold"
-            >
-              <Users className="size-4" aria-hidden /> Zamawiamy razem — kod QR
-            </button>
           )}
           {!sciagawka && !razemOtwarte && (
             <div className="flex gap-2">
