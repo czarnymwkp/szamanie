@@ -23,7 +23,7 @@ export default function FiltryM({
   const { pozycja } = k;
   return (
     <div className={className}>
-      <div className="-mx-5 flex items-center gap-2 overflow-x-auto px-5 pt-1 pb-2 [scrollbar-width:none]">
+      <div className="-mx-5 flex items-center gap-2 overflow-x-auto px-5 pt-1 pb-2 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
         <button
           type="button"
           onClick={() => k.setTylkoWege(!k.tylkoWege)}

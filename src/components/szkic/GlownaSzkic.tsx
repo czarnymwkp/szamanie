@@ -68,7 +68,8 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
         <h2 id="kategorie" className={`${reka.className} text-[2.1rem] leading-none`}>
           Na co masz ochotę?
         </h2>
-        <div className="-mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pt-1 pb-3 [scrollbar-width:none]">
+        {/* telefon: przesuwanie palcem; komputer: wszystkie w rzędach, bo myszką nie da się przewinąć w bok */}
+        <div className="-mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pt-1 pb-3 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
           {k.kategorie.map((kat, i) => {
             const aktywna = k.kategoria === kat.id;
             return (
@@ -99,7 +100,7 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
           <h2 id="pozno" className={`${reka.className} text-[2.1rem] leading-none`}>
             Głodny w nocy? Tu jeszcze otwarte:
           </h2>
-          <div className="-mx-5 mt-4 flex gap-4 overflow-x-auto px-5 pt-2 pb-4 [scrollbar-width:none]">
+          <div className="-mx-5 mt-4 flex gap-4 overflow-x-auto px-5 pt-2 pb-4 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:gap-5 lg:overflow-visible lg:px-0">
             {k.doPozna.map(({ lokal, doGodziny }, i) => (
               <Link
                 key={lokal.id}
