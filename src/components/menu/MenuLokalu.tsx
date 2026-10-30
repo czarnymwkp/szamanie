@@ -20,6 +20,9 @@ const CECHY: Record<CechaDania, { nazwa: string; ikona: typeof Leaf; kolor: stri
   sezonowe: { nazwa: "Sezonowe", ikona: Sun, kolor: "bg-akcent-tekst text-karta" },
 };
 
+// Drobne napisy wersalikami krojem etykiet motywu (--etykiety-lokalu); bez niego zostaje krój tekstu.
+const ETYKIETA = "font-[family-name:var(--etykiety-lokalu)] font-medium uppercase";
+
 // Na komputerze menu startuje rozwinięte, na telefonie zwinięte do kafelków kategorii (mniej przewijania).
 // Domyślny stan robi CSS (lg:), więc nic nie mruga przy wczytaniu; JS zna go tylko do aria-expanded i przełączania.
 const DESKTOP = "(min-width: 1024px)";
@@ -48,6 +51,7 @@ export default function MenuLokalu({
   telefon,
   numerowane = false,
   belki = false,
+  karty = false,
 }: {
   menu: Menu;
   dostawa: Dostawa | null;
@@ -56,6 +60,7 @@ export default function MenuLokalu({
   telefon: string | null;
   numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
   belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
+  karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
 }) {
   const l = useLista(slug);
   const [szukaj, setSzukaj] = useState("");
@@ -77,9 +82,15 @@ export default function MenuLokalu({
   return (
     <section id="menu" aria-labelledby="menu-tytul" className="mt-8 scroll-mt-20">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-        <h2 id="menu-tytul" className="font-grotesk text-3xl font-bold tracking-tight lg:text-4xl">
-          Menu
-        </h2>
+        <div>
+          {karty && <p className={`${ETYKIETA} text-[11px] tracking-[0.2em] text-akcent-tekst`}>Karta dań</p>}
+          <h2
+            id="menu-tytul"
+            className={`font-grotesk text-3xl tracking-tight lg:text-4xl ${karty ? "font-medium" : "font-bold"}`}
+          >
+            Menu
+          </h2>
+        </div>
         {menu.sprawdzono &&
           (menu.bezCen ? (
             <p className="text-xs font-bold text-tekst-2">
@@ -128,6 +139,7 @@ export default function MenuLokalu({
             l={l}
             numerowane={numerowane}
             belki={belki}
+            karty={karty}
             // przy szukaniu pokazujemy od razu wszystkie trafienia
             stan={fraza ? true : wybor.get(s.nazwa)}
             desktop={desktop}
@@ -158,7 +170,7 @@ export default function MenuLokalu({
           ) : (
             menu.zrodlo
           )}
-          . Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu.{!belki && " Zdjęcia działów są poglądowe."}
+          . Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu.{!belki && !karty && " Zdjęcia działów są poglądowe."}
         </p>
       )}
 
@@ -185,6 +197,7 @@ function Dzial({
   l,
   numerowane,
   belki,
+  karty,
   stan,
   desktop,
   przelacz,
@@ -194,6 +207,7 @@ function Dzial({
   l: ListaLokalu;
   numerowane: boolean;
   belki: boolean;
+  karty: boolean;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
   przelacz: (otwarty: boolean) => void;
@@ -233,10 +247,17 @@ function Dzial({
           className={`relative flex w-full items-center gap-3 overflow-hidden text-left transition-[height] duration-300 active:scale-[0.99] ${
             belki
               ? `bg-tekst text-tlo ${klasy("h-16", "h-14", "h-16 lg:h-14")}`
-              : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
+              : karty
+                ? // jak pigułki działów na stronie lokalu: zwinięty biały z ramką, rozwinięty w kolorze akcentu
+                  `h-16 rounded-full border ${klasy(
+                    "border-obrys bg-karta text-tekst",
+                    "border-akcent bg-akcent text-na-akcencie",
+                    "border-obrys bg-karta text-tekst lg:border-akcent lg:bg-akcent lg:text-na-akcencie",
+                  )}`
+                : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
-          {s.okladka && !belki && (
+          {s.okladka && !belki && !karty && (
             <>
               <Image
                 src={s.okladka.plik}
@@ -251,14 +272,20 @@ function Dzial({
               <span className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15" />
             </>
           )}
-          <span className="relative min-w-0 flex-1 pl-4">
+          <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : "pl-4"}`}>
             <span
-              className={`block truncate font-grotesk leading-tight ${belki ? "text-2xl font-black uppercase" : "text-xl font-bold"}`}
+              className={`block truncate font-grotesk leading-tight ${
+                belki ? "text-2xl font-black uppercase" : karty ? "text-lg font-medium uppercase" : "text-xl font-bold"
+              }`}
             >
               {s.nazwa}
             </span>
             <span
-              className={`block text-xs font-bold ${belki ? "text-tlo/70" : s.okladka ? "text-white/75" : "text-tekst-2"}`}
+              className={
+                karty
+                  ? `${ETYKIETA} block text-[11px] tracking-[0.12em] opacity-70`
+                  : `block text-xs font-bold ${belki ? "text-tlo/70" : s.okladka ? "text-white/75" : "text-tekst-2"}`
+              }
             >
               {s.pozycje.length} {odmiana(s.pozycje.length, ["pozycja", "pozycje", "pozycji"])}
               {od !== null && ` · od ${zl(od)}`}
@@ -287,11 +314,19 @@ function Dzial({
         <div className="min-h-0 overflow-hidden px-1">
           {s.opis && <p className="pt-3 text-sm font-semibold text-tekst-2">{s.opis}</p>}
           {/* na komputerze menu ma całą szerokość strony — dania w dwóch kolumnach */}
-          <ul className="pb-2 lg:grid lg:grid-cols-2 lg:gap-x-10">
-            {s.pozycje.map((p, i) => (
-              <WierszMenu key={p.id} p={p} l={l} numer={numerowane ? i + 1 : null} belki={belki} />
-            ))}
-          </ul>
+          {karty ? (
+            <ul className="grid gap-3 pt-3 pb-3 sm:grid-cols-2 lg:grid-cols-3">
+              {s.pozycje.map((p) => (
+                <KartaDania key={p.id} p={p} l={l} />
+              ))}
+            </ul>
+          ) : (
+            <ul className="pb-2 lg:grid lg:grid-cols-2 lg:gap-x-10">
+              {s.pozycje.map((p, i) => (
+                <WierszMenu key={p.id} p={p} l={l} numer={numerowane ? i + 1 : null} belki={belki} />
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </section>
@@ -370,33 +405,7 @@ function WierszMenu({
           {jednaCena ? (
             numer === null && !belki && <p className="mt-1.5 font-black">{cenaTekst}</p>
           ) : (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {p.ceny.map((c) => {
-                const ile = l.ilosc(kluczPozycji(p.id, c.wariant));
-                return (
-                  <button
-                    key={c.wariant}
-                    type="button"
-                    onClick={() => dodaj(c.wariant, c.gr)}
-                    aria-label={`Dodaj do listy: ${p.nazwa}, ${c.wariant}, ${zl(c.gr)}`}
-                    className={`inline-flex h-9 items-center gap-1.5 rounded-full border-[1.5px] pr-1 pl-3 text-sm font-extrabold transition active:scale-95 ${
-                      ile ? "border-tekst bg-tekst text-tlo" : "border-obrys-2 bg-karta hover:border-tekst"
-                    }`}
-                  >
-                    <span className={ile ? "opacity-70" : "text-tekst-2"}>{c.wariant}</span> {zl(c.gr)}
-                    <span
-                      className={`flex size-7 items-center justify-center rounded-full ${ile ? "bg-akcent text-na-akcencie" : "bg-krem"}`}
-                    >
-                      {ile ? (
-                        <span className="text-xs font-black">{ile}</span>
-                      ) : (
-                        <Plus className="size-4" aria-hidden />
-                      )}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <Warianty p={p} l={l} className="mt-2" />
           )}
         </div>
         {jednaCena && (
@@ -408,6 +417,86 @@ function WierszMenu({
           />
         )}
       </div>
+    </li>
+  );
+}
+
+/** Przyciski wariantów dania („32 cm 38 zł +”) — każdy dodaje swój wariant do listy. */
+function Warianty({ p, l, className = "" }: { p: PozycjaMenu; l: ListaLokalu; className?: string }) {
+  return (
+    <div className={`flex flex-wrap gap-1.5 ${className}`}>
+      {p.ceny.map((c) => {
+        const ile = l.ilosc(kluczPozycji(p.id, c.wariant));
+        return (
+          <button
+            key={c.wariant}
+            type="button"
+            onClick={() => l.dodaj({ klucz: kluczPozycji(p.id, c.wariant), nazwa: p.nazwa, wariant: c.wariant, gr: c.gr })}
+            aria-label={`Dodaj do listy: ${p.nazwa}, ${c.wariant}, ${zl(c.gr)}`}
+            className={`inline-flex h-9 items-center gap-1.5 rounded-full border-[1.5px] pr-1 pl-3 text-sm font-extrabold transition active:scale-95 ${
+              ile ? "border-tekst bg-tekst text-tlo" : "border-obrys-2 bg-karta hover:border-tekst"
+            }`}
+          >
+            <span className={ile ? "opacity-70" : "text-tekst-2"}>{c.wariant}</span> {zl(c.gr)}
+            <span
+              className={`flex size-7 items-center justify-center rounded-full ${ile ? "bg-akcent text-na-akcencie" : "bg-krem"}`}
+            >
+              {ile ? <span className="text-xs font-black">{ile}</span> : <Plus className="size-4" aria-hidden />}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Danie na karcie (motyw lokalu z `menuKarty`): nazwa wersalikami, skład, cena na pigułce i „+” w rogu. */
+function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
+  const jednaCena = p.ceny.length <= 1;
+  const cena = p.ceny[0] ?? null;
+  const klucz = kluczPozycji(p.id, null);
+  const naLiscie = p.ceny.length
+    ? p.ceny.some((c) => l.ilosc(kluczPozycji(p.id, c.wariant)) > 0)
+    : l.ilosc(klucz) > 0;
+
+  return (
+    <li
+      className={`flex flex-col rounded-[20px] border bg-karta p-4 transition-colors duration-300 ${
+        naLiscie ? "border-akcent ring-1 ring-akcent" : "border-obrys"
+      }`}
+    >
+      {p.cechy.length > 0 && (
+        <p className="mb-2 flex flex-wrap gap-1">
+          {p.cechy.map((c) => (
+            <span
+              key={c}
+              // „Polecane” jak „Danie dnia” u lokalu: pełna pigułka; reszta obrysowana
+              className={`${ETYKIETA} rounded-full px-2 py-0.5 text-[10.5px] tracking-[0.12em] ${
+                c === "polecane" ? "bg-akcent-tekst text-krem" : "border border-obrys-2 text-tekst-2"
+              }`}
+            >
+              {CECHY[c].nazwa}
+            </span>
+          ))}
+        </p>
+      )}
+      <h4 className="font-grotesk text-lg leading-tight font-medium uppercase">{p.nazwa}</h4>
+      {p.opis && <p className="mt-1.5 text-[13.5px] leading-snug text-tekst-2">{p.opis}</p>}
+      {jednaCena ? (
+        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+          <span className="rounded-full bg-krem px-2.5 py-1 font-[family-name:var(--etykiety-lokalu)] text-[13px] font-medium text-akcent">
+            {cena ? zl(cena.gr) : "cena w lokalu"}
+          </span>
+          <Licznik
+            ile={l.ilosc(klucz)}
+            nazwa={p.nazwa}
+            dodaj={() => l.dodaj({ klucz, nazwa: p.nazwa, wariant: null, gr: cena?.gr ?? null })}
+            zmien={(o) => l.zmienIlosc(klucz, o)}
+          />
+        </div>
+      ) : (
+        <Warianty p={p} l={l} className="mt-auto pt-3" />
+      )}
     </li>
   );
 }

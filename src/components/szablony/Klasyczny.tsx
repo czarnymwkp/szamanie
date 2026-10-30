@@ -27,6 +27,7 @@ import { motywStrony, type MotywStrony } from "@/lib/motywyStron";
 import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import BanerBelka from "./BanerBelka";
+import BanerKrata from "./BanerKrata";
 import BanerSwietliki from "./BanerSwietliki";
 import PromocjeLokalu from "./PromocjeLokalu";
 import { KROJE } from "./kroje";
@@ -63,6 +64,10 @@ function stylMotywu(m: MotywStrony | null) {
     style["--naglowek-lokalu"] = KROJE[naglowki].zmienna;
     style["--font-space-grotesk"] = KROJE[naglowki].zmienna;
     style.fontFamily = KROJE[tekst].zmienna;
+    if (m.kroje.etykiety) {
+      klasy.push(KROJE[m.kroje.etykiety].variable);
+      style["--etykiety-lokalu"] = KROJE[m.kroje.etykiety].zmienna;
+    }
   }
   return { className: klasy.join(" "), style: style as CSSProperties };
 }
@@ -91,6 +96,8 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
             <BanerSwietliki znak={motyw.baner.znak} nazwa={lokal.nazwa} podpis={motyw.baner.podpis} />
           ) : motyw?.baner?.rodzaj === "belka" ? (
             <BanerBelka nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
+          ) : motyw?.baner?.rodzaj === "krata" ? (
+            <BanerKrata nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : (
             <Baner lokal={lokal} rozmiar="strona" className="h-44 sm:h-56 lg:h-72" />
           )}
@@ -260,6 +267,7 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
                 telefon={lokal.telefon}
                 numerowane={motyw?.menuNumerowane}
                 belki={motyw?.menuBelki}
+                karty={motyw?.menuKarty}
               />
             ) : (
               <section

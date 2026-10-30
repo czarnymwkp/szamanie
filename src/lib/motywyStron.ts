@@ -20,21 +20,27 @@ export type TokenKoloru =
   | "zamkniete";
 
 /** Kroje z `components/szablony/kroje.ts`. */
-export type KrojLokalu = "playfair" | "karla" | "rokkitt" | "roboto-condensed";
+export type KrojLokalu = "playfair" | "karla" | "rokkitt" | "roboto-condensed" | "roboto" | "roboto-mono";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
   ciemny?: boolean; // ciemne pola formularzy i paski przewijania
-  kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu };
+  /** etykiety: drobne napisy wersalikami (ceny, cechy dań) — przez --etykiety-lokalu; bez niego krój tekstu. */
+  kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu; etykiety?: KrojLokalu };
   /**
    * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
-   * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`.
+   * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
+   * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę.
    */
-  baner?: { rodzaj: "swietliki"; znak: string; podpis: string } | { rodzaj: "belka"; haslo?: string; podpis: string };
+  baner?:
+    | { rodzaj: "swietliki"; znak: string; podpis: string }
+    | { rodzaj: "belka" | "krata"; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
   /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
   menuBelki?: boolean;
+  /** Dania na białych kartach w siatce, ceny na pigułkach krojem etykiet, działy jak przełączniki-pigułki. */
+  menuKarty?: boolean;
 };
 
 const MOTYWY: Record<string, MotywStrony> = {
@@ -84,6 +90,26 @@ const MOTYWY: Record<string, MotywStrony> = {
     baner: { rodzaj: "belka", haslo: "Handmade", podpis: "Kraśnik · ul. Lubelska 117" },
     menuNumerowane: true,
     menuBelki: true,
+  },
+  // brunoo.pl/menu (30.10): kremowe tło, białe karty dań z cienką ramką, ciemnozielone pigułki, bordowe etykiety,
+  // Roboto + Roboto Mono, czarno-biała szachownica. Bez numerów — ich numeracja w karcie jest inna niż nasze działy.
+  // Ich logo i zdjęcia dań tylko za zgodą lokalu — na razie bez nich.
+  "brunoo-krasnik": {
+    kolory: {
+      tlo: "#faf6ea",
+      karta: "#ffffff",
+      krem: "#f5efdf",
+      tekst: "#1a1410",
+      "tekst-2": "#6b6357",
+      obrys: "#e4e0d3",
+      "obrys-2": "#c9c2b0",
+      akcent: "#072821",
+      "akcent-tekst": "#7e2625",
+      "na-akcencie": "#f5efdf",
+    },
+    kroje: { naglowki: "roboto", tekst: "roboto", etykiety: "roboto-mono" },
+    baner: { rodzaj: "krata", haslo: "Na miejscu · na wynos · z dowozem", podpis: "Kraśnik · ul. ks. Jerzego Popiełuszki 1" },
+    menuKarty: true,
   },
 };
 

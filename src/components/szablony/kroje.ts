@@ -1,4 +1,4 @@
-import { Karla, Playfair_Display, Roboto_Condensed, Rokkitt } from "next/font/google";
+import { Karla, Playfair_Display, Roboto, Roboto_Condensed, Roboto_Mono, Rokkitt } from "next/font/google";
 import type { KrojLokalu } from "@/lib/motywyStron";
 
 // Kroje motywów lokali (lib/motywyStron.ts). Bez preload: pobierają się tylko na stronach lokali, które ich używają.
@@ -28,9 +28,26 @@ const robotoCondensed = Roboto_Condensed({
   preload: false,
 });
 
+// Brunoo: Roboto w nagłówkach i tekście, Roboto Mono w etykietach (ceny, filtry, „karta dań”) — jak na brunoo.pl.
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "700"],
+  preload: false,
+});
+
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
+  preload: false,
+});
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
   rokkitt: { variable: rokkitt.variable, zmienna: "var(--font-rokkitt)" },
   "roboto-condensed": { variable: robotoCondensed.variable, zmienna: "var(--font-roboto-condensed)" },
+  roboto: { variable: roboto.variable, zmienna: "var(--font-roboto)" },
+  "roboto-mono": { variable: robotoMono.variable, zmienna: "var(--font-roboto-mono)" },
 };
