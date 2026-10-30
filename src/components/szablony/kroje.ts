@@ -8,11 +8,13 @@ import {
   Open_Sans,
   Outfit,
   Playfair_Display,
+  Poppins,
   Raleway,
   Roboto,
   Roboto_Condensed,
   Roboto_Mono,
   Rokkitt,
+  Rubik_Dirt,
   Sanchez,
 } from "next/font/google";
 import type { KrojLokalu } from "@/lib/motywyStron";
@@ -100,6 +102,15 @@ const bodoni = Bodoni_Moda({
   preload: false,
 });
 
+// Tam Tam: Poppins jak na ich karcie i postrzępiony Rubik Dirt w nazwie (jak napis w ich logo).
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+  preload: false,
+});
+const rubikDirt = Rubik_Dirt({ variable: "--font-rubik-dirt", subsets: ["latin", "latin-ext"], weight: "400", preload: false });
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
@@ -116,4 +127,6 @@ export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = 
   lora: { variable: lora.variable, zmienna: "var(--font-lora)" },
   raleway: { variable: raleway.variable, zmienna: "var(--font-raleway)" },
   bodoni: { variable: bodoni.variable, zmienna: "var(--font-bodoni)" },
+  poppins: { variable: poppins.variable, zmienna: "var(--font-poppins)" },
+  "rubik-dirt": { variable: rubikDirt.variable, zmienna: "var(--font-rubik-dirt)" },
 };

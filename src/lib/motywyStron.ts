@@ -35,7 +35,9 @@ export type KrojLokalu =
   | "sanchez"
   | "lora"
   | "raleway"
-  | "bodoni";
+  | "bodoni"
+  | "poppins"
+  | "rubik-dirt";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
@@ -45,9 +47,9 @@ export type MotywStrony = {
   kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu; etykiety?: KrojLokalu; ozdobny?: KrojLokalu };
   /**
    * kreda: tablica kredowa (smugi i pył kredy, .tlo-kreda w globals.css); marmur: ciemny marmur ze złotymi
-   * żyłkami (.tlo-marmur).
+   * żyłkami (.tlo-marmur); plamy: beżowe plamy i cienkie czerwone warstwice w rogach (.tlo-plamy).
    */
-  tekstura?: "kreda" | "marmur";
+  tekstura?: "kreda" | "marmur" | "plamy";
   /**
    * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
    * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
@@ -55,11 +57,13 @@ export type MotywStrony = {
    * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu);
    * tablica: duża nazwa, `haslo` rozstrzelone pod nią i kreska w barwach Włoch;
    * pas: ciemny pas (kolor akcentu) z nazwą na środku, kreska i `haslo` w kolorze obrys-2;
-   * elegancki: na tle strony nazwa dużą kursywą (krój ozdobny), cienka złota kreska z rombem i `haslo`.
+   * elegancki: na tle strony nazwa dużą kursywą (krój ozdobny), cienka złota kreska z rombem i `haslo`;
+   * ludzik: maskotka lokalu (`znak`, plik w public/) kołysze się i podskakuje przy dodaniu dania, pod nią nazwa.
    */
   baner?:
     | { rodzaj: "swietliki"; znak: string; podpis: string }
-    | { rodzaj: "belka" | "krata" | "kreska" | "tablica" | "pas" | "elegancki"; haslo?: string; podpis: string };
+    | { rodzaj: "belka" | "krata" | "kreska" | "tablica" | "pas" | "elegancki"; haslo?: string; podpis: string }
+    | { rodzaj: "ludzik"; znak: string; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
   /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
@@ -227,6 +231,26 @@ const MOTYWY: Record<string, MotywStrony> = {
     kroje: { naglowki: "montserrat", tekst: "montserrat", ozdobny: "bodoni" },
     baner: { rodzaj: "elegancki", haslo: "Craft Food Pub", podpis: "Kraśnik · al. Niepodległości 44" },
     menuSpis: "kropki",
+  },
+  // Karta od usera (31.10): kremowe tło, beżowe plamy, cienkie czerwone warstwice, czarne pogrubione wersaliki
+  // (Poppins), ceny po prawej. Maskotka (ludzik z miską) z ich logo — user dał ją do strony; zgodę lokalu potwierdzić.
+  "tam-tam-krasnik": {
+    tekstura: "plamy",
+    kolory: {
+      tlo: "#f8f0e3",
+      karta: "#fffaf2",
+      krem: "#efe2c9",
+      tekst: "#1c1a17",
+      "tekst-2": "#5e5448",
+      obrys: "#e6d8bf",
+      "obrys-2": "#c9b48f",
+      akcent: "#b23a2b",
+      "akcent-tekst": "#9c2f22",
+      "na-akcencie": "#ffffff",
+    },
+    kroje: { naglowki: "poppins", tekst: "poppins", ozdobny: "rubik-dirt" },
+    baner: { rodzaj: "ludzik", znak: "/motywy/tamtam/ludzik.png", haslo: "Kuchnia azjatycka", podpis: "Kraśnik · ul. Urzędowska 4" },
+    menuSpis: "wersaliki",
   },
 };
 

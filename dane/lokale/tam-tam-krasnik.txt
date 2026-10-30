@@ -1,8 +1,9 @@
 # Tam Tam — Kuchnia Azjatycka, Kraśnik (ul. Urzędowska 4) — menu przepisane ze zdjęcia karty
 # w poście lokalu na Facebooku z 21.06.2026 („Poznajcie nasze menu”, otwarcie 22.06).
+# 31.10.2026 porównane z kartą od usera (ta sama, doszedł makaron z kaczką).
 # Na Instagramie lokal pisze o osobnym, tańszym menu do jedzenia na miejscu — tu są ceny z karty ogólnej.
 źródło: https://www.facebook.com/61590445866324/posts/122114601717348195/
-sprawdzono: 2026-06-21
+sprawdzono: 2026-10-31
 
 == MENU ==
 ## Przystawki
@@ -94,6 +95,7 @@ Makaron smażony z warzywami | | 32 | wege
 Makaron smażony z kurczakiem i warzywami | | 33 |
 Makaron smażony z wieprzowiną i warzywami | | 33 |
 Makaron smażony z wołowiną i warzywami | | 35 |
+Makaron smażony z kaczką i warzywami | | 35 |
 Makaron smażony z krewetkami i warzywami | | 38 |
 
 ## Udon | z surówką
