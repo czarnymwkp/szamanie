@@ -150,6 +150,9 @@ const GRUPY_LOKALU = [
 ];
 
 function zsynchronizujMenu(db, tabele) {
+  // Tylko na serwerze (SZAMANIE_SERWER=1 w obrazie Dockera). Lokalnie to baza jest źródłem pliku: menu z `npm run menu`
+  // musi dotrwać do `npm run baza:eksport`, a nie zostać cofnięte do starszej wersji z pliku przy otwarciu bazy.
+  if (process.env.SZAMANIE_SERWER !== "1") return 0;
   const { lokale } = tabele;
   if (!lokale?.wiersze.length) return 0;
   const kol = (tabela, nazwa) => tabela.kolumny.indexOf(nazwa);

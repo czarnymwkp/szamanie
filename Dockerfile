@@ -23,7 +23,10 @@ ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
     SZAMANIE_DB=/app/data/szamanie.db \
+    SZAMANIE_SERWER=1 \
     NEXT_TELEMETRY_DISABLED=1
+# SZAMANIE_SERWER=1: baza w wolumenie to serwer — menu przepisane z kart (dane/lokale) przychodzi tu z repozytorium
+# (src/lib/db/dane-startowe.mjs); lokalnie i przy buildzie tego nie ma, bo tam źródłem pliku jest baza.
 COPY --from=budowa /app/.next/standalone ./
 COPY --from=budowa /app/.next/static ./.next/static
 COPY --from=budowa /app/public ./public
