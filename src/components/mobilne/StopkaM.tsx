@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, ArrowUp, Heart, Store } from "lucide-react";
+import { ArrowRight, ArrowUp, Store } from "lucide-react";
 import SzamanM, { type StylSzamana } from "./SzamanM";
 
 export type LinkStopki = { nazwa: string; adres: string };
@@ -11,7 +11,8 @@ const POTRAWY = "PIZZA ✦ KEBAB ✦ BURGERY ✦ PIEROGI ✦ KAWA ✦ LODY ✦ Z
 
 /**
  * Stopka propozycji na telefon: taśma z potrawami, szaman (dotknij — podskoczy), „Smacznego!”, karta „Masz
- * lokal?”, linki do stron „Pizza w Kraśniku” itd. (dla Google) i podpis o danych z OpenStreetMap.
+ * lokal?”, linki do stron „Pizza w Kraśniku” itd. (dla Google) i podpis tymito.pl. Źródło danych (OpenStreetMap,
+ * wymagane przez ODbL) jest na stronie „Źródła danych i zdjęć”, do której prowadzi link w stopce.
  * Kolory z tokenów (tło = tekst strony), więc pasuje do jasnych i ciemnych propozycji.
  */
 export default function StopkaM({ linki, szaman, className = "" }: { linki: LinkStopki[]; szaman: StylSzamana; className?: string }) {
@@ -78,7 +79,7 @@ export default function StopkaM({ linki, szaman, className = "" }: { linki: Link
                 ["Dla lokali", "/dla-lokali"],
                 ["Dodaj lub popraw lokal", "/dla-lokali#wpis"],
                 ["Polityka prywatności", "/polityka-prywatnosci"],
-                ["Autorzy zdjęć", "/autorzy-zdjec"],
+                ["Źródła danych i zdjęć", "/autorzy-zdjec"],
               ].map(([nazwa, adres]) => (
                 <li key={adres}>
                   <Link href={adres} className="transition hover:text-akcent">
@@ -92,13 +93,12 @@ export default function StopkaM({ linki, szaman, className = "" }: { linki: Link
 
         <div className="mt-8 flex items-end justify-between gap-4 border-t border-tlo/10 pt-5 text-xs font-semibold opacity-70">
           <p>
-            © 2026 szamanie.pl · Dane o lokalach: ©{" "}
-            <a href="https://www.openstreetmap.org/copyright" className="underline">
-              współtwórcy OpenStreetMap
-            </a>{" "}
-            (ODbL)
-            <span className="mt-1 flex items-center gap-1">
-              Zrobione w Kraśniku <Heart className="size-3 fill-akcent text-akcent" aria-label="z sercem" />
+            © 2026 szamanie.pl
+            <span className="mt-1 block">
+              Zrobione przez{" "}
+              <a href="https://tymito.pl" target="_blank" rel="noopener" className="underline transition hover:text-akcent">
+                tymito.pl
+              </a>
             </span>
           </p>
           <button
