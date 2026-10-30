@@ -194,7 +194,7 @@
         [15,"fantazja-krasnik","node-4031674575","Fantazja","restaurant","[]",50.9630145,22.1735984,"Kraśnik","Kraśnik","Aleja Niepodległości 7",null,null,null,null,0,0,null,1,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{}",null,null,null,null,null,null],
         [16,"pizzeria-anna-golinska-i-s-ka-krasnik","node-4147453398","Pizzeria Anna Golińska i S-ka","restaurant","[\"pizza\"]",50.9622204,22.1614012,"Kraśnik","Kraśnik","Generała Władysława Sikorskiego 2a",null,null,null,null,0,0,null,0,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{\"wege\":true}",null,"https://www.pizzeria-golinska.pl/menu-wloska-pizza-dania-obiadowe-na-wynos-domowe-obiady.html","2026-10-25",null,null,null],
         [17,"rancho-krasnik","node-4159012083","Rancho","pub","[]",50.9579381,22.1634105,"Kraśnik","Kraśnik",null,null,null,null,"11:00-24:00, Tu-Fr 15:00-24:00, Sa,Su 12:00-24:00",0,0,null,0,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{}",null,null,null,null,null,null],
-        [18,"kinowa-krasnik","node-4208931991","Kinowa","restaurant","[\"regional\"]",50.9637051,22.1564513,"Kraśnik","Kraśnik","Aleja Niepodległości 44",null,null,null,"Tu,We 12:00-15:00, Mo,Th 12:00-21:00, Fr 12:00-23:00, Sa 13:00-02:00, Su 13:00-21:00",0,0,null,0,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{}",null,null,null,null,null,null],
+        [18,"kinowa-krasnik","node-4208931991","Kinowa","restaurant","[\"regional\"]",50.9637051,22.1564513,"Kraśnik","Kraśnik","Aleja Niepodległości 44",null,null,null,"Tu,We 12:00-15:00, Mo,Th 12:00-21:00, Fr 12:00-23:00, Sa 13:00-02:00, Su 13:00-21:00",0,0,null,0,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{}",null,"https://www.facebook.com/Kinowa.CraftFoodPub","2026-10-31",null,null,null],
         [19,"lech-lukasik-krasnik","node-4537388022","Lech Łukasik","ice_cream","[]",50.9211448,22.2213085,"Kraśnik","Kraśnik",null,null,null,null,null,0,0,null,0,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{}",null,null,null,null,null,null],
         [20,"karczma-mysliwska-krasnik","node-5240558840","Karczma Myśliwska","restaurant","[]",50.9296878,22.2540146,"Kraśnik","Kraśnik",null,null,null,null,null,0,0,null,1,0,"2026-10-24 16:04:02","2026-10-25 20:14:49","klasyczny",null,null,null,"{}",null,null,null,null,null,null],
         [21,"folwark-smakow-krasnik","node-5644555563","Folwark Smaków","restaurant","[]",50.9209289,22.2179161,"Kraśnik","Kraśnik",null,null,null,null,null,0,0,null,0,0,"2026-10-24 16:04:02","2026-10-24 16:54:56","klasyczny",null,null,null,"{}",null,null,null,null,null,null],
@@ -332,7 +332,7 @@
         [26,"kuchnie","[\"italian\"]","admin","2026-10-25 19:14:47"],
         [26,"facebook","\"https://www.facebook.com/profile.php?id=100057383052603\"","admin","2026-10-25 19:14:48"],
         [18,"telefon","\"+48 530 399 128\"","admin","2026-10-25 19:14:49"],
-        [18,"facebook","\"https://www.facebook.com/Kinowa.CraftFoodPub\"","admin","2026-10-25 19:14:49"],
+        [18,"facebook","\"https://www.facebook.com/Kinowa.CraftFoodPub\"","admin","2026-10-30 23:11:54"],
         [21,"telefon","\"+48 511 594 595\"","admin","2026-10-25 19:14:50"],
         [21,"adres","\"Tadeusza Kościuszki 7a\"","admin","2026-10-25 19:14:50"],
         [21,"facebook","\"https://www.facebook.com/folwarksmakowkrasnik\"","admin","2026-10-25 19:14:51"],
@@ -372,7 +372,8 @@
         [16,"dostawa","true","admin","2026-10-25 20:30:41"],
         [9,"kuchnie","[\"italian\",\"burger\",\"asian\"]","admin","2026-10-25 20:32:12"],
         [22,"adres","\"Lubelska 117\"","admin","2026-10-27 19:56:38"],
-        [41,"godziny","\"Mo-Sa 06:00-21:00; Su 10:00-21:00\"","admin","2026-10-30 21:26:16"]
+        [41,"godziny","\"Mo-Sa 06:00-21:00; Su 10:00-21:00\"","admin","2026-10-30 21:26:16"],
+        [18,"kuchnie","[\"regional\",\"pizza\"]","admin","2026-10-30 23:11:55"]
       ]
     },
     "menu_sekcje": {
@@ -519,7 +520,8 @@
         [22,"Sałatki",null,2],
         [22,"Dodatki",null,3],
         [22,"Dodatki do burgerów",null,4],
-        [22,"Dodatki do pizzy",null,5]
+        [22,"Dodatki do pizzy",null,5],
+        [18,"Pizza neapolitana","Pieczona w żywym ogniu, w temperaturze ponad 450°C: sprężysty brzeg, wypieczona panterka i lekkość.",0]
       ]
     },
     "menu": {
@@ -1458,7 +1460,13 @@
         [1201,22,"Dodatki do pizzy","Dodatkowy ser, wędlina",null,"[{\"wariant\":null,\"gr\":400}]","[]",null,60,"dodatkowy ser wedlina dodatki do pizzy"],
         [1202,22,"Dodatki do pizzy","Inny dodatkowy składnik",null,"[{\"wariant\":null,\"gr\":400}]","[]",null,61,"inny dodatkowy skladnik dodatki do pizzy"],
         [1203,22,"Dodatki do pizzy","Sos",null,"[{\"wariant\":null,\"gr\":300}]","[]",null,62,"sos dodatki do pizzy"],
-        [1204,22,"Dodatki do pizzy","Tuńczyk, owoce morza, szynka crudo",null,"[{\"wariant\":null,\"gr\":600}]","[]",null,63,"tunczyk owoce morza szynka crudo dodatki do pizzy"]
+        [1204,22,"Dodatki do pizzy","Tuńczyk, owoce morza, szynka crudo",null,"[{\"wariant\":null,\"gr\":600}]","[]",null,63,"tunczyk owoce morza szynka crudo dodatki do pizzy"],
+        [1205,18,"Pizza neapolitana","Margherita","sos pomidorowy, mozzarella fior di latte, bazylia","[{\"wariant\":null,\"gr\":2800}]","[\"wege\"]",null,0,"margherita sos pomidorowy mozzarella fior di latte bazylia pizza neapolitana"],
+        [1206,18,"Pizza neapolitana","Pepperoni","sos pomidorowy, mozzarella fior di latte, salami piccante","[{\"wariant\":null,\"gr\":3000}]","[\"ostre\"]",null,1,"pepperoni sos pomidorowy mozzarella fior di latte salami piccante pizza neapolitana"],
+        [1207,18,"Pizza neapolitana","Cotto","sos pomidorowy, mozzarella fior di latte, prosciutto cotto","[{\"wariant\":null,\"gr\":3000}]","[]",null,2,"cotto sos pomidorowy mozzarella fior di latte prosciutto cotto pizza neapolitana"],
+        [1208,18,"Pizza neapolitana","Döner kurczak","sos pomidorowy, mozzarella fior di latte, kurczak Berlin Gemüse","[{\"wariant\":null,\"gr\":3500}]","[]",null,3,"doner kurczak sos pomidorowy mozzarella fior di latte kurczak berlin gemuse pizza neapolitana"],
+        [1209,18,"Pizza neapolitana","Döner stekowa wołowina yaprak","sos pomidorowy, mozzarella fior di latte, stekowa wołowina yaprak, czerwona cebula","[{\"wariant\":null,\"gr\":4000}]","[]",null,4,"doner stekowa wolowina yaprak sos pomidorowy mozzarella fior di latte stekowa wolowina yaprak czerwona cebula pizza neapolitana"],
+        [1210,18,"Pizza neapolitana","Pizza wersja reżyserska (3 składniki)","skomponuj własną wersję; do wyboru: grillowany kurczak, szynka prosciutto cotto, boczek wędzony, włoskie salami, oliwki, cebula czerwona, kapary, papryczka chilli, pieczarki, pomidorki koktajlowe, ogórek kiszony","[{\"wariant\":null,\"gr\":3500}]","[]",null,5,"pizza wersja rezyserska 3 skladniki skomponuj wlasna wersje do wyboru grillowany kurczak szynka prosciutto cotto boczek wedzony wloskie salami oliwki cebula czerwona kapary papryczka chilli pieczarki pomidorki koktajlowe ogorek kiszony pizza neapolitana"]
       ]
     },
     "strefy_dostawy": {

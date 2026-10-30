@@ -1,0 +1,13 @@
+# Kinowa (Craft Food Pub), Kraśnik — menu przepisane ze zdjęcia karty na Facebooku lokalu (strona z pizzą).
+# Pozostałe działy karty (dania główne itd.) — gdy będą zdjęcia kolejnych stron.
+źródło: https://www.facebook.com/Kinowa.CraftFoodPub
+sprawdzono: 2026-10-31
+
+== MENU ==
+## Pizza neapolitana | Pieczona w żywym ogniu, w temperaturze ponad 450°C: sprężysty brzeg, wypieczona panterka i lekkość.
+Margherita | sos pomidorowy, mozzarella fior di latte, bazylia | 28 | wege
+Pepperoni | sos pomidorowy, mozzarella fior di latte, salami piccante | 30 | ostre
+Cotto | sos pomidorowy, mozzarella fior di latte, prosciutto cotto | 30 |
+Döner kurczak | sos pomidorowy, mozzarella fior di latte, kurczak Berlin Gemüse | 35 |
+Döner stekowa wołowina yaprak | sos pomidorowy, mozzarella fior di latte, stekowa wołowina yaprak, czerwona cebula | 40 |
+Pizza wersja reżyserska (3 składniki) | skomponuj własną wersję; do wyboru: grillowany kurczak, szynka prosciutto cotto, boczek wędzony, włoskie salami, oliwki, cebula czerwona, kapary, papryczka chilli, pieczarki, pomidorki koktajlowe, ogórek kiszony | 35 |

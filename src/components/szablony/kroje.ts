@@ -1,4 +1,5 @@
 import {
+  Bodoni_Moda,
   Comfortaa,
   Karla,
   Kaushan_Script,
@@ -91,6 +92,14 @@ const sanchez = Sanchez({ variable: "--font-sanchez", subsets: ["latin", "latin-
 const lora = Lora({ variable: "--font-lora", subsets: ["latin", "latin-ext"], preload: false });
 const raleway = Raleway({ variable: "--font-raleway", subsets: ["latin", "latin-ext"], preload: false });
 
+// Kinowa: działy wysokim kontrastowym szeryfem kursywą (jak na ich karcie), dania Montserrat wersalikami.
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
+  subsets: ["latin", "latin-ext"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
@@ -106,4 +115,5 @@ export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = 
   sanchez: { variable: sanchez.variable, zmienna: "var(--font-sanchez)" },
   lora: { variable: lora.variable, zmienna: "var(--font-lora)" },
   raleway: { variable: raleway.variable, zmienna: "var(--font-raleway)" },
+  bodoni: { variable: bodoni.variable, zmienna: "var(--font-bodoni)" },
 };

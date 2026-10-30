@@ -63,7 +63,7 @@ export default function MenuLokalu({
   numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
   belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
   karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
-  spis?: "wersaliki" | "tablica" | "srodek"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
+  spis?: "wersaliki" | "tablica" | "srodek" | "kropki"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
 }) {
   const l = useLista(slug);
   // klucz pozycji → nazwa, wariant i cena: lista z linku „Zamawiamy razem” ma same klucze
@@ -229,7 +229,7 @@ function Dzial({
   numerowane: boolean;
   belki: boolean;
   karty: boolean;
-  spis: "wersaliki" | "tablica" | "srodek" | undefined;
+  spis: "wersaliki" | "tablica" | "srodek" | "kropki" | undefined;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
   przelacz: (otwarty: boolean) => void;
@@ -279,7 +279,8 @@ function Dzial({
                 : spis
                   ? // jak dział w karcie lokalu: sam podkreślony tytuł; tło strony, bo przyklejony zasłania dania
                     // tablica: ta sama kreda co tło strony, żeby przyklejony nagłówek nie był płaskim prostokątem
-                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : spis === "srodek" ? "h-16" : "h-14"}`
+                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : // kropki: przydymione szkło zamiast drugiego kawałka marmuru (inny wzór żyłek tworzył prostokąt)
+                    spis === "kropki" ? "h-20 bg-tlo/80! backdrop-blur-sm" : spis === "srodek" ? "h-16" : "h-14"}`
                   : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
@@ -301,7 +302,7 @@ function Dzial({
           {/* srodek: lewy odstęp jak strzałka po prawej, żeby nazwa stała na środku */}
           <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : spis === "srodek" ? "pl-10 text-center" : spis ? "" : "pl-4"}`}>
             <span
-              className={`block truncate leading-tight ${spis === "tablica" || spis === "srodek" ? "" : "font-grotesk"} ${
+              className={`block truncate leading-tight ${spis === "tablica" || spis === "srodek" || spis === "kropki" ? "" : "font-grotesk"} ${
                 belki
                   ? "text-2xl font-black uppercase"
                   : karty
@@ -309,6 +310,8 @@ function Dzial({
                     : spis === "tablica"
                       ? // pismo odręczne + kreska w barwach Włoch; py: miejsce na laski liter, które `truncate` by obcięło
                         "py-1 font-[family-name:var(--ozdobny-lokalu)] text-[1.9rem] leading-tight"
+                      : spis === "kropki"
+                        ? "py-1 font-[family-name:var(--ozdobny-lokalu)] text-[1.9rem] leading-tight italic"
                       : spis === "srodek"
                         ? "font-[family-name:var(--ozdobny-lokalu)] text-base font-semibold tracking-[0.04em] uppercase sm:text-xl sm:tracking-[0.06em]"
                       : spis
@@ -556,9 +559,10 @@ function PozycjaSpisu({
 }: {
   p: PozycjaMenu;
   l: ListaLokalu;
-  styl: "wersaliki" | "tablica" | "srodek";
+  styl: "wersaliki" | "tablica" | "srodek" | "kropki";
 }) {
   const tablica = styl === "tablica";
+  const kropki = styl === "kropki";
   const jednaCena = p.ceny.length <= 1;
   const cena = p.ceny[0] ?? null;
   const klucz = kluczPozycji(p.id, null);
@@ -613,7 +617,13 @@ function PozycjaSpisu({
         <div className="min-w-0 flex-1">
           <h4 className="flex items-baseline gap-2">
             <span
-              className={`font-grotesk leading-snug font-bold ${tablica ? "text-[17px] font-semibold" : "text-[15px] tracking-[0.14em] uppercase"}`}
+              className={`font-grotesk leading-snug font-bold ${
+                tablica
+                  ? "text-[17px] font-semibold"
+                  : kropki
+                    ? "text-[14px] font-semibold tracking-[0.06em] uppercase"
+                    : "text-[15px] tracking-[0.14em] uppercase"
+              }`}
             >
               {p.nazwa}
               {tablica && p.cechy.includes("wege") && (
@@ -630,13 +640,17 @@ function PozycjaSpisu({
                 );
               })}
             </span>
+            {/* kropki: nazwa ······ cena, jak w karcie lokalu */}
+            {kropki && jednaCena && <span aria-hidden className="mb-1 min-w-4 flex-1 border-b-2 border-dotted border-tekst-2/60" />}
             {jednaCena && (
-              <span className={`ml-auto shrink-0 pl-2 font-grotesk font-bold ${tablica ? "border-b-2 border-tekst" : ""}`}>
+              <span
+                className={`shrink-0 font-grotesk font-bold ${kropki ? "font-semibold" : "ml-auto pl-2"} ${tablica ? "border-b-2 border-tekst" : ""}`}
+              >
                 {cena ? zl(cena.gr) : "w lokalu"}
               </span>
             )}
           </h4>
-          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{tablica ? p.opis : p.opis.split(/,\s*/).join(" | ")}</p>}
+          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{tablica || kropki ? p.opis : p.opis.split(/,\s*/).join(" | ")}</p>}
           {!jednaCena && <Warianty p={p} l={l} className="mt-2" />}
         </div>
         {jednaCena && (

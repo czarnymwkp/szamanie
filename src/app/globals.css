@@ -188,6 +188,16 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 
+/* Motyw lokalu „marmur” (Kinowa): ciemny brązowy marmur — jaśniejsze plamy i cienkie złote żyłki (wąskie pasmo
+   szumu SVG: tabela przezroczystości przepuszcza tylko środek zakresu, więc z chmur zostają kręte linie). */
+.tlo-marmur {
+  background-image:
+    radial-gradient(ellipse 60% 35% at 25% 15%, rgb(150 110 75 / 0.18), transparent 70%),
+    radial-gradient(ellipse 50% 30% at 80% 45%, rgb(120 85 55 / 0.16), transparent 70%),
+    radial-gradient(ellipse 65% 25% at 40% 85%, rgb(140 100 65 / 0.15), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0045 0.013' numOctaves='5' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.72 0 0 0 0 0.52 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0 0 0 0 0 0 0 0 0.2 0 0 0 0 0 0 0 0 0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+
 /* Plakietka „Dowóz” na karcie lokalu: autko podskakuje na drodze, za nim lecą smużki. */
 .dowoz-auto {
   animation: dowoz-jazda 0.9s ease-in-out infinite;

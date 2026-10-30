@@ -28,6 +28,7 @@ import { motywStrony, type MotywStrony } from "@/lib/motywyStron";
 import PrzyciskProwadz from "@/components/PrzyciskProwadz";
 import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import BanerBelka from "./BanerBelka";
+import BanerElegancki from "./BanerElegancki";
 import BanerKrata from "./BanerKrata";
 import BanerKreska from "./BanerKreska";
 import BanerPas from "./BanerPas";
@@ -77,7 +78,7 @@ function stylMotywu(m: MotywStrony | null) {
       style["--ozdobny-lokalu"] = KROJE[m.kroje.ozdobny].zmienna;
     }
   }
-  if (m.tekstura === "kreda") klasy.push("tlo-kreda");
+  if (m.tekstura) klasy.push(`tlo-${m.tekstura}`);
   return { className: klasy.join(" "), style: style as CSSProperties };
 }
 
@@ -113,6 +114,8 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
             <BanerTablica nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : motyw?.baner?.rodzaj === "pas" ? (
             <BanerPas nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
+          ) : motyw?.baner?.rodzaj === "elegancki" ? (
+            <BanerElegancki nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : (
             <Baner lokal={lokal} rozmiar="strona" className="h-44 sm:h-56 lg:h-72" />
           )}

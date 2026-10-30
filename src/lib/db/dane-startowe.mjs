@@ -34,8 +34,10 @@ export function wczytajDaneStartowe(db, sciezka = PLIK_DANYCH) {
     // sprawdzane dopiero z blokadą: inny proces (worker buildu) mógł wstawić dane przed nami
     let opis;
     if (db.prepare("SELECT 1 FROM lokale LIMIT 1").get()) {
-      const [lokale, poprawki, ukryte] = [dosiejNoweLokale, uzupelnijPoprawki, ukryjZamkniete].map((f) => f(db, tabele));
-      opis = { "nowe lokale": lokale, poprawki, "ukryte lokale": ukryte };
+      const [lokale, poprawki, menu, ukryte] = [dosiejNoweLokale, uzupelnijPoprawki, uzupelnijMenu, ukryjZamkniete].map(
+        (f) => f(db, tabele),
+      );
+      opis = { "nowe lokale": lokale, poprawki, "pozycje menu i stref": menu, "ukryte lokale": ukryte };
     } else {
       opis = { lokale: wstawWszystko(db, tabele) };
     }
@@ -133,6 +135,60 @@ function uzupelnijPoprawki(db, tabele) {
     if (jest && (jest.autor !== "admin" || jest.wartosc === w[iWartosc] || jest.utworzono >= w[iKiedy])) continue;
     zapisz.run(id, w[iPole], w[iWartosc], w[iKiedy]);
     zmiany++;
+  }
+  return zmiany;
+}
+
+/**
+ * Menu i strefy dostawy z pliku dla lokali, które w bazie już są, ale ich nie mają (np. menu przepisane z karty
+ * lokalu po pierwszym wdrożeniu). Lokal z jakimkolwiek menu albo z menu prowadzonym w panelu zostaje nietknięty.
+ */
+function uzupelnijMenu(db, tabele) {
+  const { lokale } = tabele;
+  if (!lokale?.wiersze.length) return 0;
+  const kol = (tabela, nazwa) => tabela.kolumny.indexOf(nazwa);
+  const slugZPliku = new Map(lokale.wiersze.map((w) => [w[kol(lokale, "id")], w[kol(lokale, "slug")]]));
+  const wierszZPliku = new Map(lokale.wiersze.map((w) => [w[kol(lokale, "slug")], w]));
+  const wBazie = db.prepare("SELECT id, menu_zrodlo FROM lokale WHERE slug = ?");
+  const ma = (tabela) => db.prepare(`SELECT 1 FROM ${tabela} WHERE lokal_id = ? LIMIT 1`);
+  const [maMenu, maSekcje, maStrefy] = [ma("menu"), ma("menu_sekcje"), ma("strefy_dostawy")];
+
+  // które tabele komu dosiać: id w pliku → id w bazie
+  const doMenu = new Map();
+  const doStref = new Map();
+  for (const [idPliku, slug] of slugZPliku) {
+    const lokal = wBazie.get(slug);
+    if (!lokal) continue;
+    if (lokal.menu_zrodlo !== "panel" && !maMenu.get(lokal.id) && !maSekcje.get(lokal.id)) doMenu.set(idPliku, lokal.id);
+    if (!maStrefy.get(lokal.id)) doStref.set(idPliku, lokal.id);
+  }
+
+  let zmiany = 0;
+  for (const [nazwa, komu] of [
+    ["menu_sekcje", doMenu],
+    ["menu", doMenu],
+    ["strefy_dostawy", doStref],
+  ]) {
+    const tabela = tabele[nazwa];
+    if (!tabela?.wiersze.length || !komu.size) continue;
+    const iLokal = kol(tabela, "lokal_id");
+    const wstaw = wstawiacz(db, nazwa, tabela.kolumny, { bez: ["id"] });
+    for (const w of tabela.wiersze) {
+      if (!komu.has(w[iLokal])) continue;
+      wstaw(w, { lokal_id: komu.get(w[iLokal]) });
+      zmiany++;
+    }
+  }
+  // skąd menu i kiedy sprawdzone (napis „Ceny sprawdzone …”) — tylko tam, gdzie menu właśnie doszło
+  const pola = ["menu_zrodlo", "menu_sprawdzono", "dostawa_zrodlo", "dostawa_sprawdzono", "dostawa_uwagi"].filter(
+    (p) => kol(lokale, p) >= 0,
+  );
+  for (const [idPliku, id] of doMenu) {
+    const w = wierszZPliku.get(slugZPliku.get(idPliku));
+    db.prepare(`UPDATE lokale SET ${pola.map((p) => `${p} = COALESCE(${p}, ?)`).join(", ")} WHERE id = ?`).run(
+      ...pola.map((p) => w[kol(lokale, p)]),
+      id,
+    );
   }
   return zmiany;
 }

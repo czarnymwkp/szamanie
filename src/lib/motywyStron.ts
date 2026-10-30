@@ -34,7 +34,8 @@ export type KrojLokalu =
   | "comfortaa"
   | "sanchez"
   | "lora"
-  | "raleway";
+  | "raleway"
+  | "bodoni";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
@@ -42,19 +43,23 @@ export type MotywStrony = {
   /** etykiety: drobne napisy wersalikami (ceny, cechy dań) — przez --etykiety-lokalu; bez niego krój tekstu. */
   /** ozdobny: pismo odręczne w tytułach działów menu — przez --ozdobny-lokalu. */
   kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu; etykiety?: KrojLokalu; ozdobny?: KrojLokalu };
-  /** kreda: tło strony jak tablica kredowa (smugi i pył kredy na ciemnym tle, klasa .tlo-kreda w globals.css). */
-  tekstura?: "kreda";
+  /**
+   * kreda: tablica kredowa (smugi i pył kredy, .tlo-kreda w globals.css); marmur: ciemny marmur ze złotymi
+   * żyłkami (.tlo-marmur).
+   */
+  tekstura?: "kreda" | "marmur";
   /**
    * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
    * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
    * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę;
    * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu);
    * tablica: duża nazwa, `haslo` rozstrzelone pod nią i kreska w barwach Włoch;
-   * pas: ciemny pas (kolor akcentu) z nazwą na środku, kreska i `haslo` w kolorze obrys-2.
+   * pas: ciemny pas (kolor akcentu) z nazwą na środku, kreska i `haslo` w kolorze obrys-2;
+   * elegancki: na tle strony nazwa dużą kursywą (krój ozdobny), cienka złota kreska z rombem i `haslo`.
    */
   baner?:
     | { rodzaj: "swietliki"; znak: string; podpis: string }
-    | { rodzaj: "belka" | "krata" | "kreska" | "tablica" | "pas"; haslo?: string; podpis: string };
+    | { rodzaj: "belka" | "krata" | "kreska" | "tablica" | "pas" | "elegancki"; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
   /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
@@ -64,9 +69,10 @@ export type MotywStrony = {
   /**
    * Karta jak spis, cena po prawej. wersaliki: działy podkreślone, nazwy dań rozstrzelonymi wersalikami, skład po „|”;
    * tablica: działy pismem odręcznym z kreską w barwach Włoch, „(vege)” na zielono, ceny podkreślone;
-   * srodek: wszystko wyśrodkowane, działy krojem ozdobnym, składniki krojem etykiet w kolorze akcent-tekst po „•”.
+   * srodek: wszystko wyśrodkowane, działy krojem ozdobnym, składniki krojem etykiet w kolorze akcent-tekst po „•”;
+   * kropki: działy kursywą krojem ozdobnym, nazwy dań wersalikami, kropki do ceny.
    */
-  menuSpis?: "wersaliki" | "tablica" | "srodek";
+  menuSpis?: "wersaliki" | "tablica" | "srodek" | "kropki";
 };
 
 const MOTYWY: Record<string, MotywStrony> = {
@@ -198,6 +204,29 @@ const MOTYWY: Record<string, MotywStrony> = {
     kroje: { naglowki: "sanchez", tekst: "raleway", etykiety: "lora", ozdobny: "comfortaa" },
     baner: { rodzaj: "pas", haslo: "Restauracja · pizza · przyjęcia", podpis: "Kraśnik · ul. Zygmunta Krasińskiego 11f" },
     menuSpis: "srodek",
+  },
+  // Karta z Facebooka lokalu (Kinowa Craft Food Pub, 31.10): ciemny brązowy marmur, działy elegancką szeryfową
+  // kursywą, nazwy dań wersalikami z kropkami do ceny, opisy jasnym bezszeryfowym. Ich logo tylko za zgodą lokalu.
+  "kinowa-krasnik": {
+    ciemny: true,
+    tekstura: "marmur",
+    kolory: {
+      tlo: "#1e1611",
+      karta: "#2a1f18",
+      krem: "#33261d",
+      tekst: "#f4ece2",
+      "tekst-2": "#c8b9a8",
+      obrys: "#3e2f25",
+      "obrys-2": "#6b5646",
+      akcent: "#ead8bf",
+      "akcent-tekst": "#d8b483",
+      "na-akcencie": "#1e1611",
+      otwarte: "#8fd6a2",
+      zamkniete: "#ff9f8f",
+    },
+    kroje: { naglowki: "montserrat", tekst: "montserrat", ozdobny: "bodoni" },
+    baner: { rodzaj: "elegancki", haslo: "Craft Food Pub", podpis: "Kraśnik · al. Niepodległości 44" },
+    menuSpis: "kropki",
   },
 };
 
