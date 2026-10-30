@@ -24,8 +24,9 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     SZAMANIE_DB=/app/data/szamanie.db \
     NEXT_TELEMETRY_DISABLED=1
-COPY --from=budowa /app/.next/standalone ./
-COPY --from=budowa /app/.next/static ./.next/static
+# .next owned by node: the server writes refreshed pages (route-cache) and resized images (cache) there at runtime
+COPY --from=budowa --chown=node:node /app/.next/standalone ./
+COPY --from=budowa --chown=node:node /app/.next/static ./.next/static
 COPY --from=budowa /app/public ./public
 # sharp (skalowanie zdjęć w next/image): śledzenie plików przy buildzie gubi biblioteki libvips (osobny pakiet
 # @img/sharp-libvips-*), a bez nich zdjęcia idą w pełnym rozmiarze jako JPEG
