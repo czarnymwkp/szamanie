@@ -203,7 +203,7 @@ export default function ListaZamowienia({
         }}
         className="mx-0 mt-auto mb-0 max-h-[92dvh] w-full max-w-none overflow-hidden rounded-t-[1.75rem] bg-tlo p-0 text-tekst shadow-2xl backdrop:bg-black/55 open:flex open:animate-wysun open:flex-col sm:m-auto sm:max-w-lg sm:rounded-[1.75rem]"
       >
-        <div className="flex items-center gap-3 border-b border-obrys px-5 py-4">
+        <div className="flex shrink-0 items-center gap-3 border-b border-obrys px-5 py-4">
           {sciagawka ? (
             <button type="button" onClick={() => setSciagawka(false)} className="flex items-center gap-1.5 text-sm font-extrabold">
               <ArrowLeft className="size-4" aria-hidden /> Edytuj listę
@@ -244,7 +244,9 @@ export default function ListaZamowienia({
         </div>
 
         {sciagawka ? (
-          <div className="flex-1 overflow-y-auto px-5 py-6">
+          // flex-auto, nie flex-1: Safari na iPhonie liczy „rozciągnij od zera” dosłownie i okno bez wysokości ściskało
+          // środek do zera (widać było sam nagłówek i przycisk); od wysokości treści i kurczenie do ekranu działa wszędzie
+          <div className="min-h-0 flex-auto overflow-y-auto px-5 py-6">
             <p className="text-sm font-extrabold text-tekst-2 uppercase">Zamawiasz w: {nazwa}</p>
             <ul className="mt-4 space-y-3">
               {zebrane.map((p) => (
@@ -262,7 +264,7 @@ export default function ListaZamowienia({
             <p className="mt-6 text-xs font-semibold text-tekst-2">Ekran nie zgaśnie, dopóki ta lista jest otwarta.</p>
           </div>
         ) : razemOtwarte ? (
-          <div className="flex-1 overflow-y-auto px-5 py-4">
+          <div className="min-h-0 flex-auto overflow-y-auto px-5 py-4">
             <p className="text-sm font-semibold text-tekst-2">
               Druga osoba skanuje kod aparatem (albo dostaje link), dopisuje swoje i podaje dalej. Ostatnia dzwoni.
             </p>
@@ -302,7 +304,7 @@ export default function ListaZamowienia({
             )}
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto px-5 pb-4">
+          <div className="min-h-0 flex-auto overflow-y-auto px-5 pb-4">
             <p className="pt-3 text-sm font-bold text-tekst-2">{nazwa}</p>
             {grupy.map((g) =>
               osoby.length ? (
@@ -386,7 +388,7 @@ export default function ListaZamowienia({
           </div>
         )}
 
-        <div className="space-y-2 border-t border-obrys bg-tlo px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="shrink-0 space-y-2 border-t border-obrys bg-tlo px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
           {razemOtwarte ? (
             <button
               type="button"
