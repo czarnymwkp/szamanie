@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ClipboardList, Phone, Share2, Trash2, Users, X } from "lucide-react";
 import { renderSVG } from "uqr";
+import { reka } from "@/components/szkic/szkic";
 import { zl } from "@/lib/ceny";
 import type { Dostawa } from "@/lib/menu";
 import { linkTelefonu, odmiana } from "@/lib/nazwy";
@@ -18,6 +19,21 @@ function czytajImie() {
   } catch {
     return "";
   }
+}
+
+// dymek „Zamawiasz z kimś?” pokazujemy raz: po zamknięciu albo użyciu „Razem” już nie wraca
+const DYMEK = "szamanie:dymek-razem";
+function dymekWidziany() {
+  try {
+    return localStorage.getItem(DYMEK) === "1";
+  } catch {
+    return true;
+  }
+}
+function zapamietajDymek() {
+  try {
+    localStorage.setItem(DYMEK, "1");
+  } catch {}
 }
 
 const sumaPozycji = (pozycje: PozycjaListy[]) => pozycje.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
@@ -48,6 +64,7 @@ export default function ListaZamowienia({
   const [razemOtwarte, setRazemOtwarte] = useState(false);
   const [imie, setImie] = useState("");
   const [skopiowano, setSkopiowano] = useState(false);
+  const [dymekZamkniety, setDymekZamkniety] = useState(false);
   const { lista, liczba, sumaGr } = l;
 
   // Link „Zamawiamy razem” (…#razem=…): przyjmujemy listę i od razu ją pokazujemy. Znacznik znika z adresu,
@@ -93,13 +110,28 @@ export default function ListaZamowienia({
   const brakDoMinimum = strefa?.minGr && sumaGr < strefa.minGr ? strefa.minGr - sumaGr : 0;
   const razem = sumaGr + kosztDostawy;
 
-  // Pasek zasłaniałby dół strony — robimy mu miejsce.
+  // Po pierwszym daniu dymek nad paskiem podpowiada „Zamawiamy razem” — tylko raz i nie temu, kto dostał listę
+  // linkiem (lista ma wtedy pozycje innych osób). liczba > 0 jest tylko w przeglądarce, więc localStorage czytamy
+  // dopiero wtedy, a serwer i pierwszy render w przeglądarce są takie same.
+  const pokazDymek =
+    liczba > 0 && !!slug && !dymekZamkniety && !lista.pozycje.some((p) => p.kto) && !dymekWidziany();
+  const zamknijDymek = () => {
+    zapamietajDymek();
+    setDymekZamkniety(true);
+  };
+  const otworzRazem = () => {
+    zamknijDymek();
+    setImie((i) => i || czytajImie());
+    setRazemOtwarte(true);
+  };
+
+  // Pasek (i dymek nad nim) zasłaniałby dół strony — robimy mu miejsce.
   useEffect(() => {
-    document.body.style.paddingBottom = liczba ? "6rem" : "";
+    document.body.style.paddingBottom = liczba ? (pokazDymek ? "12rem" : "6rem") : "";
     return () => {
       document.body.style.paddingBottom = "";
     };
-  }, [liczba]);
+  }, [liczba, pokazDymek]);
 
   // Ściągawka: ekran nie gaśnie w czasie rozmowy (po powrocie do przeglądarki blokadę trzeba wziąć ponownie).
   useEffect(() => {
@@ -179,6 +211,35 @@ export default function ListaZamowienia({
     <>
       {liczba > 0 && (
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          {pokazDymek && (
+            <div className="pointer-events-auto relative mx-auto mb-4 w-full max-w-md animate-wjazd">
+              <button
+                type="button"
+                onClick={() => {
+                  otworzRazem();
+                  okno.current?.showModal();
+                }}
+                className="block w-full rotate-[-1.5deg] rounded-2xl border-[2.5px] border-tekst bg-karta py-3 pr-10 pl-4 text-left text-tekst shadow-[4px_4px_0_#1d1b19]"
+              >
+                <span className={`${reka.className} block text-[1.4rem] leading-tight`}>
+                  Zamawiasz z kimś? Pokaż kod QR albo wyślij link — każdy doda swoje ze swojego telefonu!
+                </span>
+                <span className="mt-1 flex items-center gap-1.5 text-sm font-extrabold text-akcent-tekst">
+                  <Users className="size-4" aria-hidden /> Kod QR albo link
+                </span>
+                {/* ogonek dymka w stronę paska */}
+                <span aria-hidden className="absolute -bottom-[11px] left-10 size-5 rotate-45 border-r-[2.5px] border-b-[2.5px] border-tekst bg-karta" />
+              </button>
+              <button
+                type="button"
+                onClick={zamknijDymek}
+                aria-label="Zamknij podpowiedź"
+                className="absolute top-1 right-1 flex size-9 items-center justify-center text-tekst"
+              >
+                <X className="size-4" aria-hidden />
+              </button>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => okno.current?.showModal()}
@@ -224,10 +285,7 @@ export default function ListaZamowienia({
           {!sciagawka && !razemOtwarte && slug && (
             <button
               type="button"
-              onClick={() => {
-                setImie((i) => i || czytajImie());
-                setRazemOtwarte(true);
-              }}
+              onClick={otworzRazem}
               className="ml-auto flex h-9 items-center gap-1.5 rounded-full border-[1.5px] border-tekst px-3 text-sm font-extrabold"
             >
               <Users className="size-4" aria-hidden /> Razem
