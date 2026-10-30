@@ -1,4 +1,15 @@
-import { Karla, Montserrat, Open_Sans, Playfair_Display, Roboto, Roboto_Condensed, Roboto_Mono, Rokkitt } from "next/font/google";
+import {
+  Karla,
+  Kaushan_Script,
+  Montserrat,
+  Open_Sans,
+  Outfit,
+  Playfair_Display,
+  Roboto,
+  Roboto_Condensed,
+  Roboto_Mono,
+  Rokkitt,
+} from "next/font/google";
 import type { KrojLokalu } from "@/lib/motywyStron";
 
 // Kroje motywów lokali (lib/motywyStron.ts). Bez preload: pobierają się tylko na stronach lokali, które ich używają.
@@ -56,6 +67,20 @@ const openSans = Open_Sans({
   preload: false,
 });
 
+// Si!: geometryczny bezszeryfowy (zamiast płatnego Geomanist z ich karty) i pędzlowe pismo w tytułach działów.
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin", "latin-ext"],
+  preload: false,
+});
+
+const kaushan = Kaushan_Script({
+  variable: "--font-kaushan",
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  preload: false,
+});
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
@@ -65,4 +90,6 @@ export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = 
   "roboto-mono": { variable: robotoMono.variable, zmienna: "var(--font-roboto-mono)" },
   montserrat: { variable: montserrat.variable, zmienna: "var(--font-montserrat)" },
   "open-sans": { variable: openSans.variable, zmienna: "var(--font-open-sans)" },
+  outfit: { variable: outfit.variable, zmienna: "var(--font-outfit)" },
+  kaushan: { variable: kaushan.variable, zmienna: "var(--font-kaushan)" },
 };

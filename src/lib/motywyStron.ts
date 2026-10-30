@@ -28,30 +28,39 @@ export type KrojLokalu =
   | "roboto"
   | "roboto-mono"
   | "montserrat"
-  | "open-sans";
+  | "open-sans"
+  | "outfit"
+  | "kaushan";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
   ciemny?: boolean; // ciemne pola formularzy i paski przewijania
   /** etykiety: drobne napisy wersalikami (ceny, cechy dań) — przez --etykiety-lokalu; bez niego krój tekstu. */
-  kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu; etykiety?: KrojLokalu };
+  /** ozdobny: pismo odręczne w tytułach działów menu — przez --ozdobny-lokalu. */
+  kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu; etykiety?: KrojLokalu; ozdobny?: KrojLokalu };
+  /** kreda: tło strony jak tablica kredowa (smugi i pył kredy na ciemnym tle, klasa .tlo-kreda w globals.css). */
+  tekstura?: "kreda";
   /**
    * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
    * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
    * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę;
-   * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu).
+   * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu);
+   * tablica: duża nazwa, `haslo` rozstrzelone pod nią i kreska w barwach Włoch.
    */
   baner?:
     | { rodzaj: "swietliki"; znak: string; podpis: string }
-    | { rodzaj: "belka" | "krata" | "kreska"; haslo?: string; podpis: string };
+    | { rodzaj: "belka" | "krata" | "kreska" | "tablica"; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
   /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
   menuBelki?: boolean;
   /** Dania na białych kartach w siatce, ceny na pigułkach krojem etykiet, działy jak przełączniki-pigułki. */
   menuKarty?: boolean;
-  /** Karta jak spis: działy podkreślone, nazwy dań rozstrzelonymi wersalikami, cena po prawej, skład po „|”. */
-  menuSpis?: boolean;
+  /**
+   * Karta jak spis, cena po prawej. wersaliki: działy podkreślone, nazwy dań rozstrzelonymi wersalikami, skład po „|”;
+   * tablica: działy pismem odręcznym z kreską w barwach Włoch, „(vege)” na zielono, ceny podkreślone.
+   */
+  menuSpis?: "wersaliki" | "tablica";
 };
 
 const MOTYWY: Record<string, MotywStrony> = {
@@ -140,7 +149,30 @@ const MOTYWY: Record<string, MotywStrony> = {
     },
     kroje: { naglowki: "montserrat", tekst: "open-sans" },
     baner: { rodzaj: "kreska", haslo: "Restauracja", podpis: "Stróża-Kolonia · ul. Dworska 6" },
-    menuSpis: true,
+    menuSpis: "wersaliki",
+  },
+  // siwloska.pl, karta PDF 2026: czarna tablica kredowa, biały tekst, tytuły działów pędzlem z kreską w barwach Włoch,
+  // „(vege)” na zielono, ceny podkreślone. Ich logo (Si! w kole) tylko za zgodą lokalu — na razie bez niego.
+  "si-krasnik": {
+    ciemny: true,
+    tekstura: "kreda",
+    kolory: {
+      tlo: "#1d1e1d",
+      karta: "#262726",
+      krem: "#2f302f",
+      tekst: "#f5f5f3",
+      "tekst-2": "#b9bab6",
+      obrys: "#3b3c3b",
+      "obrys-2": "#5a5b58",
+      akcent: "#f5f5f3",
+      "akcent-tekst": "#5fd38a",
+      "na-akcencie": "#1d1e1d",
+      otwarte: "#5fd38a",
+      zamkniete: "#ff8a80",
+    },
+    kroje: { naglowki: "outfit", tekst: "outfit", ozdobny: "kaushan" },
+    baner: { rodzaj: "tablica", haslo: "Włoska", podpis: "Kraśnik · ul. Adama Mickiewicza 1k" },
+    menuSpis: "tablica",
   },
 };
 

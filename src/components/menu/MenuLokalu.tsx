@@ -8,6 +8,7 @@ import type { CechaDania, Dostawa, Menu, PozycjaMenu, SekcjaMenu } from "@/lib/m
 import { odmiana } from "@/lib/nazwy";
 import { bezPolskich, slugify } from "@/lib/slug.mjs";
 import Licznik from "./Licznik";
+import Trikolor from "../szablony/Trikolor";
 import ListaZamowienia from "./ListaZamowienia";
 import { kluczPozycji, useLista, type ListaLokalu } from "./useLista";
 
@@ -52,7 +53,7 @@ export default function MenuLokalu({
   numerowane = false,
   belki = false,
   karty = false,
-  spis = false,
+  spis,
 }: {
   menu: Menu;
   dostawa: Dostawa | null;
@@ -62,7 +63,7 @@ export default function MenuLokalu({
   numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
   belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
   karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
-  spis?: boolean; // jak spis w karcie lokalu: podkreślone działy, nazwy rozstrzelonymi wersalikami (motyw lokalu)
+  spis?: "wersaliki" | "tablica"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
 }) {
   const l = useLista(slug);
   const [szukaj, setSzukaj] = useState("");
@@ -212,7 +213,7 @@ function Dzial({
   numerowane: boolean;
   belki: boolean;
   karty: boolean;
-  spis: boolean;
+  spis: "wersaliki" | "tablica" | undefined;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
   przelacz: (otwarty: boolean) => void;
@@ -261,7 +262,8 @@ function Dzial({
                   )}`
                 : spis
                   ? // jak dział w karcie lokalu: sam podkreślony tytuł; tło strony, bo przyklejony zasłania dania
-                    "h-14 bg-tlo"
+                    // tablica: ta sama kreda co tło strony, żeby przyklejony nagłówek nie był płaskim prostokątem
+                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : "h-14"}`
                   : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
@@ -282,19 +284,23 @@ function Dzial({
           )}
           <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : spis ? "" : "pl-4"}`}>
             <span
-              className={`block truncate font-grotesk leading-tight ${
+              className={`block truncate leading-tight ${spis === "tablica" ? "" : "font-grotesk"} ${
                 belki
                   ? "text-2xl font-black uppercase"
                   : karty
                     ? "text-lg font-medium uppercase"
-                    : spis
-                      ? // pb: miejsce na podkreślenie, które `truncate` (overflow: hidden) inaczej by obcięło
-                        "pb-2 text-xl font-bold tracking-[0.18em] uppercase underline decoration-2 underline-offset-[6px]"
+                    : spis === "tablica"
+                      ? // pismo odręczne + kreska w barwach Włoch; py: miejsce na laski liter, które `truncate` by obcięło
+                        "py-1 font-[family-name:var(--ozdobny-lokalu)] text-[1.9rem] leading-tight"
+                      : spis
+                        ? // pb: miejsce na podkreślenie, które `truncate` (overflow: hidden) inaczej by obcięło
+                          "pb-2 text-xl font-bold tracking-[0.18em] uppercase underline decoration-2 underline-offset-[6px]"
                       : "text-xl font-bold"
               }`}
             >
               {s.nazwa}
             </span>
+            {spis === "tablica" && <Trikolor className="mb-1 w-40 max-w-[45%]" />}
             <span
               className={
                 karty
@@ -338,7 +344,7 @@ function Dzial({
           ) : spis ? (
             <ul className="pb-3 lg:grid lg:grid-cols-2 lg:gap-x-12">
               {s.pozycje.map((p) => (
-                <PozycjaSpisu key={p.id} p={p} l={l} />
+                <PozycjaSpisu key={p.id} p={p} l={l} styl={spis} />
               ))}
             </ul>
           ) : (
@@ -522,9 +528,10 @@ function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
   );
 }
 
-/** Danie w karcie-spisie (motyw lokalu z `menuSpis`): nazwa rozstrzelonymi wersalikami, cechy ikonkami, cena po
- *  prawej, skład rozdzielony „|” jak w karcie lokalu. */
-function PozycjaSpisu({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
+/** Danie w karcie-spisie (motyw lokalu z `menuSpis`), cena po prawej. wersaliki: nazwa rozstrzelonymi wersalikami,
+ *  cechy ikonkami, skład rozdzielony „|”; tablica: zwykła nazwa, „(vege)” na zielono, cena podkreślona. */
+function PozycjaSpisu({ p, l, styl }: { p: PozycjaMenu; l: ListaLokalu; styl: "wersaliki" | "tablica" }) {
+  const tablica = styl === "tablica";
   const jednaCena = p.ceny.length <= 1;
   const cena = p.ceny[0] ?? null;
   const klucz = kluczPozycji(p.id, null);
@@ -539,9 +546,14 @@ function PozycjaSpisu({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
       >
         <div className="min-w-0 flex-1">
           <h4 className="flex items-baseline gap-2">
-            <span className="font-grotesk text-[15px] leading-snug font-bold tracking-[0.14em] uppercase">
+            <span
+              className={`font-grotesk leading-snug font-bold ${tablica ? "text-[17px] font-semibold" : "text-[15px] tracking-[0.14em] uppercase"}`}
+            >
               {p.nazwa}
-              {p.cechy.map((c) => {
+              {tablica && p.cechy.includes("wege") && (
+                <span className="ml-1.5 text-[13px] font-normal text-otwarte">(vege)</span>
+              )}
+              {p.cechy.filter((c) => !tablica || c !== "wege").map((c) => {
                 const { nazwa, ikona: Ikona } = CECHY[c];
                 return (
                   <Ikona
@@ -553,10 +565,12 @@ function PozycjaSpisu({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
               })}
             </span>
             {jednaCena && (
-              <span className="ml-auto shrink-0 pl-2 font-grotesk font-bold">{cena ? zl(cena.gr) : "w lokalu"}</span>
+              <span className={`ml-auto shrink-0 pl-2 font-grotesk font-bold ${tablica ? "border-b-2 border-tekst" : ""}`}>
+                {cena ? zl(cena.gr) : "w lokalu"}
+              </span>
             )}
           </h4>
-          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{p.opis.split(/,\s*/).join(" | ")}</p>}
+          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{tablica ? p.opis : p.opis.split(/,\s*/).join(" | ")}</p>}
           {!jednaCena && <Warianty p={p} l={l} className="mt-2" />}
         </div>
         {jednaCena && (

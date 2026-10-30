@@ -30,6 +30,7 @@ import BanerBelka from "./BanerBelka";
 import BanerKrata from "./BanerKrata";
 import BanerKreska from "./BanerKreska";
 import BanerSwietliki from "./BanerSwietliki";
+import BanerTablica from "./BanerTablica";
 import PromocjeLokalu from "./PromocjeLokalu";
 import { KROJE } from "./kroje";
 import { adresMapy, plakietkiLokalu, uslugiLokalu } from "./wspolne";
@@ -69,7 +70,12 @@ function stylMotywu(m: MotywStrony | null) {
       klasy.push(KROJE[m.kroje.etykiety].variable);
       style["--etykiety-lokalu"] = KROJE[m.kroje.etykiety].zmienna;
     }
+    if (m.kroje.ozdobny) {
+      klasy.push(KROJE[m.kroje.ozdobny].variable);
+      style["--ozdobny-lokalu"] = KROJE[m.kroje.ozdobny].zmienna;
+    }
   }
+  if (m.tekstura === "kreda") klasy.push("tlo-kreda");
   return { className: klasy.join(" "), style: style as CSSProperties };
 }
 
@@ -101,6 +107,8 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
             <BanerKrata nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : motyw?.baner?.rodzaj === "kreska" ? (
             <BanerKreska nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
+          ) : motyw?.baner?.rodzaj === "tablica" ? (
+            <BanerTablica nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : (
             <Baner lokal={lokal} rozmiar="strona" className="h-44 sm:h-56 lg:h-72" />
           )}
