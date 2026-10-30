@@ -1,6 +1,7 @@
 // Dane startowe z repozytorium (dane/baza-startowa.json): katalog lokali, menu, strefy dostawy, miejscowości,
 // ręczne poprawki. Trafiają do bazy, gdy nie ma w niej żadnego lokalu — świeży serwer, CI, nowy komputer.
-// Do bazy, w której lokale już są (serwer), dochodzą tylko lokale z pliku, których w niej brakuje.
+// Do bazy, w której lokale już są (serwer), dochodzą lokale z pliku, których w niej brakuje, nowsze poprawki
+// admina (`npm run popraw`) i ukrycie zamkniętych lokali. Zmian z panelu plik nie nadpisuje.
 // Bez kont, sesji, zgłoszeń, promocji i pakietów: repozytorium jest publiczne, a to dane z panelu i z umów.
 // Plik odświeża `npm run baza:eksport` z lokalnej bazy.
 import { readFileSync } from "node:fs";
@@ -15,8 +16,8 @@ export const TABELE_STARTOWE = ["miejscowosci", "lokale", "zdjecia", "poprawki",
 const TABELE_LOKALU = ["zdjecia", "poprawki", "menu_sekcje", "menu", "strefy_dostawy"];
 
 /**
- * Wstawia dane startowe do pustej bazy, a do bazy z lokalami dopisuje lokale z pliku, których w niej brakuje.
- * Zwraca liczbę wstawionych lokali (0, gdy nic nie doszło albo nie ma pliku).
+ * Wstawia dane startowe do pustej bazy, a bazę z lokalami uzupełnia z pliku (nowe lokale, poprawki, ukrycia).
+ * Zwraca liczbę zmian (0, gdy nic nie doszło albo nie ma pliku).
  */
 export function wczytajDaneStartowe(db, sciezka = PLIK_DANYCH) {
   let plik;
@@ -31,12 +32,20 @@ export function wczytajDaneStartowe(db, sciezka = PLIK_DANYCH) {
   db.exec("BEGIN IMMEDIATE");
   try {
     // sprawdzane dopiero z blokadą: inny proces (worker buildu) mógł wstawić dane przed nami
-    const wstawione = db.prepare("SELECT 1 FROM lokale LIMIT 1").get()
-      ? dosiejNoweLokale(db, tabele)
-      : wstawWszystko(db, tabele);
+    let opis;
+    if (db.prepare("SELECT 1 FROM lokale LIMIT 1").get()) {
+      const [lokale, poprawki, ukryte] = [dosiejNoweLokale, uzupelnijPoprawki, ukryjZamkniete].map((f) => f(db, tabele));
+      opis = { "nowe lokale": lokale, poprawki, "ukryte lokale": ukryte };
+    } else {
+      opis = { lokale: wstawWszystko(db, tabele) };
+    }
     db.exec("COMMIT");
-    if (wstawione) console.log(`Dane startowe: wstawiono ${wstawione} lokali z ${sciezka}`);
-    return wstawione;
+    const zmiany = Object.values(opis).reduce((a, b) => a + b, 0);
+    if (zmiany) {
+      const lista = Object.entries(opis).filter(([, n]) => n).map(([co, n]) => `${co}: ${n}`);
+      console.log(`Dane startowe z ${sciezka} — ${lista.join(", ")}`);
+    }
+    return zmiany;
   } catch (blad) {
     db.exec("ROLLBACK");
     throw blad;
@@ -94,6 +103,47 @@ function dosiejNoweLokale(db, tabele) {
     }
   }
   return nowe.length;
+}
+
+/**
+ * Poprawki admina z pliku (autor „admin”, czyli `npm run popraw`) dla lokali, które już są w bazie: brakująca
+ * dochodzi, a starsza poprawka admina ustępuje nowszej z pliku. Poprawek z panelu (autor „konto:…”) plik nie
+ * rusza — zmiana od lokalu wygrywa. Cofnięcie poprawki (`popraw … usun`) na serwer nie przechodzi.
+ */
+function uzupelnijPoprawki(db, tabele) {
+  const { lokale, poprawki } = tabele;
+  if (!poprawki?.wiersze.length || !lokale?.wiersze.length) return 0;
+  const kol = (tabela, nazwa) => tabela.kolumny.indexOf(nazwa);
+  const slugZPliku = new Map(lokale.wiersze.map((w) => [w[kol(lokale, "id")], w[kol(lokale, "slug")]]));
+  const idWBazie = new Map(db.prepare("SELECT slug, id FROM lokale").all().map((w) => [w.slug, w.id]));
+  const obecna = db.prepare("SELECT wartosc, autor, utworzono FROM poprawki WHERE lokal_id = ? AND pole = ?");
+  const zapisz = db.prepare(
+    `INSERT INTO poprawki (lokal_id, pole, wartosc, autor, utworzono) VALUES (?, ?, ?, 'admin', ?)
+     ON CONFLICT(lokal_id, pole) DO UPDATE
+       SET wartosc = excluded.wartosc, autor = 'admin', utworzono = excluded.utworzono`,
+  );
+  const [iLokal, iPole, iWartosc, iAutor, iKiedy] = ["lokal_id", "pole", "wartosc", "autor", "utworzono"].map((n) =>
+    kol(poprawki, n),
+  );
+  let zmiany = 0;
+  for (const w of poprawki.wiersze) {
+    const id = idWBazie.get(slugZPliku.get(w[iLokal]));
+    if (w[iAutor] !== "admin" || id === undefined) continue;
+    const jest = obecna.get(id, w[iPole]);
+    if (jest && (jest.autor !== "admin" || jest.wartosc === w[iWartosc] || jest.utworzono >= w[iKiedy])) continue;
+    zapisz.run(id, w[iPole], w[iWartosc], w[iKiedy]);
+    zmiany++;
+  }
+  return zmiany;
+}
+
+/** Lokal ukryty w pliku (zamknięty) znika też z bazy. Odkrycie zostaje ręczne — panel nie ukrywa lokali. */
+function ukryjZamkniete(db, tabele) {
+  const lokale = tabele.lokale;
+  if (!lokale?.wiersze.length) return 0;
+  const [iSlug, iUkryty] = [lokale.kolumny.indexOf("slug"), lokale.kolumny.indexOf("ukryty")];
+  const ukryj = db.prepare("UPDATE lokale SET ukryty = 1 WHERE slug = ? AND ukryty = 0");
+  return lokale.wiersze.filter((w) => w[iUkryty]).reduce((n, w) => n + Number(ukryj.run(w[iSlug]).changes), 0);
 }
 
 /** INSERT z kolumnami z pliku, które są w tabeli (plik i baza mogą być z różnych wersji schematu). */
