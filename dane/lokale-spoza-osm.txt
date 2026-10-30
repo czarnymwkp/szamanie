@@ -177,3 +177,76 @@ współrzędne: 50.9351819, 22.2166333
 telefon: +48 531 644 811
 facebook: https://www.facebook.com/p/Dom-Weselny-Gamma-Piaskowa-18-I-sze-pi%C4%99tro-61590940461194/
 opis: Rodzinny dom weselny od 2007 roku: wesela, komunie, chrzciny, urodziny i imieniny. Sala na I piętrze, wejście od strony boiska.
+
+# ---- 31.10.2026: Kraśnik — luki względem katalogów (noclegikrasnik.pl, Restaurant Guru), sprawdzone na FB/stronach ----
+# Pominięte: Presto (Krasińskiego 11G, ten sam adres i telefon co Santorini — do wyjaśnienia), Friends Kebab
+# (Mickiewicza 4, FB z 2022; pod tym adresem był też BD Spicy Kebab, ukryty), Rarytas (FB 12.2024), Dom Weselny
+# Biała Róża (Struga 5 — teraz Na Światłach), lodziarnie/gofry bez profili (Marsjano, Gofrrondo, Kącik smaku).
+
+== DajMi Sushi ==
+źródło: https://dajmisushi.pl (strona lokalu, sprawdzono 2026-10-31; FB wpis z 25.10.2026)
+typ: restaurant
+kuchnie: sushi, japanese, asian
+gmina: Kraśnik
+miejscowość: Kraśnik
+adres: Urzędowska 16d
+współrzędne: 50.9279963, 22.2267267
+telefon: +48 730 969 776
+www: https://dajmisushi.pl
+facebook: https://www.facebook.com/dajmisushi/
+godziny: Mo-Th 12:00-22:00; Fr-Su 13:00-23:00
+dostawa: tak
+na wynos: tak
+opis: Restauracja sushi w Kraśniku: zestawy sushi, ramen, tom yum i makarony, na miejscu, na wynos i z dowozem.
+
+== Moja Pierożarnia ==
+źródło: https://www.facebook.com/people/Moja-Piero%C5%BCarnia/100035421173147/ (sprawdzono 2026-10-31, wpis z 30.10.2026)
+typ: restaurant
+kuchnie: dumplings, polish
+gmina: Kraśnik
+miejscowość: Kraśnik
+adres: Urzędowska 435
+współrzędne: 50.9480115, 22.1967525
+telefon: +48 517 280 194
+facebook: https://www.facebook.com/people/Moja-Piero%C5%BCarnia/100035421173147/
+opis: Pierogi, kopytka, kluski, gołąbki i naleśniki według tradycyjnych przepisów.
+
+== Restauracja Piwonia ==
+źródło: https://www.facebook.com/p/Restauracja-Piwonia-61588090877881/ (sprawdzono 2026-10-31, menu dnia z 29.10.2026)
+typ: restaurant
+kuchnie: polish
+gmina: Kraśnik
+miejscowość: Kraśnik
+adres: Piaskowa 18
+współrzędne: 50.9351819, 22.2166333
+telefon: +48 519 610 982
+facebook: https://www.facebook.com/p/Restauracja-Piwonia-61588090877881/
+opis: Restauracja z codziennym menu obiadowym od 10:00; organizuje też wesela i rodzinne przyjęcia.
+
+== Dom Bar ==
+źródło: https://dombarkrasnik.pl (strona lokalu, sprawdzono 2026-10-31)
+typ: restaurant
+kuchnie: polish
+gmina: Kraśnik
+miejscowość: Kraśnik
+adres: Żwirki i Wigury 2
+współrzędne: 50.9644951, 22.1609848
+telefon: +48 663 800 993
+www: https://dombarkrasnik.pl
+facebook: https://www.facebook.com/p/DOM-BAR-MOSiR-Kra%C5%9Bnik-61575517064152/
+godziny: Mo-Su 11:00-20:00
+dostawa: tak
+na wynos: tak
+opis: Jadłodajnia przy MOSiR: codziennie inne obiady, zapiekanki, frytki i lody, ogródek na dachu. Dowóz do 17:00, w Kraśniku Fabrycznym gratis, dalej +5 zł.
+
+== Na Światłach ==
+źródło: https://www.facebook.com/p/Na-%C5%9Awiat%C5%82ach-Restauracja-61560404447003/ (sprawdzono 2026-10-31, wpis z 30.10.2026)
+typ: restaurant
+kuchnie: pizza, polish
+gmina: Kraśnik
+miejscowość: Kraśnik
+adres: Struga 5
+współrzędne: 50.9230960, 22.2277903
+telefon: +48 731 327 040
+facebook: https://www.facebook.com/p/Na-%C5%9Awiat%C5%82ach-Restauracja-61560404447003/
+opis: Pizza i domowe obiady, codziennie inna zupa i drugie danie.

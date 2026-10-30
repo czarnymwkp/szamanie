@@ -4,7 +4,7 @@
 
 import type { Lokal } from "./lokale";
 
-export type RodzajPrzyjecia = "wesela" | "komunie" | "chrzciny" | "okolicznosciowe" | "firmowe";
+export type RodzajPrzyjecia = "wesela" | "komunie" | "chrzciny" | "okolicznosciowe" | "firmowe" | "stypy";
 
 export const NAZWY_PRZYJEC: Record<RodzajPrzyjecia, string> = {
   wesela: "Wesela",
@@ -12,6 +12,7 @@ export const NAZWY_PRZYJEC: Record<RodzajPrzyjecia, string> = {
   chrzciny: "Chrzciny",
   okolicznosciowe: "Urodziny i rocznice",
   firmowe: "Imprezy firmowe",
+  stypy: "Stypy",
 };
 
 export type Przyjecia = {
@@ -41,6 +42,14 @@ export const PRZYJECIA: Record<string, Przyjecia> = {
     doOsob: 200,
     tylkoPrzyjecia: true,
     zrodlo: "profil Gammy na Facebooku, 31.10.2026; 200 osób z ich ogłoszenia na chrzcinyikomunie.pl (2022)",
+  },
+  "restauracja-piwonia-krasnik": {
+    rodzaje: ["wesela", "komunie", "chrzciny", "okolicznosciowe"],
+    zrodlo: "profil Piwonii na Facebooku i ich ogłoszenia na gdziewesele.pl i chrzcinyikomunie.pl, 31.10.2026",
+  },
+  "restauracja-dom-bar-smacznie-zdrowo-bo-domowo-wolka-olbiecka": {
+    rodzaje: ["wesela", "komunie", "chrzciny", "okolicznosciowe", "stypy"],
+    zrodlo: "dombarkrasnik.pl (Zajazd Kowalin), 31.10.2026",
   },
   "dom-weselny-u-bacy-kosin": {
     rodzaje: ["wesela", "komunie", "chrzciny", "okolicznosciowe"],
