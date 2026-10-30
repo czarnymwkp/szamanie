@@ -63,7 +63,7 @@ export default function MenuLokalu({
   numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
   belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
   karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
-  spis?: "wersaliki" | "tablica"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
+  spis?: "wersaliki" | "tablica" | "srodek"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
 }) {
   const l = useLista(slug);
   // klucz pozycji → nazwa, wariant i cena: lista z linku „Zamawiamy razem” ma same klucze
@@ -229,7 +229,7 @@ function Dzial({
   numerowane: boolean;
   belki: boolean;
   karty: boolean;
-  spis: "wersaliki" | "tablica" | undefined;
+  spis: "wersaliki" | "tablica" | "srodek" | undefined;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
   przelacz: (otwarty: boolean) => void;
@@ -279,7 +279,7 @@ function Dzial({
                 : spis
                   ? // jak dział w karcie lokalu: sam podkreślony tytuł; tło strony, bo przyklejony zasłania dania
                     // tablica: ta sama kreda co tło strony, żeby przyklejony nagłówek nie był płaskim prostokątem
-                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : "h-14"}`
+                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : spis === "srodek" ? "h-16" : "h-14"}`
                   : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
@@ -298,9 +298,10 @@ function Dzial({
               <span className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15" />
             </>
           )}
-          <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : spis ? "" : "pl-4"}`}>
+          {/* srodek: lewy odstęp jak strzałka po prawej, żeby nazwa stała na środku */}
+          <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : spis === "srodek" ? "pl-10 text-center" : spis ? "" : "pl-4"}`}>
             <span
-              className={`block truncate leading-tight ${spis === "tablica" ? "" : "font-grotesk"} ${
+              className={`block truncate leading-tight ${spis === "tablica" || spis === "srodek" ? "" : "font-grotesk"} ${
                 belki
                   ? "text-2xl font-black uppercase"
                   : karty
@@ -308,6 +309,8 @@ function Dzial({
                     : spis === "tablica"
                       ? // pismo odręczne + kreska w barwach Włoch; py: miejsce na laski liter, które `truncate` by obcięło
                         "py-1 font-[family-name:var(--ozdobny-lokalu)] text-[1.9rem] leading-tight"
+                      : spis === "srodek"
+                        ? "font-[family-name:var(--ozdobny-lokalu)] text-base font-semibold tracking-[0.04em] uppercase sm:text-xl sm:tracking-[0.06em]"
                       : spis
                         ? // pb: miejsce na podkreślenie, które `truncate` (overflow: hidden) inaczej by obcięło
                           "pb-2 text-xl font-bold tracking-[0.18em] uppercase underline decoration-2 underline-offset-[6px]"
@@ -546,7 +549,15 @@ function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
 
 /** Danie w karcie-spisie (motyw lokalu z `menuSpis`), cena po prawej. wersaliki: nazwa rozstrzelonymi wersalikami,
  *  cechy ikonkami, skład rozdzielony „|”; tablica: zwykła nazwa, „(vege)” na zielono, cena podkreślona. */
-function PozycjaSpisu({ p, l, styl }: { p: PozycjaMenu; l: ListaLokalu; styl: "wersaliki" | "tablica" }) {
+function PozycjaSpisu({
+  p,
+  l,
+  styl,
+}: {
+  p: PozycjaMenu;
+  l: ListaLokalu;
+  styl: "wersaliki" | "tablica" | "srodek";
+}) {
   const tablica = styl === "tablica";
   const jednaCena = p.ceny.length <= 1;
   const cena = p.ceny[0] ?? null;
@@ -554,6 +565,45 @@ function PozycjaSpisu({ p, l, styl }: { p: PozycjaMenu; l: ListaLokalu; styl: "w
   const naLiscie = p.ceny.length
     ? p.ceny.some((c) => l.ilosc(kluczPozycji(p.id, c.wariant)) > 0)
     : l.ilosc(klucz) > 0;
+
+  if (styl === "srodek") {
+    // jak karta na stronie lokalu: wszystko na środku, składniki krojem etykiet po „•”, pod nimi cena i „+”
+    return (
+      <li className={`border-b border-obrys px-2 py-4 text-center transition-colors duration-300 ${naLiscie ? "bg-krem" : ""}`}>
+        <h4 className="font-grotesk text-[15px] leading-snug tracking-[0.02em]">
+          {p.nazwa}
+          {p.cechy.map((c) => {
+            const { nazwa, ikona: Ikona } = CECHY[c];
+            return (
+              <Ikona
+                key={c}
+                aria-label={nazwa}
+                className={`ml-1.5 inline size-4 align-[-2px] ${c === "wege" ? "text-otwarte" : c === "ostre" ? "text-zamkniete" : ""}`}
+              />
+            );
+          })}
+        </h4>
+        {p.opis && (
+          <p className="mt-1 font-[family-name:var(--etykiety-lokalu)] text-[13px] leading-snug text-akcent-tekst">
+            {p.opis.split(/,\s*/).join(" • ")}
+          </p>
+        )}
+        {jednaCena ? (
+          <div className="mt-2 flex items-center justify-center gap-3">
+            <span className="font-bold">{cena ? zl(cena.gr) : "cena w lokalu"}</span>
+            <Licznik
+              ile={l.ilosc(klucz)}
+              nazwa={p.nazwa}
+              dodaj={() => l.dodaj({ klucz, nazwa: p.nazwa, wariant: null, gr: cena?.gr ?? null })}
+              zmien={(o) => l.zmienIlosc(klucz, o)}
+            />
+          </div>
+        ) : (
+          <Warianty p={p} l={l} className="mt-2 justify-center" />
+        )}
+      </li>
+    );
+  }
 
   return (
     <li className="border-b border-obrys">

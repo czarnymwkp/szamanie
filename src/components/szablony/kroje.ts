@@ -1,14 +1,18 @@
 import {
+  Comfortaa,
   Karla,
   Kaushan_Script,
+  Lora,
   Montserrat,
   Open_Sans,
   Outfit,
   Playfair_Display,
+  Raleway,
   Roboto,
   Roboto_Condensed,
   Roboto_Mono,
   Rokkitt,
+  Sanchez,
 } from "next/font/google";
 import type { KrojLokalu } from "@/lib/motywyStron";
 
@@ -81,6 +85,12 @@ const kaushan = Kaushan_Script({
   preload: false,
 });
 
+// MusiCaffe (musicaffe.pl/menu): działy Comfortaa, nazwy dań szeryfowy Sanchez, składniki Lora, tekst Raleway.
+const comfortaa = Comfortaa({ variable: "--font-comfortaa", subsets: ["latin", "latin-ext"], preload: false });
+const sanchez = Sanchez({ variable: "--font-sanchez", subsets: ["latin", "latin-ext"], weight: "400", preload: false });
+const lora = Lora({ variable: "--font-lora", subsets: ["latin", "latin-ext"], preload: false });
+const raleway = Raleway({ variable: "--font-raleway", subsets: ["latin", "latin-ext"], preload: false });
+
 export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
@@ -92,4 +102,8 @@ export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = 
   "open-sans": { variable: openSans.variable, zmienna: "var(--font-open-sans)" },
   outfit: { variable: outfit.variable, zmienna: "var(--font-outfit)" },
   kaushan: { variable: kaushan.variable, zmienna: "var(--font-kaushan)" },
+  comfortaa: { variable: comfortaa.variable, zmienna: "var(--font-comfortaa)" },
+  sanchez: { variable: sanchez.variable, zmienna: "var(--font-sanchez)" },
+  lora: { variable: lora.variable, zmienna: "var(--font-lora)" },
+  raleway: { variable: raleway.variable, zmienna: "var(--font-raleway)" },
 };

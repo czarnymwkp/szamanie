@@ -30,6 +30,7 @@ import { linkFacebooka, linkInstagrama, linkTelefonu, linkWww, odmiana, opisLoka
 import BanerBelka from "./BanerBelka";
 import BanerKrata from "./BanerKrata";
 import BanerKreska from "./BanerKreska";
+import BanerPas from "./BanerPas";
 import BanerSwietliki from "./BanerSwietliki";
 import BanerTablica from "./BanerTablica";
 import PromocjeLokalu from "./PromocjeLokalu";
@@ -110,6 +111,8 @@ export default async function Klasyczny({ lokal, powrot = "/" }: { lokal: Lokal;
             <BanerKreska nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : motyw?.baner?.rodzaj === "tablica" ? (
             <BanerTablica nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
+          ) : motyw?.baner?.rodzaj === "pas" ? (
+            <BanerPas nazwa={lokal.nazwa} haslo={motyw.baner.haslo} podpis={motyw.baner.podpis} />
           ) : (
             <Baner lokal={lokal} rozmiar="strona" className="h-44 sm:h-56 lg:h-72" />
           )}

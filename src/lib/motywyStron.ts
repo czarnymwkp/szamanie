@@ -30,7 +30,11 @@ export type KrojLokalu =
   | "montserrat"
   | "open-sans"
   | "outfit"
-  | "kaushan";
+  | "kaushan"
+  | "comfortaa"
+  | "sanchez"
+  | "lora"
+  | "raleway";
 
 export type MotywStrony = {
   kolory: Partial<Record<TokenKoloru, string>>;
@@ -45,11 +49,12 @@ export type MotywStrony = {
    * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
    * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę;
    * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu);
-   * tablica: duża nazwa, `haslo` rozstrzelone pod nią i kreska w barwach Włoch.
+   * tablica: duża nazwa, `haslo` rozstrzelone pod nią i kreska w barwach Włoch;
+   * pas: ciemny pas (kolor akcentu) z nazwą na środku, kreska i `haslo` w kolorze obrys-2.
    */
   baner?:
     | { rodzaj: "swietliki"; znak: string; podpis: string }
-    | { rodzaj: "belka" | "krata" | "kreska" | "tablica"; haslo?: string; podpis: string };
+    | { rodzaj: "belka" | "krata" | "kreska" | "tablica" | "pas"; haslo?: string; podpis: string };
   /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
   menuNumerowane?: boolean;
   /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
@@ -58,9 +63,10 @@ export type MotywStrony = {
   menuKarty?: boolean;
   /**
    * Karta jak spis, cena po prawej. wersaliki: działy podkreślone, nazwy dań rozstrzelonymi wersalikami, skład po „|”;
-   * tablica: działy pismem odręcznym z kreską w barwach Włoch, „(vege)” na zielono, ceny podkreślone.
+   * tablica: działy pismem odręcznym z kreską w barwach Włoch, „(vege)” na zielono, ceny podkreślone;
+   * srodek: wszystko wyśrodkowane, działy krojem ozdobnym, składniki krojem etykiet w kolorze akcent-tekst po „•”.
    */
-  menuSpis?: "wersaliki" | "tablica";
+  menuSpis?: "wersaliki" | "tablica" | "srodek";
 };
 
 const MOTYWY: Record<string, MotywStrony> = {
@@ -173,6 +179,25 @@ const MOTYWY: Record<string, MotywStrony> = {
     kroje: { naglowki: "outfit", tekst: "outfit", ozdobny: "kaushan" },
     baner: { rodzaj: "tablica", haslo: "Włoska", podpis: "Kraśnik · ul. Adama Mickiewicza 1k" },
     menuSpis: "tablica",
+  },
+  // musicaffe.pl/menu (31.10): biała, wyśrodkowana karta, ciemny pasek u góry, działy Comfortaa, nazwy dań Sanchez,
+  // składniki bordowe (Lora) po „•”, beżowe akcenty. Ich logo tylko za zgodą lokalu — na razie bez niego.
+  "musicaffe-krasnik": {
+    kolory: {
+      tlo: "#ffffff",
+      karta: "#ffffff",
+      krem: "#f6f0e6",
+      tekst: "#28262b",
+      "tekst-2": "#615f63",
+      obrys: "#ece6dc",
+      "obrys-2": "#d2bd9c",
+      akcent: "#1b1b1b",
+      "akcent-tekst": "#8f2020",
+      "na-akcencie": "#ffffff",
+    },
+    kroje: { naglowki: "sanchez", tekst: "raleway", etykiety: "lora", ozdobny: "comfortaa" },
+    baner: { rodzaj: "pas", haslo: "Restauracja · pizza · przyjęcia", podpis: "Kraśnik · ul. Zygmunta Krasińskiego 11f" },
+    menuSpis: "srodek",
   },
 };
 
