@@ -73,7 +73,7 @@ export default function ListaZamowienia({
     if (!dania) return;
     const przyjmij = () => {
       if (!location.hash.startsWith(ZNACZNIK)) return;
-      const dane = odkoduj(location.hash.slice(ZNACZNIK.length), (k) => dania.get(k));
+      const dane = odkoduj(location.hash.slice(ZNACZNIK.length), dania);
       history.replaceState(null, "", location.pathname + location.search);
       if (!dane?.pozycje.length) return;
       l.przyjmijRazem(dane.pozycje, dane.uwagi, czytajImie());
