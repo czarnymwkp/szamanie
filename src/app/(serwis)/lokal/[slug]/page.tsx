@@ -40,8 +40,10 @@ export async function generateMetadata({ params }: PageProps<"/lokal/[slug]">): 
   const rodzaj = opisLokalu(lokal).split(" · ").slice(0, 3).join(" · ");
   // Z menu tytuł łapie wyszukiwania „<lokal> Kraśnik menu”, „… ceny”. Nazwa w opisie, bo bez niej pięć kebabów
   // miałoby ten sam opis.
+  const tytul = `${lokal.nazwa}${gdzie} — ${menu ? "menu i ceny" : "godziny i telefon"}`;
   return {
-    title: `${lokal.nazwa}${gdzie} — ${menu ? "menu i ceny" : "godziny i telefon"}`,
+    // długa nazwa lokalu: bez „ | szamanie.pl” na końcu, żeby Google nie uciął „menu i ceny”
+    title: tytul.length > 50 ? { absolute: tytul } : tytul,
     description: menu
       ? `${lokal.nazwa}: menu z cenami (${menu.liczba} pozycji), godziny otwarcia, telefon i dojazd. ${rodzaj}, ${pelnyAdres(lokal)}.`
       : `${lokal.nazwa} — ${rodzaj}, ${pelnyAdres(lokal)}. ${uslugi ? `${uslugi[0].toUpperCase()}${uslugi.slice(1)}. ` : ""}Sprawdź godziny otwarcia, telefon i dojazd.`,

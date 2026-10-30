@@ -15,7 +15,8 @@
     "dodaj": "node scripts/dodaj.mjs",
     "prebuild": "node scripts/init-db.mjs",
     "konto": "node scripts/konto.mjs",
-    "baza:eksport": "node scripts/eksport-bazy.mjs"
+    "baza:eksport": "node scripts/eksport-bazy.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "arctic": "^3.7.0",
