@@ -604,3 +604,24 @@ z menu, nie wszystkie mają podane aktualne”*.
   wpis 01.2026); Urzędów — AmAm Kebab (Rynek 28, otwarty 09.2023, czy działa?); Annopol — Bistro Express domowe
   jedzenie (ul. Radomska, FB z 2014); Wilkołaz — Kebab Alibaba Zdrapy (FB 2017). **Trzydnik Duży, Gościeradów
   (poza Folwarkiem Smaków), Szastarka (poza Słono Słodko): nic nie znalazłem** — pytać usera, co zna.
+
+### 31.10 — sale na wesela i przyjęcia, kolejne lokale, Fantazja zamknięta
+- **Kolejne lokale (bd4b0de), user: „dodaj je, bo chyba działają”:** Zakrzówek — Bar Lawenda (Żeromskiego 27,
+  pn–pt 10–17), U Boryny (pizzeria, Żeromskiego 13), Bistro Restauracja (Kościuszki 18), Niebo w Gębie (kebab,
+  Żeromskiego 21, adres i telefon z katalogu, FB niedostępny); Annopol — Bistro Express. Zakrzówek ma teraz 4 lokale
+  → własne strony `/zakrzowek`, `/zakrzowek/kebab`, `/restauracje`, `/fast-food`. **Nie dodane mimo prośby** (ślady
+  zamknięcia na FB): AmAm Kebab Urzędów (przerwa od 12.2023, „tymczasowo zamknięte”), Kebab Alibaba Zdrapy (2017:
+  sprzedaż przyczepy) — userowi powiedziane.
+- **Dosiewanie poprawek (01df678):** poprawki admina (`npm run popraw`) i ukrycia (`ukryty = 1`) też idą na live;
+  poprawek z panelu (autor `konto:…`) plik nie rusza. Zostaje: menu istniejących lokali (`npm run menu`) dalej tylko
+  lokalnie.
+- **Fantazja (Kraśnik) — user 31.10: „już nie działa, możesz ją usunąć”** → ukryta (na live przez dosiewanie, strona 404).
+- **Sale weselne (f1766c6), user: „jak to ma poprawić SEO, jestem na tak”:** `/sale-weselne` („Sale weselne Kraśnik —
+  wesela, komunie, chrzciny”), dane sal w `src/lib/przyjecia.ts` (rodzaje, `doOsob`, `noclegi`, `tylkoPrzyjecia`,
+  źródło): Zielony Dworek (do 220, noclegi), Diamentowa (do 300, noclegi), Gamma (nowy lokal, Piaskowa 18, do 200),
+  U Bacy. Sale `tylkoPrzyjecia` nie są w „Co dziś szamiesz?” ani na stronach fraz (`bezSamychSal` w `seo.ts`
+  i na głównej). Na stronie lokalu sekcja „Wesela i przyjęcia”, link w stopce i w sitemap. Konkurencja na „sala
+  weselna Kraśnik” jest mocna (weselezklasa, gdziewesele, wedding.pl, noclegikrasnik, 24krasnik) — liczymy na
+  frazy „komunia/chrzciny Kraśnik” i na kompletność. **Do sprawdzenia/dodania:** Dom Weselny Biała Róża (Struga 5,
+  FB ostatnio 2021), P.W. Ludmiła (Kraśnik), Dom Weselny w Annopolu (Radomska 28), Folwark Smaków (czy robi
+  przyjęcia?). Później: pojemność i cena za osobę z panelu, płatne wyróżnienie sali (osobny, droższy pakiet).
