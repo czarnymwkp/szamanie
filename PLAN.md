@@ -530,3 +530,20 @@ z menu, nie wszystkie mają podane aktualne”*.
   nie pokazujemy nic, nie zgadujemy. Liczone z kolejki w panelu
   (albo ustawione ręcznie przez lokal jednym dotknięciem, gdy zamówienia idą tylko telefonicznie). Klient wybiera
   świadomie, a lokal ma mniej telefonów „ile jeszcze?”. Bonus na liście: filtr/sortowanie „najkrótsze czekanie”.
+
+### 30.10 — dane w repo, „Dla lokali” w Szkicowniku, wspólne zamówienie
+- Kamil uruchomił live z nowym kodem, ale z pustą bazą („0 miejsc”). User: *„wrzuć bazę danych do repo”*. Zrobione
+  (e0a6c11): katalog (lokale, menu, strefy dostawy, miejscowości, poprawki, zdjęcia-wpisy) leży w
+  `dane/baza-startowa.json`; baza bez lokali wczytuje go sama przy pierwszym otwarciu (`src/lib/db/dane-startowe.mjs`).
+  Bez kont, sesji, zgłoszeń, promocji i pakietów — repo jest publiczne. Po zmianach danych lokalnie:
+  `npm run baza:eksport` + commit. Na serwerze z lokalami plik niczego nie nadpisuje (zmiany z panelu zostają).
+- `/dla-lokali` przerobione na Szkicownik (user: *„ta strona nie jest spójna z layoutem”*).
+- **Pomysł usera (30.10): wspólne zamówienie „w sztafecie”.** Np. 4 osoby w domu: pierwsza zaznacza w menu, co chce,
+  i wysyła listę dalej; kolejna dopisuje swoje i wysyła następnej; na końcu **jedno zamówienie** (jeden telefon do
+  lokalu). Rozdzielania płatności na razie nie ma (user: *„na razie nie mówię, że rozdzielamy płatności”*).
+  Jak: lista do zamówienia (już jest, localStorage) dostaje „Zamawiamy razem → wyślij dalej” — link z listą w adresie
+  (krótko: id dań + ilości + imię, bez serwera) przez Messengera/SMS/WhatsApp (Web Share API). Kolejna osoba widzi, co
+  wybrali inni (pogrupowane po imionach: „Ania: …, Tata: …”), dopisuje swoje i wysyła dalej. Ostatnia: „Zamawiamy” →
+  jedna lista z podziałem na osoby, suma całości i każdej osoby (przyda się, gdy kiedyś dojdzie podział płatności)
+  i „Zadzwoń i zamów” (później kod #A12 i status). Jeden lokal = jedno zamówienie. Wersja 2: wspólny koszyk na żywo
+  (link/QR, wszyscy dopisują naraz, zapis na serwerze) — też w aplikacji i na zegarku.
