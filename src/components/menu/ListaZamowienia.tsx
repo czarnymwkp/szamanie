@@ -173,10 +173,12 @@ export default function ListaZamowienia({
   };
 
   const wyslijRazem = async () => {
+    // link w treści wiadomości, nie w osobnym polu „url”: część aplikacji (Messenger, SMS) bierze tylko tekst
+    const wiadomosc = `Zamawiamy razem w ${nazwa} — dopisz swoje dania: ${linkRazem}`;
     try {
-      if (navigator.share) await navigator.share({ title: `Zamawiamy razem — ${nazwa}`, url: linkRazem });
+      if (navigator.share) await navigator.share({ title: `Zamawiamy razem — ${nazwa}`, text: wiadomosc });
       else {
-        await navigator.clipboard.writeText(linkRazem);
+        await navigator.clipboard.writeText(wiadomosc);
         setSkopiowano(true);
         setTimeout(() => setSkopiowano(false), 2000);
       }
