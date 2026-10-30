@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ClipboardList, Phone, Share2, Trash2, Users, X } from "lucide-react";
+import { ArrowLeft, ClipboardList, Copy, Phone, Share2, Trash2, Users, X } from "lucide-react";
 import { renderSVG } from "uqr";
 import { reka } from "@/components/szkic/szkic";
 import { zl } from "@/lib/ceny";
@@ -99,10 +99,8 @@ export default function ListaZamowienia({
   const grupy = osoby.length
     ? [...osoby, undefined].map((kto) => ({ kto, pozycje: lista.pozycje.filter((p) => p.kto === kto) }))
     : [{ kto: undefined, pozycje: lista.pozycje }];
-  const linkRazem =
-    razemOtwarte && imie.trim()
-      ? `${location.origin}/lokal/${slug}${ZNACZNIK}${zakoduj(lista.pozycje, lista.uwagi, imie.trim())}`
-      : "";
+  const link = (kto: string) => `${location.origin}/lokal/${slug}${ZNACZNIK}${zakoduj(lista.pozycje, lista.uwagi, kto)}`;
+  const linkRazem = razemOtwarte && imie.trim() ? link(imie.trim()) : "";
 
   const strefa = dostawa?.strefy.find((s) => s.nazwa === lista.strefa) ?? null;
   const odbior = lista.strefa === ODBIOR;
@@ -161,28 +159,65 @@ export default function ListaZamowienia({
       .filter(Boolean)
       .join("\n");
 
-  const udostepnij = async () => {
+  const wyslij = async (tytul: string, wiadomosc: string) => {
     try {
-      if (navigator.share) await navigator.share({ title: `Zamówienie — ${nazwa}`, text: tekst() });
-      else {
-        await navigator.clipboard.writeText(tekst());
-        setSkopiowano(true);
-        setTimeout(() => setSkopiowano(false), 2000);
-      }
-    } catch {}
-  };
-
-  const wyslijRazem = async () => {
-    // link w treści wiadomości, nie w osobnym polu „url”: część aplikacji (Messenger, SMS) bierze tylko tekst
-    const wiadomosc = `Zamawiamy razem w ${nazwa} — dopisz swoje dania: ${linkRazem}`;
-    try {
-      if (navigator.share) await navigator.share({ title: `Zamawiamy razem — ${nazwa}`, text: wiadomosc });
+      if (navigator.share) await navigator.share({ title: tytul, text: wiadomosc });
       else {
         await navigator.clipboard.writeText(wiadomosc);
         setSkopiowano(true);
         setTimeout(() => setSkopiowano(false), 2000);
       }
     } catch {}
+  };
+  // link w treści wiadomości, nie w osobnym polu „url”: część aplikacji (Messenger, SMS) bierze tylko tekst
+  const wyslijRazem = (kto: string) =>
+    wyslij(`Zamawiamy razem — ${nazwa}`, `Zamawiamy razem w ${nazwa} — dopisz swoje dania: ${link(kto)}`);
+
+  // Dolne „Wyślij”: link do dopisania dań (jak „Zamawiamy razem”) zamiast samego tekstu listy. Bez zapisanego imienia
+  // najpierw ekran „Razem”, żeby je podać; w starych propozycjach wyglądu (bez sluga) — tekst listy jak dawniej.
+  const udostepnij = () => {
+    if (!slug) return wyslij(`Zamówienie — ${nazwa}`, tekst());
+    const kto = czytajImie();
+    if (kto) return wyslijRazem(kto);
+    otworzRazem();
+  };
+
+  // Obrazek kodu QR do schowka (wklejenie w czacie); gdy telefon nie przyjmuje obrazków w schowku — plik PNG.
+  const [kodQr, setKodQr] = useState("");
+  const kopiujKod = async () => {
+    const adres = URL.createObjectURL(new Blob([renderSVG(linkRazem, { border: 2 })], { type: "image/svg+xml" }));
+    const png = new Promise<Blob>((gotowe, blad) => {
+      const obraz = new Image();
+      obraz.onload = () => {
+        const plotno = document.createElement("canvas");
+        plotno.width = plotno.height = 600;
+        const ctx = plotno.getContext("2d")!;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, 600, 600);
+        ctx.drawImage(obraz, 0, 0, 600, 600);
+        URL.revokeObjectURL(adres);
+        plotno.toBlob((b) => (b ? gotowe(b) : blad(new Error("png"))), "image/png");
+      };
+      obraz.onerror = blad;
+      obraz.src = adres;
+    });
+    const pokaz = (napis: string) => {
+      setKodQr(napis);
+      setTimeout(() => setKodQr(""), 2500);
+    };
+    try {
+      // Safari chce dostać obietnicę od razu, jeszcze w tym samym kliknięciu
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+      pokaz("Kod skopiowany — wklej go w wiadomości");
+    } catch {
+      try {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(await png);
+        a.download = `zamawiamy-razem-${slug}.png`;
+        a.click();
+        pokaz("Kod zapisany jako obrazek");
+      } catch {}
+    }
   };
 
   const zamknij = () => {
@@ -356,6 +391,13 @@ export default function ListaZamowienia({
                 <p className="mt-2 text-center text-xs font-bold text-tekst-2">
                   {liczba} {odmiana(liczba, ["pozycja", "pozycje", "pozycji"])} od: {[...osoby.filter((o) => o !== imie.trim()), imie.trim()].join(", ")}
                 </p>
+                <button
+                  type="button"
+                  onClick={kopiujKod}
+                  className="mx-auto mt-2 flex h-9 items-center gap-1.5 rounded-full border-[1.5px] border-tekst px-3.5 text-sm font-extrabold"
+                >
+                  <Copy className="size-4" aria-hidden /> {kodQr || "Kopiuj kod QR"}
+                </button>
               </>
             ) : (
               <p className="mt-4 rounded-2xl bg-krem p-4 text-sm font-bold">
@@ -452,7 +494,7 @@ export default function ListaZamowienia({
           {razemOtwarte ? (
             <button
               type="button"
-              onClick={wyslijRazem}
+              onClick={() => wyslijRazem(imie.trim())}
               disabled={!linkRazem}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-akcent text-lg font-black text-na-akcencie transition active:scale-[0.98] disabled:opacity-40"
             >
