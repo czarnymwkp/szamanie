@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="64" viewBox="0 0 200 64" role="img" aria-label="Znajdziesz nas na szamanie.pl">
+  <rect x="1" y="1" width="198" height="62" rx="14" fill="#faf6f1" stroke="#111111" stroke-width="2"/>
+  <circle cx="32" cy="32" r="20" fill="#ff6400"/>
+  <path d="M23 28c0-5 4-9 9-9s9 4 9 9v2H23z" fill="#faf6f1"/>
+  <rect x="22" y="32" width="20" height="4" rx="2" fill="#111111"/>
+  <path d="M23 38h18c0 3-2 5-5 5h-8c-3 0-5-2-5-5z" fill="#faf6f1"/>
+  <text x="62" y="27" font-family="Nunito, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#555555">Znajdziesz nas na</text>
+  <text x="62" y="46" font-family="Nunito, Segoe UI, Arial, sans-serif" font-size="19" font-weight="900" fill="#111111">szamanie<tspan fill="#c24a00">.pl</tspan></text>
+</svg>
