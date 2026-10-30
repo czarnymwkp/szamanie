@@ -582,3 +582,25 @@ z menu, nie wszystkie mają podane aktualne”*.
   i bez zmiany polityki prywatności; dane u nas). Zdarzenia: klik „Zadzwoń”, „dodaj do listy”, „Zadzwoń i zamów” per
   lokal → później statystyki dla lokali w abonamencie. Czeka na decyzję usera i Kamila (usługa Umami w Coolify,
   subdomena np. `statystyki.szamanie.pl`). Google Analytics odradzam: ciasteczka = baner zgód.
+
+### 30.10 (noc) — szybkość, dosiewanie danych na live, lokale w pustych gminach
+- **Szybkość (user: „da się przyspieszyć?”, „usunąć nieużywane fonty?”):** fonty z `/propozycje` bez preload
+  (33f653f) — każda strona pobierała 60 plików fontów (1,3 MB); mapa OSM na stronie lokalu dopiero tuż przed wjazdem
+  na ekran (`MapaOsm`, e0f5ee2). Lighthouse mobile: główna LCP 9,2 → 3,9 s (waga 1,7 MB → 0,6 MB), lokal 13,8 → 4,6 s.
+  Zasada: nowe kroje w next/font poza głównymi zawsze z `preload: false`. Propozycje wyglądu zostają (user chciał).
+- **Dosiewanie (208790c):** baza na serwerze brała `dane/baza-startowa.json` tylko, gdy była pusta, więc nowe lokale
+  z lokalnej bazy nie docierały na live. Teraz przy starcie dochodzą lokale z pliku, których nie ma w bazie (po slug
+  i osm_id), z menu, strefami, zdjęciami i poprawkami. **Zmiany w istniejących lokalach (godziny, ukrycie, nowe menu)
+  dalej NIE przechodzą na live** — tam zmienia się przez panel (admin) albo trzeba dopisać osobny mechanizm.
+  Np. godziny Brunoo do 21:00 (cd256cc) są tylko lokalnie.
+- **Nowe lokale (bacabc9), user: „Urzędów, Zakrzówek, Dzierzkowice i Trzydnik mają po 0 — trzeba dodać”:** OSM w tych
+  gminach nic nie ma. Szukanie: Bing w Chrome usera + profile FB lokali (bez logowania widać adres, telefon i datę
+  ostatniego wpisu; godzin nie). Dodane, aktywne na FB w październiku: Ankara Doner (Dzierzkowice-Rynek 143),
+  Kawiarnia „Starościanka” (Urzędów, Dzikowskiego 1), Dolce Vita (lodziarnia, Urzędów, Rynek 5 — dawny profil Małego
+  Baru), Kebab Point (Annopol, Rynek 7), Restauracja Diamentowa (Wilkołaz Pierwszy 16A, sala na wesela).
+  **Do potwierdzenia przez usera (nie dodane):** Zakrzówek — Bar Lawenda (tel. 572 001 256, aktywny, brak adresu),
+  U Boryny (pizzeria, Żeromskiego 13, tel. 781 881 871, śr–nd 15–24, tylko strona eatbu), Bistro Restauracja
+  (Kościuszki 18, tel. 786 401 700, FB ostatnio 11.2023; wcześniej Głodny Koyot), Niebo w Gębie (FB niedostępny,
+  wpis 01.2026); Urzędów — AmAm Kebab (Rynek 28, otwarty 09.2023, czy działa?); Annopol — Bistro Express domowe
+  jedzenie (ul. Radomska, FB z 2014); Wilkołaz — Kebab Alibaba Zdrapy (FB 2017). **Trzydnik Duży, Gościeradów
+  (poza Folwarkiem Smaków), Szastarka (poza Słono Słodko): nic nie znalazłem** — pytać usera, co zna.
