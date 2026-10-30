@@ -360,7 +360,8 @@
         [36,"dostawa","true","admin","2026-10-25 20:30:40"],
         [16,"dostawa","true","admin","2026-10-25 20:30:41"],
         [9,"kuchnie","[\"italian\",\"burger\",\"asian\"]","admin","2026-10-25 20:32:12"],
-        [22,"adres","\"Lubelska 117\"","admin","2026-10-27 19:56:38"]
+        [22,"adres","\"Lubelska 117\"","admin","2026-10-27 19:56:38"],
+        [41,"godziny","\"Mo-Sa 06:00-21:00; Su 10:00-21:00\"","admin","2026-10-30 21:26:16"]
       ]
     },
     "menu_sekcje": {
