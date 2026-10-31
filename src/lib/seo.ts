@@ -99,7 +99,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     id: "obiady",
     slug: "obiady",
     nazwa: "Obiady domowe",
-    fraza: "Obiady",
+    fraza: "Obiady domowe",
     gdzie: "Gdzie zjeść obiad",
     zdjecie: "polska",
     dowoz: true,
@@ -167,7 +167,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     id: "azjatycka",
     slug: "kuchnia-azjatycka",
     nazwa: "Kuchnia azjatycka",
-    fraza: "Kuchnia azjatycka",
+    fraza: "Sushi i kuchnia azjatycka", // ludzie szukają „sushi Kraśnik”
     gdzie: "Gdzie zjeść po azjatycku",
     zdjecie: "azjatycka",
     dowoz: true,
