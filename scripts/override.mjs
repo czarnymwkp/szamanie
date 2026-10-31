@@ -1,11 +1,10 @@
-// Ręczne poprawki danych lokalu (dopóki nie ma panelu). Nakładane na dane z OSM przy odczycie,
-// więc ponowny import ich nie kasuje.
-// Użycie:
+// Manual corrections of venue data (until the panel covers them). Applied on top of OSM data when reading, so a new import does not erase them.
+// Usage:
 //   npm run popraw -- <slug> kuchnie pizza,burger
 //   npm run popraw -- <slug> telefon "+48 81 825 00 00"
-//   npm run popraw -- <slug> dostawa tak|nie
-//   npm run popraw -- <slug> zwierzeta tak|nie    też: wozek (dostępny dla niepełnosprawnych), wege, wegan
-//   npm run popraw -- <slug> usun <pole>          cofa poprawkę
+//   npm run override -- <slug> dostawa tak|nie
+//   npm run override -- <slug> zwierzeta tak|nie    also: wozek (wheelchair accessible), wege, wegan
+//   npm run override -- <slug> usun <pole>          removes the correction
 //   npm run popraw -- lista
 import { openDatabase } from "../src/lib/db/open.mjs";
 
@@ -24,7 +23,7 @@ const FIELDS = {
   opis: "tekst",
   dostawa: "takNie",
   na_wynos: "takNie",
-  // udogodnienia — trafiają do lokalu jako cechy (src/lib/lokale.ts)
+  // amenities — end up on the venue as features (src/lib/venues.ts)
   zwierzeta: "takNie",
   wozek: "takNie",
   wege: "takNie",

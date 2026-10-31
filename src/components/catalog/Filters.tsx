@@ -4,8 +4,8 @@ import { Clock, Leaf, LoaderCircle, LocateFixed } from "lucide-react";
 import { RADII, type Catalog } from "../useCatalog";
 
 /**
- * Filtry listy lokali we wszystkich propozycjach: listek „Wege”, otwarte teraz, blisko mnie / miejscowość,
- * promień. Wygląd pigułek daje propozycja (`chip`), listek ma swój zielony stan włączenia.
+ * Venue list filters: the „Wege” leaf, open now, near me / town, radius. The pill look comes from the caller (`chip`);
+ * the leaf has its own green „on” state.
  */
 export default function Filters({
   k,

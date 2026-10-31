@@ -8,7 +8,7 @@ import { stripPolish } from "@/lib/slug.mjs";
 
 type Venue = { slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
 
-/** Lista lokali z wyszukiwarką; `prefiks` — dokąd prowadzi wiersz (zgłoszenie albo, dla admina, panel lokalu). */
+/** Venue list with search; `prefiks` — where a row leads (a claim or, for the admin, the venue panel). */
 export default function VenueList({ lokale, prefiks = "/panel/przejmij/" }: { lokale: Venue[]; prefiks?: string }) {
   const [fraza, setFraza] = useState("");
   const f = stripPolish(useDeferredValue(fraza).trim());

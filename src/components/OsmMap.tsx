@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Mapa OpenStreetMap w ramce, wczytywana dopiero tuż przed wjazdem na ekran. Samo loading="lazy" w Chrome na telefonie
- * ładuje ramkę z dużym zapasem (ok. 1250–2500 px), a to ok. 470 KB skryptów i kafelków, które spowalniały wejście na
- * stronę lokalu.
+ * OpenStreetMap map in an iframe, loaded only just before it scrolls into view. loading="lazy" alone makes Chrome on a
+ * phone load the iframe with a large margin (about 1250–2500 px), and that is about 470 KB of scripts and tiles that
+ * slowed down opening a venue page.
  */
 export default function OsmMap({ title, src, className }: { title: string; src: string; className?: string }) {
   const frame = useRef<HTMLIFrameElement>(null);

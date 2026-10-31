@@ -1,7 +1,5 @@
-// Zgłasza wszystkie adresy z mapy strony przez IndexNow (Bing, Yandex, Seznam, Naver — z indeksu Binga korzystają
-// też DuckDuckGo, Ecosia i wyszukiwanie w ChatGPT). Google IndexNow nie czyta — tam mapa strony w Search Console.
-// Klucz leży w public/<klucz>.txt, więc wyszukiwarka sprawdza, że zgłasza właściciel domeny.
-// Użycie (po wdrożeniu, gdy plik klucza jest już na serwerze): npm run indexnow [-- https://szamanie.pl]
+// Submits every sitemap URL through IndexNow (Bing, Yandex, Seznam, Naver — DuckDuckGo, Ecosia and ChatGPT search use Bing's index too). Google does not read IndexNow — for Google the sitemap is in Search Console. The key lives in public/<key>.txt, so the search engine can verify the request comes from the domain owner.
+// Usage (after deployment, once the key file is on the server): npm run indexnow [-- https://szamanie.pl]
 const KEY = "db0634ca7fa898d6bf141ae9ab0f1b83";
 const page = (process.argv[2] ?? "https://szamanie.pl").replace(/\/$/, "");
 const host = new URL(page).host;
@@ -20,6 +18,6 @@ const res = await fetch("https://api.indexnow.org/indexnow", {
   headers: { "Content-Type": "application/json; charset=utf-8" },
   body: JSON.stringify({ host, key: KEY, keyLocation: `${page}/${KEY}.txt`, urlList: addresses }),
 });
-// 200 — przyjęte, 202 — przyjęte, klucz jeszcze w sprawdzaniu; 403/422 — zły klucz albo adresy spoza hosta
+// 200 — accepted, 202 — accepted, key still being verified; 403/422 — wrong key or URLs from another host
 console.log(`IndexNow: ${addresses.length} adresów → ${res.status} ${res.statusText}`);
 if (res.status >= 300) process.exit(1);

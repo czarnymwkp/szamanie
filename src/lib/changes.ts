@@ -2,8 +2,8 @@ import { cacheLife, cacheTag } from "next/cache";
 import { db } from "./db";
 
 /**
- * Kiedy ostatnio zmieniły się dane lokalu (sam lokal, ręczne poprawki albo menu) — `lastmod` w sitemap, żeby Google
- * wracał szybciej do zmienionych stron. Klucz = slug, wartość = data w ISO.
+ * When a venue's data last changed (the venue itself, manual corrections or the menu) — `lastmod` in the sitemap, so
+ * Google revisits changed pages sooner. Key = slug, value = ISO date.
  */
 export async function venueChanges(): Promise<Record<string, string>> {
   "use cache";
@@ -19,7 +19,7 @@ export async function venueChanges(): Promise<Record<string, string>> {
        FROM lokale l WHERE l.ukryty = 0`,
     )
     .all() as { slug: string; zmiana: string }[];
-  // SQLite zapisuje czas UTC jako „2026-10-31 12:00:00”, menu_sprawdzono sam dzień
+  // SQLite stores UTC time as „2026-10-31 12:00:00”, menu_sprawdzono just the day
   return Object.fromEntries(
     rows.map((w) => [w.slug, w.zmiana.length > 10 ? `${w.zmiana.replace(" ", "T")}Z` : w.zmiana]),
   );

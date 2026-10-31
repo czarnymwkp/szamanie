@@ -19,7 +19,7 @@ import {
 } from "next/font/google";
 import type { VenueFont } from "@/lib/venueThemes";
 
-// Kroje motywów lokali (lib/motywyStron.ts). Bez preload: pobierają się tylko na stronach lokali, które ich używają.
+// Fonts of venue themes (lib/venueThemes.ts). No preload: they are downloaded only on the venue pages that use them.
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin", "latin-ext"],
@@ -33,7 +33,7 @@ const karla = Karla({
   preload: false,
 });
 
-// Burger&Pizza: gruby szeryf blokowy jak w nagłówkach ich karty i wąski bezszeryfowy jak w składnikach.
+// Burger&Pizza: a heavy slab serif like the headings of their menu card and a narrow sans like the ingredients.
 const rokkitt = Rokkitt({
   variable: "--font-rokkitt",
   subsets: ["latin", "latin-ext"],
@@ -46,7 +46,7 @@ const robotoCondensed = Roboto_Condensed({
   preload: false,
 });
 
-// Brunoo: Roboto w nagłówkach i tekście, Roboto Mono w etykietach (ceny, filtry, „karta dań”) — jak na brunoo.pl.
+// Brunoo: Roboto for headings and text, Roboto Mono for labels (prices, filters, „karta dań”) — as on brunoo.pl.
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin", "latin-ext"],
@@ -61,7 +61,7 @@ const robotoMono = Roboto_Mono({
   preload: false,
 });
 
-// Kwadrat: szeroki bezszeryfowy wersalikami z rozstrzeleniem w nagłówkach i nazwach dań, zwykły w składnikach.
+// Kwadrat: a wide sans in letter-spaced uppercase for headings and dish names, a regular one for ingredients.
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin", "latin-ext"],
@@ -74,7 +74,7 @@ const openSans = Open_Sans({
   preload: false,
 });
 
-// Si!: geometryczny bezszeryfowy (zamiast płatnego Geomanist z ich karty) i pędzlowe pismo w tytułach działów.
+// Si!: a geometric sans (instead of the paid Geomanist from their card) and brush lettering for section titles.
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin", "latin-ext"],
@@ -88,13 +88,14 @@ const kaushan = Kaushan_Script({
   preload: false,
 });
 
-// MusiCaffe (musicaffe.pl/menu): działy Comfortaa, nazwy dań szeryfowy Sanchez, składniki Lora, tekst Raleway.
+// MusiCaffe (musicaffe.pl/menu): sections in Comfortaa, dish names in the Sanchez serif, ingredients in Lora, text in
+// Raleway.
 const comfortaa = Comfortaa({ variable: "--font-comfortaa", subsets: ["latin", "latin-ext"], preload: false });
 const sanchez = Sanchez({ variable: "--font-sanchez", subsets: ["latin", "latin-ext"], weight: "400", preload: false });
 const lora = Lora({ variable: "--font-lora", subsets: ["latin", "latin-ext"], preload: false });
 const raleway = Raleway({ variable: "--font-raleway", subsets: ["latin", "latin-ext"], preload: false });
 
-// Kinowa: działy wysokim kontrastowym szeryfem kursywą (jak na ich karcie), dania Montserrat wersalikami.
+// Kinowa: sections in a high-contrast italic serif (as on their card), dishes in uppercase Montserrat.
 const bodoni = Bodoni_Moda({
   variable: "--font-bodoni",
   subsets: ["latin", "latin-ext"],
@@ -102,7 +103,7 @@ const bodoni = Bodoni_Moda({
   preload: false,
 });
 
-// Tam Tam: Poppins jak na ich karcie i postrzępiony Rubik Dirt w nazwie (jak napis w ich logo).
+// Tam Tam: Poppins as on their card and the rough Rubik Dirt for the name (like the lettering in their logo).
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin", "latin-ext"],

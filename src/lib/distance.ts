@@ -1,6 +1,6 @@
 export type Point = { lat: number; lon: number };
 
-/** Odległość w linii prostej (km), wzór haversine. */
+/** Straight-line distance (km), haversine formula. */
 export function distanceKm(a: Point, b: Point) {
   const toRad = Math.PI / 180;
   const deltaLat = (b.lat - a.lat) * toRad;

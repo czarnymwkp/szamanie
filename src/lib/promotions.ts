@@ -2,10 +2,10 @@ import { cacheLife, cacheTag } from "next/cache";
 import { db } from "./db";
 import type { PromotionSchedule } from "./promotionSchedule";
 
-// Promocje lokalu na jego stronie (dodaje je właściciel w panelu). Przy obniżce ceny dania prawo (dyrektywa
-// Omnibus, art. 6a ustawy o informowaniu o cenach) wymaga podania najniższej ceny z 30 dni przed obniżką.
-// Liczymy ją z historii cen z menu (tabela historia_cen; bez historii cena z menu obowiązywała cały ten czas)
-// i z wcześniejszych promocji tego dania (także usuniętych — dlatego usunięcie tylko je ukrywa).
+// Venue promotions on its page (the owner adds them in the panel). With a dish price cut the law (the Omnibus
+// directive, art. 6a of the Polish price information act) requires showing the lowest price from the 30 days before the
+// cut. We compute it from the menu price history (the historia_cen table; without history the menu price applied the
+// whole time) and from earlier promotions of the same dish (deleted ones too — that is why deleting only hides them).
 
 export type Promotion = PromotionSchedule & {
   id: number;
@@ -28,8 +28,9 @@ const variantPrice = (prices: MenuPrices, variant: string | null) =>
   prices.find((c) => c.wariant === variant) ?? (variant ? undefined : prices[0]);
 
 /**
- * Najniższa cena w ciągu 30 dni przed `start`: z historii cen menu (wpisy po dacie, każdy obowiązuje do następnego)
- * i z innych promocji tego dania, które trwały w tym czasie. Bez żadnej ceny w oknie — cena obecna.
+ * The lowest price in the 30 days before `start`: from the menu price history (entries by date, each valid until the
+ * next one) and from other promotions of this dish that ran during that time. Without any price in the window — the
+ * current price.
  */
 export function lowestIn30Days(
   history: Entry[],

@@ -32,7 +32,7 @@ export default function ClaimForm({ zglos, imie, pytajOEmail }: { zglos: Action;
           <input id="email" name="email" type="email" maxLength={200} autoComplete="email" className={field} />
         </div>
       )}
-      {/* pułapka na boty: ludzie tego pola nie widzą */}
+      {/* bot trap: people do not see this field */}
       <input name="strona" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] size-px opacity-0" />
       <fieldset>
         <legend className={label}>Kim jesteś w lokalu?</legend>

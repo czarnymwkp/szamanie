@@ -1,8 +1,8 @@
 /**
- * Własny wygląd strony lokalu, dopasowany do jego marki (strony www, karty menu). Kolory nadpisują tokeny
- * z `@theme` (globals.css) na <article> strony lokalu, więc komponenty nie wiedzą o motywie — używają
- * `bg-karta`, `text-tekst` itd. Na razie motywy są tutaj, później przejdą do panelu lokalu.
- * Logo i zdjęcia lokalu tylko za zgodą właściciela (przed wdrożeniem potwierdzić).
+ * A venue page's own look, matched to its brand (website, menu card). The colors override the `@theme` tokens
+ * (globals.css) on the venue page <article>, so components know nothing about the theme — they use `bg-karta`,
+ * `text-tekst` etc. Themes live here for now and will move to the venue panel later. Venue logos and photos only with
+ * the owner's consent (confirm before deploying).
  */
 
 export type ColorToken =
@@ -19,7 +19,7 @@ export type ColorToken =
   | "otwarte"
   | "zamkniete";
 
-/** Kroje z `components/szablony/kroje.ts`. */
+/** Fonts from `components/templates/fonts.ts`. */
 export type VenueFont =
   | "playfair"
   | "karla"
@@ -41,46 +41,47 @@ export type VenueFont =
 
 export type PageTheme = {
   kolory: Partial<Record<ColorToken, string>>;
-  ciemny?: boolean; // ciemne pola formularzy i paski przewijania
-  /** etykiety: drobne napisy wersalikami (ceny, cechy dań) — przez --etykiety-lokalu; bez niego krój tekstu. */
-  /** ozdobny: pismo odręczne w tytułach działów menu — przez --ozdobny-lokalu. */
+  ciemny?: boolean; // dark form fields and scrollbars
+  /** etykiety: small uppercase captions (prices, dish features) — via --etykiety-lokalu; without it the body font. */
+  /** ozdobny: handwriting in menu section titles — via --ozdobny-lokalu. */
   kroje?: { naglowki: VenueFont; tekst: VenueFont; etykiety?: VenueFont; ozdobny?: VenueFont };
   /**
-   * kreda: tablica kredowa (smugi i pył kredy, .tlo-kreda w globals.css); marmur: ciemny marmur ze złotymi
-   * żyłkami (.tlo-marmur); plamy: beżowe plamy i cienkie czerwone warstwice w rogach (.tlo-plamy).
+   * kreda: a chalkboard (chalk smudges and dust, .tlo-kreda in globals.css); marmur: dark marble with gold veins
+   * (.tlo-marmur); plamy: beige blobs and thin red contour lines in the corners (.tlo-plamy).
    */
   tekstura?: "kreda" | "marmur" | "plamy";
   /**
-   * Baner zamiast zdjęcia kategorii, z nazwą lokalu (to jest <h1> strony) i `podpis` z adresem.
-   * swietliki: noc i znak lokalu (plik w public/); belka: nazwa na czarnej belce, pod nią kreska w kolorze akcentu i `haslo`;
-   * krata: kremowe tło, `haslo` krojem etykiet, nazwa i pasek w szachownicę;
-   * kreska: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska, pod nią nazwa (jak nagłówek karty menu);
-   * tablica: duża nazwa, `haslo` rozstrzelone pod nią i kreska w barwach Włoch;
-   * pas: ciemny pas (kolor akcentu) z nazwą na środku, kreska i `haslo` w kolorze obrys-2;
-   * elegancki: na tle strony nazwa dużą kursywą (krój ozdobny), cienka złota kreska z rombem i `haslo`;
-   * ludzik: maskotka lokalu (`znak`, plik w public/) kołysze się i podskakuje przy dodaniu dania, pod nią nazwa.
+   * A banner instead of the category photo, with the venue name (the page's <h1>) and the address in `podpis`.
+   * swietliki: night and the venue's emblem (a file in public/); belka: the name on a black bar, below it a line in the
+   * accent color and `haslo`; krata: cream background, `haslo` in the label font, the name and a checkered strip;
+   * kreska: `haslo` in letter-spaced uppercase, a thick black line, the name below it (like a menu card header);
+   * tablica: a large name, `haslo` letter-spaced below it and a line in the Italian colors; pas: a dark strip (accent
+   * color) with the name in the middle, a line and `haslo` in the obrys-2 color; elegancki: on the page background the
+   * name in large italics (decorative font), a thin gold line with a diamond and `haslo`; ludzik: the venue mascot
+   * (`znak`, a file in public/) sways and jumps when a dish is added, the name below it.
    */
   baner?:
     | { rodzaj: "swietliki"; znak: string; podpis: string }
     | { rodzaj: "belka" | "krata" | "kreska" | "tablica" | "pas" | "elegancki"; haslo?: string; podpis: string }
     | { rodzaj: "ludzik"; znak: string; haslo?: string; podpis: string };
-  /** Pozycje menu ponumerowane, z kropkami do ceny — jak w karcie lokalu. */
+  /** Numbered menu items with dot leaders to the price — as on the venue's card. */
   menuNumerowane?: boolean;
-  /** Działy menu na czarnych belkach, ceny na etykietach w kolorze akcentu (z numerami, bez kropek). */
+  /** Menu sections on black bars, prices on labels in the accent color (numbered, no dots). */
   menuBelki?: boolean;
-  /** Dania na białych kartach w siatce, ceny na pigułkach krojem etykiet, działy jak przełączniki-pigułki. */
+  /** Dishes on white cards in a grid, prices on pills in the label font, sections as pill toggles. */
   menuKarty?: boolean;
   /**
-   * Karta jak spis, cena po prawej. wersaliki: działy podkreślone, nazwy dań rozstrzelonymi wersalikami, skład po „|”;
-   * tablica: działy pismem odręcznym z kreską w barwach Włoch, „(vege)” na zielono, ceny podkreślone;
-   * srodek: wszystko wyśrodkowane, działy krojem ozdobnym, składniki krojem etykiet w kolorze akcent-tekst po „•”;
-   * kropki: działy kursywą krojem ozdobnym, nazwy dań wersalikami, kropki do ceny.
+   * Menu as a list, price on the right. wersaliki: underlined sections, dish names in letter-spaced uppercase,
+   * ingredients after „|”; tablica: handwritten sections with a line in the Italian colors, „(vege)” in green,
+   * underlined prices; srodek: everything centered, sections in the decorative font, ingredients in the label font in
+   * the akcent-tekst color after „•”; kropki: sections in the decorative italic, dish names in uppercase, dot leaders
+   * to the price.
    */
   menuSpis?: "wersaliki" | "tablica" | "srodek" | "kropki";
 };
 
 const THEMES: Record<string, PageTheme> = {
-  // pizzeriaparkowa.pl: czarne tło, świetliki, białe drzewo, Playfair Display + Karla, zielone akcenty.
+  // pizzeriaparkowa.pl: black background, fireflies, a white tree, Playfair Display + Karla, green accents.
   "pizzeria-parkowa-krasnik": {
     ciemny: true,
     kolory: {
@@ -98,7 +99,7 @@ const THEMES: Record<string, PageTheme> = {
       zamkniete: "#fca5a5",
     },
     kroje: { naglowki: "playfair", tekst: "karla" },
-    // drzewo z pizzeriaparkowa.pl (user wskazał je 25.10)
+    // the tree from pizzeriaparkowa.pl (the user pointed to it on 25.10)
     baner: {
       rodzaj: "swietliki",
       znak: "/motywy/parkowa/drzewo.png",
@@ -106,9 +107,9 @@ const THEMES: Record<string, PageTheme> = {
     },
     menuNumerowane: true,
   },
-  // Karta z Facebooka lokalu (20.01.2026): białe tło, działy na czarnych belkach, numerowane dania wersalikami,
-  // ceny na pomarańczowych etykietach — z ciemnym tekstem, bo biały na tym pomarańczu ma kontrast 2,8:1.
-  // Ich logo (byk) i szkice z karty tylko za zgodą lokalu — na razie bez nich.
+  // The menu card from the venue's Facebook (20.01.2026): white background, sections on black bars, numbered dishes in
+  // uppercase, prices on orange labels — with dark text, because white on that orange has a 2.8:1 contrast. Their logo
+  // (a bull) and the sketches from the card only with the venue's consent — without them for now.
   "burger-pizza-krasnik": {
     kolory: {
       tlo: "#ffffff",
@@ -127,9 +128,9 @@ const THEMES: Record<string, PageTheme> = {
     menuNumerowane: true,
     menuBelki: true,
   },
-  // brunoo.pl/menu (30.10): kremowe tło, białe karty dań z cienką ramką, ciemnozielone pigułki, bordowe etykiety,
-  // Roboto + Roboto Mono, czarno-biała szachownica. Bez numerów — ich numeracja w karcie jest inna niż nasze działy.
-  // Ich logo i zdjęcia dań tylko za zgodą lokalu — na razie bez nich.
+  // brunoo.pl/menu (30.10): cream background, white dish cards with a thin border, dark green pills, burgundy labels,
+  // Roboto + Roboto Mono, a black-and-white checkerboard. No numbers — their card numbering differs from our sections.
+  // Their logo and dish photos only with the venue's consent — without them for now.
   "brunoo-krasnik": {
     kolory: {
       tlo: "#faf6ea",
@@ -147,9 +148,9 @@ const THEMES: Record<string, PageTheme> = {
     baner: { rodzaj: "krata", haslo: "Na miejscu · na wynos · z dowozem", podpis: "Kraśnik · ul. ks. Jerzego Popiełuszki 1" },
     menuKarty: true,
   },
-  // Karta z Facebooka lokalu (17.01.2026): białe tło, czarny tekst, „RESTAURACJA ▬ KWADRAT”, działy podkreślone,
-  // nazwy dań pogrubione rozstrzelonymi wersalikami, skład po „|”, listek przy wege. Ich logo (kwadrat
-  // z napisem) tylko za zgodą lokalu — na razie bez niego.
+  // The menu card from the venue's Facebook (17.01.2026): white background, black text, „RESTAURACJA ▬ KWADRAT”,
+  // underlined sections, bold dish names in letter-spaced uppercase, ingredients after „|”, a leaf next to vegetarian
+  // dishes. Their logo (a square with lettering) only with the venue's consent — without it for now.
   "kwadrat-miejsce-spotkan-stroza-kolonia": {
     kolory: {
       tlo: "#ffffff",
@@ -167,8 +168,9 @@ const THEMES: Record<string, PageTheme> = {
     baner: { rodzaj: "kreska", haslo: "Restauracja", podpis: "Stróża-Kolonia · ul. Dworska 6" },
     menuSpis: "wersaliki",
   },
-  // siwloska.pl, karta PDF 2026: czarna tablica kredowa, biały tekst, tytuły działów pędzlem z kreską w barwach Włoch,
-  // „(vege)” na zielono, ceny podkreślone. Ich logo (Si! w kole) tylko za zgodą lokalu — na razie bez niego.
+  // siwloska.pl, PDF menu 2026: a black chalkboard, white text, brush section titles with a line in the Italian colors,
+  // „(vege)” in green, underlined prices. Their logo (Si! in a circle) only with the venue's consent — without it for
+  // now.
   "si-krasnik": {
     ciemny: true,
     tekstura: "kreda",
@@ -190,8 +192,9 @@ const THEMES: Record<string, PageTheme> = {
     baner: { rodzaj: "tablica", haslo: "Włoska", podpis: "Kraśnik · ul. Adama Mickiewicza 1k" },
     menuSpis: "tablica",
   },
-  // musicaffe.pl/menu (31.10): biała, wyśrodkowana karta, ciemny pasek u góry, działy Comfortaa, nazwy dań Sanchez,
-  // składniki bordowe (Lora) po „•”, beżowe akcenty. Ich logo tylko za zgodą lokalu — na razie bez niego.
+  // musicaffe.pl/menu (31.10): a white, centered card, a dark strip at the top, sections in Comfortaa, dish names in
+  // Sanchez, burgundy ingredients (Lora) after „•”, beige accents. Their logo only with the venue's consent — without
+  // it for now.
   "musicaffe-krasnik": {
     kolory: {
       tlo: "#ffffff",
@@ -209,8 +212,9 @@ const THEMES: Record<string, PageTheme> = {
     baner: { rodzaj: "pas", haslo: "Restauracja · pizza · przyjęcia", podpis: "Kraśnik · ul. Zygmunta Krasińskiego 11f" },
     menuSpis: "srodek",
   },
-  // Karta z Facebooka lokalu (Kinowa Craft Food Pub, 31.10): ciemny brązowy marmur, działy elegancką szeryfową
-  // kursywą, nazwy dań wersalikami z kropkami do ceny, opisy jasnym bezszeryfowym. Ich logo tylko za zgodą lokalu.
+  // The menu card from the venue's Facebook (Kinowa Craft Food Pub, 31.10): dark brown marble, sections in an elegant
+  // serif italic, dish names in uppercase with dot leaders to the price, descriptions in a light sans. Their logo only
+  // with the venue's consent.
   "kinowa-krasnik": {
     ciemny: true,
     tekstura: "marmur",
@@ -232,8 +236,9 @@ const THEMES: Record<string, PageTheme> = {
     baner: { rodzaj: "elegancki", haslo: "Craft Food Pub", podpis: "Kraśnik · al. Niepodległości 44" },
     menuSpis: "kropki",
   },
-  // Karta od usera (31.10): kremowe tło, beżowe plamy, cienkie czerwone warstwice, czarne pogrubione wersaliki
-  // (Poppins), ceny po prawej. Maskotka (ludzik z miską) z ich logo — user dał ją do strony; zgodę lokalu potwierdzić.
+  // The menu card from the user (31.10): cream background, beige blobs, thin red contour lines, bold black uppercase
+  // (Poppins), prices on the right. The mascot (a figure with a bowl) comes from their logo — the user gave it for the
+  // page; confirm the venue's consent.
   "tam-tam-krasnik": {
     tekstura: "plamy",
     kolory: {

@@ -1,14 +1,13 @@
-# TODO: switch comments in this file to English.
-# Obraz aplikacji: build Next.js (output: standalone) + skrypty danych (npm run menu / add-venues / override / package).
-# Na serwerze baza leży poza obrazem, w wolumenie /app/data (patrz deploy/docker-compose.yml).
+# App image: the Next.js build (output: standalone) + data scripts (npm run menu / add-venues / override / package).
+# On the server the database lives outside the image, in the /app/data volume (see deploy/docker-compose.yml).
 
-FROM node:24-slim AS budowa
+FROM node:24-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 # Settings read at build time (static pages). GitHub Actions passes them as build args;
-# deploy/wdroz.sh provides them via .env.production in the build context.
+# deploy/deploy.sh provides them via .env.production in the build context.
 ARG ADMINISTRATOR
 ARG CONTACT_EMAIL
 ARG NEXT_PUBLIC_SITE_URL
@@ -25,19 +24,19 @@ ENV NODE_ENV=production \
     SZAMANIE_DB=/app/data/szamanie.db \
     SZAMANIE_SERWER=1 \
     NEXT_TELEMETRY_DISABLED=1
-# SZAMANIE_SERWER=1: baza w wolumenie to serwer — menu przepisane z kart (dane/lokale) przychodzi tu z repozytorium
-# (src/lib/db/seed.mjs); lokalnie i przy buildzie tego nie ma, bo tam źródłem pliku jest baza.
-COPY --from=budowa /app/.next/standalone ./
-COPY --from=budowa /app/.next/static ./.next/static
-COPY --from=budowa /app/public ./public
-# sharp (skalowanie zdjęć w next/image): śledzenie plików przy buildzie gubi biblioteki libvips (osobny pakiet
-# @img/sharp-libvips-*), a bez nich zdjęcia idą w pełnym rozmiarze jako JPEG
-COPY --from=budowa /app/node_modules/@img ./node_modules/@img
-# skrypty danych uruchamiane w kontenerze: docker compose exec app node scripts/menu.mjs
-COPY --from=budowa /app/scripts ./scripts
-COPY --from=budowa /app/dane ./dane
-COPY --from=budowa /app/src/lib/db ./src/lib/db
-COPY --from=budowa /app/src/lib/slug.mjs ./src/lib/slug.mjs
+# SZAMANIE_SERWER=1: the database in the volume is the server — menus transcribed from cards (dane/lokale) come here from
+# the repository (src/lib/db/seed.mjs); not locally and not during the build, because there the database is the file's source.
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+# sharp (image resizing in next/image): file tracing during the build loses the libvips libraries (a separate
+# @img/sharp-libvips-* package), and without them photos are served full-size as JPEG
+COPY --from=build /app/node_modules/@img ./node_modules/@img
+# data scripts run inside the container: docker compose exec app node scripts/menu.mjs
+COPY --from=build /app/scripts ./scripts
+COPY --from=build /app/dane ./dane
+COPY --from=build /app/src/lib/db ./src/lib/db
+COPY --from=build /app/src/lib/slug.mjs ./src/lib/slug.mjs
 RUN mkdir -p /app/data && chown node:node /app/data
 USER node
 EXPOSE 3000

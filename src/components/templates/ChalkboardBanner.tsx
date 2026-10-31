@@ -1,9 +1,9 @@
 import Tricolor from "./Tricolor";
 
 /**
- * Baner motywu lokalu w stylu karty na kredowej tablicy: duża nazwa (<h1> strony, krój --naglowek-lokalu),
- * `haslo` rozstrzelonymi wersalikami i kreska w barwach Włoch. Tablica to tło całej strony (tekstura „kreda”).
- * Bez logo lokalu (tylko za jego zgodą).
+ * Venue theme banner in the style of a menu on a chalkboard: a large name (the page's <h1>, font --naglowek-lokalu),
+ * `haslo` in letter-spaced uppercase and a line in the Italian colors. The chalkboard is the whole page background (the
+ * „kreda” texture). No venue logo (only with its consent).
  */
 export default function ChalkboardBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (

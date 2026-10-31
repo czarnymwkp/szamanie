@@ -45,7 +45,7 @@ function Switcher({ pole: nazwaPola, nazwa, wlaczony }: { pole: string; nazwa: s
 export default function DetailsForm({ dane, zapisz }: { dane: VenueData; zapisz: Action }) {
   const [stan, akcja, trwa] = useActionState(zapisz, {} satisfies FormState);
 
-  // onSubmit zamiast action={…}: React po akcji czyści formularz, a pola mają zostać z wpisanymi wartościami
+  // onSubmit instead of action={…}: React clears the form after an action, but the fields must keep the typed values
   return (
     <form
       onSubmit={(e) => {
@@ -115,7 +115,7 @@ export default function DetailsForm({ dane, zapisz }: { dane: VenueData; zapisz:
         <p className={hint}>Dokąd dowozicie i za ile — w zakładce „Dostawa”.</p>
       </section>
 
-      {/* pasek zapisu przyklejony do dołu ekranu — na telefonie zawsze pod kciukiem */}
+      {/* save bar stuck to the bottom of the screen — always under the thumb on a phone */}
       <div className="sticky bottom-0 z-30 -mx-4 border-t border-obrys bg-tlo/95 px-4 py-3 backdrop-blur">
         {stan.blad && (
           <p role="alert" className={`mb-3 ${errorMessage}`}>

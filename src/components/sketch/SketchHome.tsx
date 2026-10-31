@@ -15,7 +15,7 @@ import StyledMascot from "../StyledMascot";
 import { useCatalog } from "../useCatalog";
 import { Underline, chip, hand } from "./sketch";
 
-/** Strona główna serwisu w wyglądzie „Szkicownik”: wyszukiwarka, banery, kategorie, „do późna” i lokale-polaroidy. */
+/** The site's home page in the „Sketchbook” look: search, banners, categories, „open late” and venue polaroids. */
 export default function SketchHome({ lokale, miejscowosci }: { lokale: Venue[]; miejscowosci: Town[] }) {
   const k = useCatalog(lokale, miejscowosci);
 
@@ -70,7 +70,7 @@ export default function SketchHome({ lokale, miejscowosci }: { lokale: Venue[]; 
         <h2 id="kategorie" className={`${hand.className} text-[2.1rem] leading-none`}>
           Na co masz ochotę?
         </h2>
-        {/* telefon: przesuwanie palcem; komputer: wszystkie w rzędach, bo myszką nie da się przewinąć w bok */}
+        {/* phone: swipe; computer: everything in rows, because a mouse cannot scroll sideways */}
         <div className="-mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pt-1 pb-3 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
           {k.kategorie.map((cat, i) => {
             const active = k.kategoria === cat.id;
@@ -132,10 +132,11 @@ export default function SketchHome({ lokale, miejscowosci }: { lokale: Venue[]; 
                 style={{ rotate: `${[-1.6, 1.2, -0.6, 1.8][i % 4]}deg` }}
               >
                 <div className="relative">
-                  {/* pierwsze dwa rzędy od razu, reszta dopiero przy przewijaniu */}
+                  {/* the first two rows right away, the rest only while scrolling */}
                   <CardPhoto lokal={l} odRazu={i < 4} />
                   {l.dostawa && (
-                    // jak plakietka „Dowóz” ze starej karty: autko podskakuje, za nim smużki (.dowoz-auto w globals.css)
+                    // like the „Dowóz” badge from the old card: the car bounces, speed lines behind it (.dowoz-auto in
+                    // globals.css)
                     <span
                       role="img"
                       aria-label="Dowozi"
@@ -172,9 +173,9 @@ export default function SketchHome({ lokale, miejscowosci }: { lokale: Venue[]; 
 }
 
 /**
- * Zdjęcie karty lokalu. Każdy lokal ma inne zdjęcie, więc przeglądarka nie bierze ich z pamięci — a leniwe ładowanie
- * przeglądarki i tak pobiera kilkanaście kart naprzód (Lighthouse: 22 zdjęcia i ok. 570 KB przy wejściu). Dlatego
- * zdjęcie dalszych kart wstawiamy dopiero, gdy karta jest ok. 300 px od ekranu; do tego czasu kolor kategorii.
+ * Venue card photo. Every venue has a different photo, so the browser cannot reuse them from cache — and the browser's
+ * lazy loading still fetches a dozen cards ahead (Lighthouse: 22 photos and about 570 KB on entry). So further cards
+ * get their photo only when they are about 300 px from the screen; until then the category color.
  */
 function CardPhoto({ lokal, odRazu }: { lokal: Venue; odRazu: boolean }) {
   const ref = useRef<HTMLDivElement>(null);

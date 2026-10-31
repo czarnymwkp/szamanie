@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Panel zależy od zalogowanego konta (ciasteczko), więc nie ma czego prerenderować — strony czekają na serwer.
+// The panel depends on the signed-in account (cookie), so there is nothing to prerender — pages wait for the server.
 export const instant = false;
 
 export default function PanelLayout({ children }: LayoutProps<"/panel">) {

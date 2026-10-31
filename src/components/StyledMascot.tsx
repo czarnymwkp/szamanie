@@ -4,13 +4,12 @@ import { useId, type ReactNode } from "react";
 import Mascot from "./Mascot";
 
 /**
- * Animowany szaman w stylu propozycji: ta sama postać (je burgera, czaruje), przepuszczona przez filtr SVG.
- * szkic — ołówek; neon — świecący kontur; plakat — sitodruk w dwóch kolorach; zorza — opalizujący połysk;
- * naklejka — biała obwódka; piksele — jak ze starej gry; holo — rozszczepione kolory; cieply — przy piecu;
- * noc / dzien — światło pory dnia; crt — piksele na kineskopie; druk — raster gazety; termo — wydruk z kasy;
- * glina — miękka bryła 3D; kosmos — poświata; akwarela — rozlana farba; ogrod — zieleń; komiks — kontur i plamy
- * koloru; bauhaus — kolory podstawowe; kino — sepia w świetle reflektora. Pinezka nie ma filtra: szaman siedzi
- * w znaczniku mapy.
+ * Animated shaman in a proposal's style: the same figure (eats a burger, does magic) run through an SVG filter. szkic —
+ * pencil; neon — glowing outline; plakat — two-color screen print; zorza — iridescent sheen; naklejka — white outline;
+ * piksele — like an old game; holo — split colors; cieply — by the oven; noc / dzien — the light of the time of day;
+ * crt — pixels on a CRT; druk — newspaper halftone; termo — a till receipt; glina — soft 3D clay; kosmos — glow;
+ * akwarela — spreading paint; ogrod — greenery; komiks — outline and color patches; bauhaus — primary colors; kino —
+ * sepia in a spotlight. The pin has no filter: the shaman sits inside a map marker.
  */
 export type MascotStyle =
   | "szkic"
@@ -37,7 +36,7 @@ export type MascotStyle =
 
 const EDGES = "-1 -1 -1 -1 8 -1 -1 -1 -1";
 
-/** Raster jak w druku: odcienie szarości z szumem, potem próg — zostaje farba albo papier. */
+/** Halftone like in print: greyscale with noise, then a threshold — either ink or paper remains. */
 function raster(frequency: string, paint: string, noiseStrength: string): ReactNode {
   return (
     <>
@@ -68,7 +67,7 @@ function filterFn(style: MascotStyle): ReactNode {
     case "termo":
       return raster("1.6", "#3a3a3a", "0.4");
     case "glina":
-      // miękka bryła: rozmyty kształt jako mapa wysokości, światło z lewej góry
+      // soft clay: the blurred shape as a height map, light from the top left
       return (
         <>
           <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="wysokosc" />
@@ -120,7 +119,7 @@ function filterFn(style: MascotStyle): ReactNode {
         </>
       );
     case "szkic":
-      // krawędzie → ciemne linie na białym, drżące jak rysowane ręką
+      // edges → dark lines on white, trembling as if drawn by hand
       return (
         <>
           <feColorMatrix type="saturate" values="0" result="szary" />
@@ -185,7 +184,7 @@ function filterFn(style: MascotStyle): ReactNode {
         </>
       );
     case "plakat":
-      // dwa kolory farby, czarny lekko przesunięty jak w sitodruku
+      // two ink colors, the black slightly offset as in screen printing
       return (
         <>
           <feColorMatrix type="saturate" values="0" result="szary" />
@@ -255,7 +254,7 @@ function filterFn(style: MascotStyle): ReactNode {
       );
     case "crt":
     case "piksele":
-      // próbka co 5 px rozdmuchana do kwadratu 5×5
+      // a sample every 5 px blown up to a 5×5 square
       return (
         <>
           <feFlood x="2" y="2" width="1" height="1" />
@@ -339,7 +338,7 @@ export default function StyledMascot({
   const definition = filterFn(styl);
 
   if (styl === "pinezka") {
-    // szaman w znaczniku mapy: okrągła główka z ogonkiem, opada i pulsuje krąg pod spodem
+    // the shaman inside a map marker: a round head with a tail, it drops in and a ring pulses underneath
     return (
       <div aria-hidden className={className}>
         <div className="relative">

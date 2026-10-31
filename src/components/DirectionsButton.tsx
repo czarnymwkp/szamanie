@@ -11,8 +11,8 @@ type Props = {
 };
 
 /**
- * „Prowadź do lokalu”. Na Androidzie otwiera systemowy wybór aplikacji nawigacyjnej (Google Maps, Waze,
- * Yanosik) przez link geo:, także wewnątrz aplikacji z Google Play. Gdzie indziej — trasa w Mapach Google.
+ * „Prowadź do lokalu” (directions). On Android it opens the system picker of navigation apps (Google Maps, Waze,
+ * Yanosik) via a geo: link, also inside the Google Play app. Elsewhere — a route in Google Maps.
  */
 export default function DirectionsButton({ lokal, className, children, ...reszta }: Props) {
   const navigate = (e: MouseEvent<HTMLAnchorElement>) => {

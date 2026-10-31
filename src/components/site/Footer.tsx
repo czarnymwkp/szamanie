@@ -3,7 +3,7 @@ import FooterContent from "./FooterContent";
 import { footerLinks } from "./footerLinks";
 
 export default async function Footer() {
-  // Linki do stron fraz (/krasnik/pizza…) z każdej podstrony — Google trafia po nich do wszystkich.
+  // Links to the phrase pages (/krasnik/pizza…) from every subpage — Google reaches all of them through these.
   const venues = await getVenues();
   return <FooterContent linki={footerLinks(venues)} szaman="szkic" />;
 }

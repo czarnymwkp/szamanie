@@ -7,8 +7,8 @@ import { safeTarget, externalAccount, loginEnabled, loginAccount } from "@/lib/p
 
 type Data = { iss?: string; aud?: string; sub?: string; email?: string; email_verified?: boolean; name?: string };
 
-// Powrót z Google. Token ID przychodzi prosto z serwera Google (HTTPS, z naszym sekretem), więc wystarczy sprawdzić,
-// że jest wystawiony przez Google dla naszego klienta (OpenID Connect Core 3.1.3.7).
+// Return from Google. The ID token comes straight from Google's server (HTTPS, with our secret), so it is enough to
+// check that Google issued it for our client (OpenID Connect Core 3.1.3.7).
 export async function GET(task: NextRequest) {
   const params = task.nextUrl.searchParams;
   const jar = await cookies();

@@ -84,6 +84,6 @@ Required in GitHub → Settings → Secrets and variables → Actions:
 **Coolify:** `deploy/docker-compose.coolify.yml` runs the registry image behind Coolify's proxy. Setup, copying the
 database and backups are described at the top of the file.
 
-**Own server (Docker + Caddy, HTTPS from Let's Encrypt):** prepare the server once with `deploy/przygotuj-serwer.sh`;
-each deployment is `deploy/wdroz.sh user@server` (from Git Bash). Both scripts describe themselves in their header
+**Own server (Docker + Caddy, HTTPS from Let's Encrypt):** prepare the server once with `deploy/prepare-server.sh`;
+each deployment is `deploy/deploy.sh user@server` (from Git Bash). Both scripts describe themselves in their header
 comments. Server settings (`DOMENA`, `CONTACT_EMAIL`, `ADMINISTRATOR`) live in `/opt/szamanie/.env`, outside the repository.

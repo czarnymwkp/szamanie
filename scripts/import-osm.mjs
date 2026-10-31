@@ -1,14 +1,13 @@
-// Pobiera lokale gastronomiczne z OpenStreetMap (Overpass API) z powiatów z listy POWIATY
-// i zapisuje je do bazy. Lokale z reczna_edycja = 1 są pomijane, a lokali usuniętych z OSM nie kasujemy.
-// Użycie: npm run import:osm
+// Fetches food venues from OpenStreetMap (Overpass API) in the counties listed in COUNTIES and stores them in the database. Venues with reczna_edycja = 1 are skipped, and venues removed from OSM are not deleted.
+// Usage: npm run import:osm
 import { openDatabase } from "../src/lib/db/open.mjs";
 import { slugify } from "../src/lib/slug.mjs";
 
-// Obszar katalogu. Priorytet: powiat kraśnicki; kolejne powiaty dopisuj tutaj (nazwy jak w OSM).
+// Catalog area. Priority: Kraśnik county; add further counties here (names as in OSM).
 const COUNTIES = ["powiat kraśnicki"];
 const TYPES = ["restaurant", "fast_food", "cafe", "pub", "bar", "ice_cream", "food_court"];
 
-// Najpierw miejscowości powiatu, potem dla każdej gminy: jej relacja i lokale w jej granicach.
+// First the county's towns, then for every commune: its boundary relation and the venues inside it.
 const query = `[out:json][timeout:120];
 rel["boundary"="administrative"]["admin_level"="6"]["name"~"^(${COUNTIES.join("|")})$"];
 map_to_area->.powiat;
@@ -22,7 +21,7 @@ foreach.gminy->.g(
   out center tags;
 );`;
 
-// Publiczne serwery Overpass bywają przeciążone (502/504/429), więc próbujemy po kolei.
+// Public Overpass servers are often overloaded (502/504/429), so we try them in turn.
 const SERVERS = [
   "https://overpass-api.de/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
@@ -30,7 +29,7 @@ const SERVERS = [
 ];
 
 async function fetchData() {
-  // kilka rund po wszystkich serwerach, z przerwą — przeciążenie zwykle mija po paru minutach
+  // several rounds over all servers with a pause — overload usually passes within a few minutes
   for (let round = 1; round <= 6; round++) {
     try {
       return await oneRound();
@@ -51,7 +50,7 @@ async function oneRound() {
     }).catch((error) => ({ ok: false, status: error.message, text: async () => "" }));
     if (res.ok) {
       const date = await res.json();
-      // Niektóre serwery zapasowe nie mają danych o obszarach (map_to_area) i zwracają pusty wynik.
+      // Some fallback servers have no area data (map_to_area) and return an empty result.
       if (date.elements?.some((e) => e.type === "relation")) return date;
       console.warn(`${server}: pusta odpowiedź (brak danych o gminach), próbuję następny serwer…`);
       continue;
@@ -66,7 +65,7 @@ const { elements } = await fetchData();
 
 const towns = elements.filter((e) => e.type === "node" && e.tags?.place && e.tags.name);
 
-// Dla lokali bez adresu przyjmujemy najbliższą miejscowość.
+// Venues without an address get the nearest town.
 function nearestTown(lat, lon) {
   let best = null;
   let min = Infinity;
@@ -82,7 +81,7 @@ function nearestTown(lat, lon) {
 
 const isFirst = (value) => value?.split(";")[0].trim() || null;
 
-// Udogodnienia z tagów OSM, zapisywane jako JSON w lokale.cechy.
+// Amenities from OSM tags, stored as JSON in lokale.cechy.
 function features(t) {
   const c = {};
   if (t.outdoor_seating === "yes") c.ogrodek = true;
@@ -124,7 +123,7 @@ for (const e of elements) {
     miejscowosc:
       t["addr:city"] ?? t["addr:place"] ?? (urbanCommune ? commune : nearestTown(lat, lon)),
     adres: street ? [street, t["addr:housenumber"]].filter(Boolean).join(" ") : null,
-    // część lokali ma w OSM tylko „mobile” (np. Smakuś)
+    // some venues have only „mobile” in OSM (e.g. Smakuś)
     telefon: isFirst(t.phone ?? t["contact:phone"] ?? t.mobile ?? t["contact:mobile"]),
     www: isFirst(t.website ?? t["contact:website"]),
     facebook: isFirst(t["contact:facebook"] ?? t.facebook),
@@ -138,8 +137,8 @@ for (const e of elements) {
   });
 }
 
-// Te pola mogą też przyjść z innych źródeł (np. ze strony lokalu), więc import nadpisuje je tylko
-// wtedy, gdy OSM ma wartość — brak w OSM nie kasuje danych zdobytych gdzie indziej.
+// These fields can also come from other sources (e.g. the venue's website), so the import overwrites them only when OSM
+// has a value — a missing OSM value does not erase data found elsewhere.
 const FILLED_IN = ["adres", "telefon", "www", "facebook", "instagram", "email", "menu_url", "godziny"];
 
 const db = openDatabase();

@@ -6,7 +6,7 @@ import VenueList from "./VenueList";
 
 export const metadata: Metadata = { title: "Dodaj swój lokal" };
 
-// lista z bazy w chwili żądania — czeka na serwer (jak cały panel)
+// list from the database at request time — waits for the server (like the whole panel)
 export const instant = false;
 
 export default async function AddVenuePage() {

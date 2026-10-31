@@ -30,7 +30,7 @@ const host = (url: string) => {
   }
 };
 
-/** Wszystkie znane kontakty lokalu (telefon, menu, www, social media, e-mail) w jednej liście. */
+/** All known contacts of the venue (phone, menu, website, social media, e-mail) in one list. */
 export function venueContacts(l: Venue): Contact[] {
   const list: (Contact | false | null)[] = [
     !!l.telefon && { etykieta: "Telefon", tekst: l.telefon, href: phoneUrl(l.telefon), ikona: Phone, zewnetrzny: false },
@@ -57,7 +57,7 @@ export function venueContacts(l: Venue): Contact[] {
 
 type Service = { ikona: LucideIcon; nazwa: string };
 
-/** „Przyjazny dla…”: zwierzęta, niepełnosprawni, wege, wegańskie — na stronie lokalu widoczne od razu pod nazwą. */
+/** „Przyjazny dla…”: pets, wheelchair users, vegetarian, vegan — shown on the venue page right below the name. */
 export function venueBadges(venue: Venue): Service[] {
   const c = venue.cechy;
   const list: (Service | false | undefined)[] = [
@@ -72,7 +72,7 @@ export function venueBadges(venue: Venue): Service[] {
   return list.filter((u) => !!u);
 }
 
-/** Usługi i udogodnienia lokalu do pokazania jako „pigułki”; `bezPlakietek` — bez tych z plakietkiLokalu. */
+/** The venue's services and amenities to show as „pills”; `bezPlakietek` — without those from venueBadges. */
 export function venueServices(venue: Venue, { bezPlakietek = false } = {}): Service[] {
   const c = venue.cechy;
   const list: (Service | false | undefined)[] = [
@@ -87,7 +87,7 @@ export function venueServices(venue: Venue, { bezPlakietek = false } = {}): Serv
   return list.filter((u) => !!u);
 }
 
-/** Adres mapy OpenStreetMap do osadzenia (iframe) z pinezką lokalu. */
+/** Embeddable OpenStreetMap URL (iframe) with the venue's pin. */
 export function mapUrl(venue: Pick<Venue, "lat" | "lon">, zoom = 1) {
   const d = { lat: 0.0032 * zoom, lon: 0.0065 * zoom };
   return (

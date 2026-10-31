@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-// Nazwa witryny i logo dla Google — w wynikach wyszukiwania zamiast adresu pokazuje się „szamanie.pl”.
+// Site name and logo for Google — search results show „szamanie.pl” instead of the URL.
 const SITE_DATA = [
   {
     "@context": "https://schema.org",
@@ -45,15 +45,15 @@ export default async function HomePage() {
 }
 
 /**
- * „Gdzie zjeść w Kraśniku i okolicy” pod listą: krótki opis i linki do wszystkich stron fraz, sal i lokali
- * z miejscowości bez własnej strony. Strona główna jest najmocniejsza w Google, więc linki z niej mówią,
- * które podstrony są ważne — a „Co dziś szamiesz?” samo nie mówi Google, o czym jest serwis.
+ * „Gdzie zjeść w Kraśniku i okolicy” below the list: a short description and links to every phrase page, wedding hall
+ * and venue from towns without their own page. The home page is the strongest page in Google, so links from it tell
+ * Google which subpages matter — and „Co dziś szamiesz?” alone does not tell Google what the site is about.
  */
 async function Guide({ lokale }: { lokale: Venue[] }) {
   const food = excludeHallsOnly(lokale);
   const withPage = areasWithPage(lokale);
   const withDelivery = areasWithDelivery(lokale);
-  // lokale z gmin bez strony obszaru (Urzędów, Dzierzkowice…) — tylko te, które są w Google
+  // venues from communes without an area page (Urzędów, Dzierzkowice…) — only those that are in Google
   const communesWithPage = new Set(withPage.flatMap((o) => [...o.gminy, ...o.okolica]));
   const rest = food.filter((l) => l.gmina && !communesWithPage.has(l.gmina));
   const inIndex = await Promise.all(rest.map(toIndex));

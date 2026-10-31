@@ -1,14 +1,14 @@
-// „Zamawiamy razem”: lista do zamówienia wędruje między telefonami w linku (kod QR albo udostępnienie).
-// Wszystko siedzi w części adresu po „#”, której przeglądarka nie wysyła na serwer — bez kont i bez zapisu u nas.
-// W linku są imiona, nazwy dań z wariantem i ilości; ceny telefon odbiorcy bierze z menu na stronie lokalu.
-// Po nazwie, nie po numerze pozycji: menu wczytane na nowo (plik karty, synchronizacja na serwerze) dostaje nowe
-// numery, a dania dodane do listy wcześniej muszą dalej dojść do odbiorcy.
+// „Zamawiamy razem” (ordering together): the order list travels between phones in a link (QR code or sharing).
+// Everything lives in the part of the URL after „#”, which the browser never sends to the server — no accounts and
+// nothing stored on our side. The link holds names, dish names with their variant and quantities; the recipient's phone
+// takes prices from the menu on the venue page. By name, not by item id: a menu loaded again (menu file, sync on the
+// server) gets new ids, and dishes added to the list earlier must still reach the recipient.
 import type { ListItem } from "./useOrderList";
 
 export const MARKER = "#razem=";
 
 type Dish = Omit<ListItem, "ilosc" | "kto">;
-// v2: [osoba, nazwa, wariant (0 = bez wariantu), ilość]; dawne linki: [osoba, klucz pozycji, ilość]
+// v2: [person, name, variant (0 = no variant), quantity]; old links: [person, item key, quantity]
 type Payload = { v?: 2; o: string[]; p: ([number, string, string | 0, number] | [number, string, number])[]; u?: string };
 
 const toBase64 = (text: string) =>
@@ -22,7 +22,7 @@ const fromBase64 = (text: string) =>
 
 const byName = (name: string, variant: string | null) => `${name.toLowerCase()}|${variant ?? ""}`;
 
-/** Część linku po „#razem=”: pozycje innych z ich imionami, moje (bez `kto`) pod moim imieniem. */
+/** The part of the link after „#razem=”: other people's items with their names, mine (without `kto`) under my name. */
 export function encode(items: ListItem[], notes: string, myName: string): string {
   const people: string[] = [];
   const index = (who: string) => (people.includes(who) ? people.indexOf(who) : people.push(who) - 1);
@@ -35,7 +35,9 @@ export function encode(items: ListItem[], notes: string, myName: string): string
   return toBase64(JSON.stringify(payload));
 }
 
-/** Pozycje z linku (kto = imię osoby) albo null, gdy link jest uszkodzony. `dania`: menu lokalu po kluczach pozycji. */
+/**
+ * Items from the link (kto = the person's name), or null when the link is broken. `dishes`: the venue menu by item key.
+ */
 export function decode(code: string, dishes: Map<string, Dish>): { pozycje: ListItem[]; uwagi: string } | null {
   try {
     const { v, o, p, u } = JSON.parse(fromBase64(code)) as Payload;
@@ -46,7 +48,7 @@ export function decode(code: string, dishes: Map<string, Dish>): { pozycje: List
         v === 2 && w.length === 4
           ? [byNameIndex.get(byName(w[1], w[2] || null)), w[3]]
           : [dishes.get(w[1]), w[2] as number];
-      // danie, którego już nie ma w menu (lokal zmienił kartę), po prostu pomijamy
+      // a dish that is no longer on the menu (the venue changed its card) is simply skipped
       return d && o[person] && ilosc > 0 ? [{ ...d, ilosc, kto: o[person].slice(0, 30) }] : [];
     });
     return { pozycje: items, uwagi: typeof u === "string" ? u.slice(0, 500) : "" };

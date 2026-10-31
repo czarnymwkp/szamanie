@@ -7,7 +7,7 @@ import { login, type LoginState } from "./actions";
 
 export default function LoginForm({ dalej }: { dalej: string }) {
   const [stan, akcja, trwa] = useActionState(login, { krok: "email", email: "" } satisfies LoginState);
-  // „Inny adres” wraca do pierwszego kroku, dopóki serwer nie odpowie na nowo
+  // „Inny adres” goes back to the first step until the server answers again
   const [wroc, setWroc] = useState<LoginState | null>(null);
 
   if (stan.krok === "kod" && wroc !== stan) {
@@ -48,7 +48,7 @@ export default function LoginForm({ dalej }: { dalej: string }) {
           Zaloguj <ArrowRight className="size-4" aria-hidden />
         </button>
         <div className="flex justify-between gap-3 text-sm font-bold">
-          {/* formNoValidate: wysłanie ponownie nie wymaga wpisanego kodu */}
+          {/* formNoValidate: resending does not require a typed code */}
           <button type="submit" name="akcja" value="ponownie" formNoValidate disabled={trwa} className="underline underline-offset-2">
             Wyślij kod ponownie
           </button>

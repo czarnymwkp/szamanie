@@ -7,7 +7,7 @@ import { field, smallButton } from "@/components/panel/style";
 const content = (address: string, name: string) =>
   `Link do panelu lokalu ${name} na szamanie.pl: ${address} — otwórz go, żeby zmienić menu, ceny i godziny. Nie przekazuj go nikomu.`;
 
-/** Gotowy link do panelu: do skopiowania, wysłania SMS-em albo udostępnienia (WhatsApp, Messenger). */
+/** A ready panel link: to copy, send by SMS or share (WhatsApp, Messenger). */
 export function ShowLink({ sciezka, telefon, nazwa }: { sciezka: string; telefon: string | null; nazwa: string }) {
   const [skopiowano, setSkopiowano] = useState(false);
   const address = `${window.location.origin}${sciezka}`;
@@ -18,7 +18,7 @@ export function ShowLink({ sciezka, telefon, nazwa }: { sciezka: string; telefon
       await navigator.clipboard.writeText(address);
       setSkopiowano(true);
     } catch {
-      // bez HTTPS (np. podgląd po adresie IP) schowek jest niedostępny — tekst do zaznaczenia jest w polu obok
+      // without HTTPS (e.g. a preview by IP address) there is no clipboard — the text can be selected in the field next to it
     }
   }
 
@@ -37,7 +37,7 @@ export function ShowLink({ sciezka, telefon, nazwa }: { sciezka: string; telefon
           {skopiowano ? "Skopiowano" : "Kopiuj"}
         </button>
         {number && (
-          // „?&body=” działa i na Androidzie, i na iPhonie
+          // „?&body=” works on both Android and iPhone
           <a href={`sms:${number}?&body=${encodeURIComponent(content(address, nazwa))}`} className={`${smallButton} bg-white`}>
             <MessageSquare className="size-4" aria-hidden /> SMS na {telefon}
           </a>
@@ -57,7 +57,7 @@ export function ShowLink({ sciezka, telefon, nazwa }: { sciezka: string; telefon
   );
 }
 
-/** Przycisk admina: nowy link do panelu dla konta (stary przestaje działać). */
+/** Admin button: a new panel link for the account (the old one stops working). */
 export default function PanelLink({
   utworz,
   telefon,

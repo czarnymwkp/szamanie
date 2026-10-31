@@ -2,8 +2,8 @@ import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 import { SITE_URL, CONTACT_EMAIL } from "../config";
 
-// Wysyłka maili przez SMTP skrzynki na domenie (zmienne SMTP_* w .env). Bez SMTP_HOST maile lądują w logach
-// serwera — wygodne lokalnie, a na serwerze admin może wtedy przeczytać kod z `docker compose logs app`.
+// Sending mail over SMTP of a mailbox on our domain (SMTP_* variables in .env). Without SMTP_HOST mails land in the
+// server logs — handy locally, and on the server the admin can then read the code from `docker compose logs app`.
 
 let transport: Transporter | null = null;
 
@@ -46,7 +46,7 @@ export function sendLoginCode(email: string, code: string) {
   );
 }
 
-/** Powiadomienie dla admina (CONTACT_EMAIL), np. o nowym zgłoszeniu lokalu. Bez adresu — tylko w logach. */
+/** Notification for the admin (CONTACT_EMAIL), e.g. about a new venue claim. Without an address — only in the logs. */
 export function notifyAdmin(subject: string, text: string) {
   if (!CONTACT_EMAIL) {
     console.log(`[poczta] (admin) ${subject}\n${text}\n`);

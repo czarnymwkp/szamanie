@@ -1,6 +1,5 @@
-// Zapisuje katalog z lokalnej bazy do dane/baza-startowa.json (dane startowe w repozytorium, patrz
-// src/lib/db/dane-startowe.mjs). Jeden wiersz tabeli = jedna linia pliku, więc zmiany dobrze widać w git diff.
-// Użycie: npm run baza:eksport
+// Writes the catalog from the local database to dane/baza-startowa.json (seed data in the repository, see src/lib/db/seed.mjs). One table row = one line of the file, so changes are easy to read in git diff.
+// Usage: npm run seed:export
 import { writeFileSync } from "node:fs";
 import { SEED_FILE, SEED_TABLES } from "../src/lib/db/seed.mjs";
 import { openDatabase } from "../src/lib/db/open.mjs";

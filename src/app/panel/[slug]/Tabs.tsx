@@ -7,7 +7,7 @@ import { BadgePercent, BookOpen, Store, Truck } from "lucide-react";
 export default function Tabs({ slug }: { slug: string }) {
   const path = usePathname();
   const tabs = [
-    // krótkie nazwy na telefonie — cztery zakładki mieszczą się w jednym rzędzie
+    // short names on a phone — four tabs fit in one row
     { href: `/panel/${slug}`, nazwa: "Dane lokalu", krotko: "Dane", Ikona: Store },
     { href: `/panel/${slug}/menu`, nazwa: "Menu i ceny", krotko: "Menu", Ikona: BookOpen },
     { href: `/panel/${slug}/dostawa`, nazwa: "Dostawa", krotko: "Dostawa", Ikona: Truck },

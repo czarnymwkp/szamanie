@@ -7,7 +7,7 @@ import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = { title: "Logowanie" };
 
-// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+// the page depends on the account and the URL — it waits for the server (like the whole panel)
 export const instant = false;
 
 const ERRORS: Record<string, string> = {
@@ -18,7 +18,7 @@ const ERRORS: Record<string, string> = {
 export default async function LoginPage({ searchParams }: PageProps<"/panel/logowanie">) {
   const { dalej, blad } = await searchParams;
   const target = safeTarget(dalej);
-  // na razie bez logowania — wchodzi się linkiem od nas (strona /panel mówi, jak go dostać)
+  // no sign-in for now — people enter with a link from us (the /panel page explains how to get one)
   if (!loginEnabled()) redirect("/panel");
   if (await getAccount()) redirect(target);
   const google = !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
@@ -39,7 +39,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/panel/logo
       <div className={`mt-6 ${card}`}>
         {google && (
           <>
-            {/* zwykły link, nie <Link>: to przekierowanie do Google, nie strona do pobrania z wyprzedzeniem */}
+            {/* plain link, not <Link>: it redirects to Google, it is not a page to prefetch */}
             <a
               href={`/panel/logowanie/google?dalej=${encodeURIComponent(target)}`}
               className="flex h-12 w-full items-center justify-center gap-3 rounded-full border-2 border-obrys-2 bg-white font-extrabold transition hover:border-tekst"
@@ -66,7 +66,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/panel/logo
   );
 }
 
-// Znak „G” w kolorach Google — wymagany na przycisku logowania przez Google.
+// The „G” mark in Google colors — required on the Sign in with Google button.
 function GoogleLogo() {
   return (
     <svg viewBox="0 0 48 48" className="size-5" aria-hidden>

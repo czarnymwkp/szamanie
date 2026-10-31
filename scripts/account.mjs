@@ -1,11 +1,11 @@
-// Konta panelu właściciela. Na razie bez logowania: do panelu wchodzi się prywatnym linkiem /panel/wejdz/<token>.
-// Użycie:
-//   npm run konto -- lista                         konta, role i lokale
-//   npm run konto -- admin jan@example.com         nadaje rolę admina (zakłada konto, jeśli go nie ma) i daje link
-//   npm run konto -- link jan@example.com          nowy link do panelu (poprzedni przestaje działać)
-//   npm run konto -- lokal jan@example.com <slug>  daje dostęp do lokalu bez zgłoszenia (np. po rozmowie osobiście)
+// Owner panel accounts. No login for now: the panel is entered with a private link /panel/wejdz/<token>.
+// Usage:
+//   npm run account -- lista                         accounts, roles and venues
+//   npm run account -- admin jan@example.com         grants the admin role (creates the account if missing) and prints a link
+//   npm run account -- link jan@example.com          new panel link (the previous one stops working)
+//   npm run account -- lokal jan@example.com <slug>  gives access to a venue without a claim (e.g. after talking in person)
 //   npm run konto -- odbierz jan@example.com <slug>
-// Link z domeną z DOMENA (na serwerze, z /opt/szamanie/.env), lokalnie http://localhost:3000.
+// Link with the domain from DOMENA (on the server, from /opt/szamanie/.env), locally http://localhost:3000.
 import { createHash, randomBytes } from "node:crypto";
 import { openDatabase } from "../src/lib/db/open.mjs";
 
@@ -18,7 +18,7 @@ function account() {
   return db.prepare("SELECT id FROM konta WHERE email = ?").get(email).id;
 }
 
-// jak nowyLink() w src/lib/panel/konta.ts: w bazie tylko SHA-256 tokenu
+// like newPanelLink() in src/lib/panel/accounts.ts: the database keeps only the SHA-256 of the token
 function link(id) {
   const token = randomBytes(24).toString("base64url");
   db.prepare("UPDATE konta SET link = ? WHERE id = ?").run(createHash("sha256").update(token).digest("hex"), id);

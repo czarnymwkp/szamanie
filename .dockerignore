@@ -6,7 +6,7 @@ node_modules
 *.tsbuildinfo
 next-env.d.ts
 deploy
-# z data/ do obrazu idzie tylko kopia bazy (do buildu) — bez kandydatów zdjęć i plików WAL
+# only the database copy goes from data/ into the image (for the build) — no photo candidates and no WAL files
 data/kandydaci
 data/kopie
 data/*.db-wal

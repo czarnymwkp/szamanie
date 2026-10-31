@@ -15,13 +15,13 @@ export type MenuItem = {
   cechy: DishFeature[];
 };
 
-/** Zdjęcie na kafelku sekcji; `pozycja` to object-position kadru. */
+/** Photo on a section tile; `pozycja` is the crop's object-position. */
 export type Cover = { plik: string; pozycja: string };
 
 export type MenuSectionData = {
   nazwa: string;
   opis: string | null;
-  okladka: Cover | null; // zdjęcie poglądowe na kafelku sekcji (w samym menu dań bez zdjęć)
+  okladka: Cover | null; // illustrative photo on the section tile (dishes in the menu itself have no photos)
   pozycje: MenuItem[];
 };
 
@@ -30,8 +30,8 @@ export type Menu = {
   liczba: number;
   zrodlo: string | null;
   sprawdzono: string | null;
-  bezCen: boolean; // lokal podaje same dania (np. Zielony Dworek)
-  stareCeny: boolean; // ceny sprzed ponad roku (np. zdjęcie tablicy z 2023)
+  bezCen: boolean; // the venue lists dishes only (e.g. Zielony Dworek)
+  stareCeny: boolean; // prices older than a year (e.g. a photo of a board from 2023)
 };
 
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
@@ -39,8 +39,8 @@ const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 export type Zone = { nazwa: string; miejsca: string[]; cenaGr: number | null; minGr: number | null };
 export type Delivery = { strefy: Zone[]; zrodlo: string | null; sprawdzono: string | null; uwagi: string | null };
 
-// Okładki sekcji: najpierw zdjęcie kategorii (pierwsza pasująca reguła), potem zdjęcie poglądowe pierwszego dania
-// sekcji, które je ma (np. „Napoje zimne” → cola). To samo zdjęcie nie powtarza się w jednym menu.
+// Section covers: first the category photo (the first matching rule), then the illustrative photo of the section's
+// first dish that has one (e.g. „Napoje zimne” → cola). The same photo is not repeated within one menu.
 const COVERS: [RegExp, PhotoKey][] = [
   [/pizz|calzone/, "pizza"],
   [/burger/, "burger"],
@@ -75,7 +75,7 @@ function cover(section: string, dishes: { nazwa: string; opis: string | null }[]
   return null;
 }
 
-/** Menu lokalu z podziałem na sekcje; null, gdy lokal nie ma jeszcze menu w bazie. */
+/** A venue's menu split into sections; null when the venue has no menu in the database yet. */
 export async function getMenu(venueId: number): Promise<Menu | null> {
   "use cache";
   cacheLife("minutes");
@@ -119,7 +119,7 @@ export async function getMenu(venueId: number): Promise<Menu | null> {
   };
 }
 
-/** Strefy dostawy lokalu (miejscowość → cena, minimum); null, gdy lokal ich nie podał. */
+/** A venue's delivery zones (town → price, minimum); null when the venue has not given them. */
 export async function getDelivery(venueId: number): Promise<Delivery | null> {
   "use cache";
   cacheLife("minutes");
@@ -141,15 +141,16 @@ export async function getDelivery(venueId: number): Promise<Delivery | null> {
 export type Dish = { id: number; lokalId: number; sekcja: string; nazwa: string; opis: string | null; ceny: Price[] };
 
 /**
- * Dania ze wszystkich lokali pasujące do frazy (nazwa, opis albo sekcja; bez polskich znaków),
- * np. „burger” → wszystkie burgery z cenami. Do wyszukiwarki dań i stron fraz.
+ * Dishes from all venues matching a phrase (name, description or section; without Polish characters), e.g. „burger” →
+ * every burger with prices. For the dish search and the phrase pages.
  */
 export async function searchDishes(phrase: string): Promise<Dish[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("menu");
 
-  // Szukamy od początku słowa: „lody” nie trafi w „młody”. Kolumna szukaj ma same słowa oddzielone spacją.
+  // We match from the start of a word: „lody” does not hit „młody”. The szukaj column holds plain words separated by
+  // spaces.
   const f = stripPolish(phrase).replace(/[^a-z0-9]+/g, " ").trim();
   if (f.length < 2) return [];
   return (

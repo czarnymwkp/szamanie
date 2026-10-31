@@ -20,7 +20,7 @@ import { chip, hand } from "./sketch";
 const bigButton =
   "m-reczna-ramka flex h-14 flex-1 items-center justify-center gap-2 border-[2.5px] border-tekst text-lg font-black shadow-[4px_4px_0_#1d1b19] active:translate-y-0.5 active:shadow-none";
 
-/** Strona lokalu w wyglądzie „Szkicownik” — dla lokali bez własnego motywu (te mają Klasyczny w swoich barwach). */
+/** Venue page in the „Sketchbook” look — for venues without their own theme (those use Classic in their colors). */
 export default async function SketchVenue({ lokal, powrot = "/" }: { lokal: Venue; powrot?: string }) {
   const [menu, dostawa, promocje] = await Promise.all([
     getMenu(lokal.id),
@@ -53,7 +53,7 @@ export default async function SketchVenue({ lokal, powrot = "/" }: { lokal: Venu
           <OpeningStatus godziny={lokal.godziny} className="mt-2 text-sm" />
           {(menu || lokal.dostawa) && (
             <p className="mt-3 flex flex-wrap gap-2 text-sm font-extrabold">
-              {/* dowóz na samej górze — przy zamawianiu to pierwsze pytanie */}
+              {/* delivery at the very top — it is the first question when ordering */}
               {(dostawa || lokal.dostawa) && (
                 <a href={dostawa ? "#dostawa" : undefined} className="inline-flex -rotate-2 items-center gap-1.5 bg-akcent px-2.5 py-1 text-na-akcencie">
                   <Truck className="size-4" aria-hidden /> {dostawa ? deliveryDescription(dostawa) : "Dowóz"}
@@ -70,7 +70,7 @@ export default async function SketchVenue({ lokal, powrot = "/" }: { lokal: Venu
       </div>
 
       {badges.length > 0 && (
-        // zwierzęta, niepełnosprawni, wege — ważne przy wyborze lokalu
+        // pets, accessibility, vegetarian — important when choosing a venue
         <ul aria-label="Przyjazny dla" className="mt-5 flex flex-wrap gap-2">
           {badges.map(({ ikona: Ikona, nazwa }) => (
             <li key={nazwa} className="m-reczna-ramka inline-flex items-center gap-1.5 border-2 border-tekst bg-white px-3 py-1 text-sm font-extrabold">
@@ -101,7 +101,7 @@ export default async function SketchVenue({ lokal, powrot = "/" }: { lokal: Venu
       </div>
 
       <div className="-mx-5 mt-4 flex gap-2.5 overflow-x-auto px-5 pt-1 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
-        {/* gwiazdki i opinie zostają w Google — zwykły link do Map, bez klucza i bez kopiowania danych */}
+        {/* stars and reviews stay in Google — a plain link to Maps, no API key and no copied data */}
         <a
           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lokal.nazwa}, ${fullAddress(lokal)}`)}`}
           target="_blank"
@@ -140,8 +140,8 @@ export default async function SketchVenue({ lokal, powrot = "/" }: { lokal: Venu
       {promocje.length > 0 && <VenuePromotions promocje={promocje} naglowek="" />}
 
       {menu ? (
-        // obrócona jest tylko kartka pod spodem: obrót (transform) na przodku menu przypinałby pasek „Twoja lista”
-        // (position: fixed) do tej kartki zamiast do dołu ekranu
+        // only the paper underneath is rotated: a rotation (transform) on an ancestor of the menu would pin the „Twoja
+        // lista” bar (position: fixed) to that paper instead of to the bottom of the screen
         <div className="relative isolate mt-10 px-4 pt-1 pb-5">
           <span aria-hidden className="absolute inset-0 -z-10 rotate-[0.4deg] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.1)]" />
           <span aria-hidden className="m-tasma absolute inset-x-0 top-0" />

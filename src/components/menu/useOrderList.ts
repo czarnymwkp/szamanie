@@ -3,8 +3,8 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Jedna pozycja na liście do zamówienia. gr = null, gdy lokal nie podał ceny.
- * kto = imię osoby, od której pozycja przyszła w linku „Zamawiamy razem” (razem.ts); bez niego — moja.
+ * One item on the order list. gr = null when the venue does not publish a price. kto = the name of the person the item
+ * came from in a „Zamawiamy razem” link (groupOrder.ts); without it — mine.
  */
 export type ListItem = {
   klucz: string;
@@ -14,14 +14,14 @@ export type ListItem = {
   ilosc: number;
   kto?: string;
 };
-/** strefa = nazwa strefy dostawy albo ODBIOR; null = jeszcze nie wybrano. */
+/** strefa = delivery zone name or PICKUP; null = not chosen yet. */
 export type OrderList = { pozycje: ListItem[]; uwagi: string; strefa: string | null };
 
 export const PICKUP = "odbior";
 const EMPTY: OrderList = { pozycje: [], uwagi: "", strefa: null };
 
-// Lista żyje w przeglądarce (bez konta i bez serwera): osobno dla każdego lokalu, w localStorage.
-// Gdy localStorage jest niedostępny (tryb prywatny), lista działa do zamknięcia karty.
+// The list lives in the browser (no account, no server): separately for each venue, in localStorage. When localStorage
+// is unavailable (private mode), the list works until the tab is closed.
 const key = (slug: string) => `szamanie:lista:${slug}`;
 const state = new Map<string, OrderList>();
 const listeners = new Set<() => void>();
@@ -50,7 +50,7 @@ function save(slug: string, list: OrderList) {
 
 function subscribe(change: () => void) {
   listeners.add(change);
-  // ta sama lista otwarta w innej karcie
+  // the same list open in another tab
   const fromOtherTab = (e: StorageEvent) => {
     if (e.key?.startsWith("szamanie:lista:")) {
       state.delete(e.key.slice("szamanie:lista:".length));
@@ -81,7 +81,7 @@ export function useOrderList(slug: string) {
         : [...items, { ...p, ilosc: 1 }],
     });
   };
-  /** kto: czyja pozycja (z „Zamawiamy razem”); bez niego — moja. */
+  /** kto: whose item it is (from „Zamawiamy razem”); without it — mine. */
   const changeQuantity = (itemKey: string, o: number, who?: string) =>
     change({
       pozycje: read(slug)
@@ -96,7 +96,7 @@ export function useOrderList(slug: string) {
     liczba: count,
     sumaGr: sumGr,
     bezCeny: list.pozycje.some((p) => p.gr === null),
-    // licznik przy daniu w menu pokazuje tylko moje sztuki — cudze zmienia się na liście
+    // the counter next to a dish in the menu shows only my portions — other people's are changed on the list
     ilosc: (itemKey: string) => list.pozycje.find((x) => x.klucz === itemKey && !x.kto)?.ilosc ?? 0,
     dodaj: add,
     zmienIlosc: changeQuantity,
@@ -104,8 +104,8 @@ export function useOrderList(slug: string) {
     ustawStrefe: (zone: string | null) => change({ strefa: zone }),
     wyczysc: () => change({ pozycje: [], uwagi: "" }),
     /**
-     * Lista z linku „Zamawiamy razem”. Pozycje pod moim imieniem wracają jako moje; gdy link mnie nie zna,
-     * dochodzą do niego moje dotychczasowe pozycje (dopisane, zanim ktoś przysłał link).
+     * A list from a „Zamawiamy razem” link. Items under my name come back as mine; when the link does not know me, my
+     * current items are added to it (added before someone sent the link).
      */
     przyjmijRazem: (items: ListItem[], notes: string, myName: string) => {
       const fromLink = items.map((p) => (myName && p.kto === myName ? { ...p, kto: undefined } : p));

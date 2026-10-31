@@ -1,19 +1,17 @@
-// Wczytuje menu z cenami i strefy dostawy z plików dane/lokale/<slug>.txt do bazy (dopóki lokale nie mają panelu).
-// Plik zastępuje w całości menu (blok == MENU ==) i strefy dostawy (blok == DOSTAWA ==) danego lokalu;
-// bloku, którego w pliku nie ma, nie ruszamy.
-// Użycie: npm run menu                 wszystkie pliki
-//         npm run menu -- si-krasnik   jeden lokal
-//         npm run menu -- si-krasnik --wymus   także gdy lokal zmienia menu w panelu (nadpisze jego zmiany)
+// Loads menus with prices and delivery zones from dane/lokale/<slug>.txt into the database (until venues use the panel). A file replaces a venue's whole menu (the == MENU == block) and delivery zones (the == DOSTAWA == block); a block missing from the file is left alone.
+// Usage: npm run menu                           all files
+//        npm run menu -- si-krasnik             one venue
+//        npm run menu -- si-krasnik --wymus     also when the venue edits its menu in the panel (overwrites its changes)
 //
-// Format pliku (puste linie i linie od „# ” są pomijane):
-//   źródło: https://…               skąd jest menu (adres strony, „zdjęcie karty”, „telefon”)
-//   sprawdzono: 2026-10-25          kiedy ceny były aktualne
+// File format (empty lines and lines starting with „# ” are skipped):
+//   źródło: https://…               where the menu comes from (website, „zdjęcie karty”, „telefon”)
+//   sprawdzono: 2026-10-25          when the prices were current
 //   == DOSTAWA ==
 //   źródło: … / sprawdzono: … / uwagi: …
-//   Nazwa strefy [= Miejscowość, Miejscowość] | cena zł („?” = nie podają) | minimalne zamówienie zł
+//   Zone name [= Town, Town] | price zł („?” = not given) | minimum order zł
 //   == MENU ==
 //   ## Sekcja [| opis sekcji]
-//   Nazwa | opis | cena („27”, „29,90” albo „32 cm: 27; 45 cm: 37”) | cechy: wege, ostre, polecane, sezonowe
+// Name | description | price („27”, „29,90” or „32 cm: 27; 45 cm: 37”) | features: wege, ostre, polecane, sezonowe
 import { readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { openDatabase } from "../src/lib/db/open.mjs";
@@ -26,7 +24,7 @@ const KEYS = { źródło: "zrodlo", sprawdzono: "sprawdzono", uwagi: "uwagi" };
 const db = openDatabase();
 const knownPlaces = new Set(db.prepare("SELECT nazwa FROM miejscowosci").all().map((m) => m.nazwa));
 
-/** „29,90” → 2990 groszy; pusty tekst albo „?” → null. */
+/** „29,90” → 2990 grosze; empty text or „?” → null. */
 function toGrosze(text, where) {
   const t = text.replace(/zł/g, "").trim();
   if (!t || t === "?") return null;
@@ -109,7 +107,7 @@ function read(file) {
 }
 
 const selectedOne = process.argv[2];
-// Menu zmienione przez lokal w panelu jest ważniejsze niż plik — nadpisujemy je tylko na wyraźne życzenie.
+// A menu changed by the venue in the panel beats the file — we overwrite it only when explicitly asked.
 const force = process.argv.includes("--wymus");
 const files = readdirSync(CATALOG)
   .filter((p) => p.endsWith(".txt"))
@@ -156,7 +154,7 @@ for (const file of files) {
     continue;
   }
 
-  // menu i strefy, które lokal zmienia w panelu, zostają (chyba że --wymus)
+  // menus and zones the venue edits in the panel stay (unless --wymus)
   const sources = db.prepare("SELECT menu_zrodlo, dostawa_zrodlo FROM lokale WHERE id = ?").get(venue.id);
   for (const [blok, zrodlo] of [["menu", sources.menu_zrodlo], ["dostawa", sources.dostawa_zrodlo]]) {
     if (date[blok] && zrodlo === "panel" && !force) {
@@ -180,7 +178,7 @@ for (const file of files) {
           JSON.stringify(p.ceny),
           JSON.stringify(p.cechy),
           i,
-          // same słowa oddzielone spacją — wyszukiwarka dopasowuje początki słów („lody” ≠ „młody”)
+          // plain words separated by spaces — search matches word beginnings („lody” ≠ „młody”)
           stripPolish([p.nazwa, p.opis ?? "", p.sekcja].join(" ")).replace(/[^a-z0-9]+/g, " ").trim(),
         ),
       );

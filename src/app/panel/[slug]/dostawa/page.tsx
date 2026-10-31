@@ -6,7 +6,7 @@ import DeliveryEditor from "./DeliveryEditor";
 
 export const metadata: Metadata = { title: "Dostawa" };
 
-// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+// the page depends on the account and the URL — it waits for the server (like the whole panel)
 export const instant = false;
 
 export default async function Delivery({ params }: PageProps<"/panel/[slug]/dostawa">) {

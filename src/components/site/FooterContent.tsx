@@ -10,10 +10,10 @@ export type FooterLink = { nazwa: string; adres: string };
 const DISHES = "PIZZA ✦ KEBAB ✦ BURGERY ✦ PIEROGI ✦ KAWA ✦ LODY ✦ ZAPIEKANKI ✦ SAŁATKI ✦ ";
 
 /**
- * Stopka propozycji na telefon: taśma z potrawami, szaman (dotknij — podskoczy), „Smacznego!”, karta „Masz
- * lokal?”, linki do stron „Pizza w Kraśniku” itd. (dla Google) i podpis tymito.pl. Źródło danych (OpenStreetMap,
- * wymagane przez ODbL) jest na stronie „Źródła danych i zdjęć”, do której prowadzi link w stopce.
- * Kolory z tokenów (tło = tekst strony), więc pasuje do jasnych i ciemnych propozycji.
+ * Site footer: a strip of dishes, the shaman (tap — he jumps), „Smacznego!”, the „Masz lokal?” card, links to pages
+ * like „Pizza w Kraśniku” (for Google) and the tymito.pl credit. The data source (OpenStreetMap, required by ODbL) is
+ * on the „Źródła danych i zdjęć” page, linked from the footer. Colors come from tokens (background = page text color),
+ * so it works on light and dark themes.
  */
 export default function FooterContent({ linki, szaman, className = "" }: { linki: FooterLink[]; szaman: MascotStyle; className?: string }) {
   const [skok, setSkok] = useState(0);

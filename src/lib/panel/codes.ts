@@ -3,14 +3,14 @@ import { randomInt, timingSafeEqual } from "node:crypto";
 import { db } from "../db";
 import { normalizeEmail, digest } from "./accounts";
 
-// Logowanie e-mailem: 6-cyfrowy kod ważny 10 minut, 5 prób na kod, nowy kod najwcześniej po minucie.
-// Do tego limit wysyłek na adres IP — żeby nikt nie zasypał cudzej skrzynki ani naszej poczty.
+// E-mail sign-in: a 6-digit code valid for 10 minutes, 5 attempts per code, a new code at most once a minute. Plus a
+// limit of sends per IP address — so nobody floods someone else's mailbox or our mail.
 
 const VALIDITY_MIN = 10;
 const ATTEMPTS = 5;
 const PAUSE_S = 60;
 const CODES_PER_HOUR_PER_IP = 10;
-// 6 cyfr i 5 prób na kod: limit kodów na adres ogranicza zgadywanie do ~30 prób na godzinę
+// 6 digits and 5 attempts per code: the per-address code limit caps guessing at ~30 attempts per hour
 const CODES_PER_HOUR_PER_ADDRESS = 6;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -19,7 +19,7 @@ const sendsToAddress = new Map<string, number[]>();
 
 const hashCode = (email: string, code: string) => digest(`${email}:${code}`);
 
-// juzWyslany: kod z ostatniej minuty jest nadal ważny — wystarczy go wpisać
+// alreadySent: a code from the last minute is still valid — it just needs to be typed in
 export type SendResult = { kod: string } | { blad: string; juzWyslany?: boolean };
 
 export function newCode(rawEmail: string, ip: string): SendResult {

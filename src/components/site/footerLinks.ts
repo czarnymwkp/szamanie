@@ -2,7 +2,7 @@ import type { Venue } from "@/lib/venues";
 import { areasWithDelivery, allPages } from "@/lib/seo";
 import type { FooterLink } from "./FooterContent";
 
-/** Linki do stron „Pizza w Kraśniku”, „Jedzenie z dowozem…” w stopce propozycji (jak w stopce serwisu). */
+/** Links to pages like „Pizza w Kraśniku”, „Jedzenie z dowozem…” in the site footer. */
 export function footerLinks(venues: Venue[]): FooterLink[] {
   const withDelivery = areasWithDelivery(venues);
   return allPages(venues)

@@ -20,7 +20,10 @@ export async function logout() {
   redirect("/panel");
 }
 
-/** Wejście prywatnym linkiem: sesja dopiero po kliknięciu „Wejdź do panelu” (POST), nie przy samym otwarciu linku. */
+/**
+ * Entry with a private link: the session starts only after clicking „Wejdź do panelu” (POST), not when the link is
+ * merely opened.
+ */
 export async function enterWithLink(token: string) {
   const account = accountByLink(token);
   if (!account) redirect("/panel?link=nieaktywny");
@@ -32,16 +35,19 @@ export async function enterWithLink(token: string) {
 export type ClaimState = { blad?: string };
 
 const ROLES = ["właściciel", "menedżer", "pracownik"];
-// zgłoszenie wysyła się bez logowania — limit na adres IP, żeby nikt nie zasypał listy admina
+// a claim is sent without signing in — rate-limited per IP address, so nobody can flood the admin's list
 const CLAIMS_PER_HOUR_PER_IP = 5;
 const claimsFromIp = new Map<string, number[]>();
 
-/** „To mój lokal” — prośba o dostęp do lokalu; admin potwierdza ją telefonicznie na numer lokalu i wysyła link. */
+/**
+ * „To mój lokal” — a request for access to a venue; the admin confirms it by calling the venue's number and sends a
+ * link.
+ */
 export async function claimVenue(slug: string, _: ClaimState, formData: FormData): Promise<ClaimState> {
   const account = await getAccount();
   const venue = venueToClaim(slug);
   if (!venue) return { blad: "Nie znaleźliśmy tego lokalu." };
-  // pole ukryte przed ludźmi — wypełniają je tylko boty
+  // field hidden from people — only bots fill it in
   if (formData.get("strona")) redirect("/panel?zgloszono=1");
 
   const name = String(formData.get("imie") ?? "").trim().slice(0, 80);

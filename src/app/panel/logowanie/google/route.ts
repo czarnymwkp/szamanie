@@ -5,9 +5,10 @@ import { connection, type NextRequest } from "next/server";
 import { googleClient, cookieOptions } from "@/lib/panel/google";
 import { safeTarget, loginEnabled } from "@/lib/panel/accounts";
 
-// Start logowania przez Google: stan (ochrona przed CSRF) i weryfikator PKCE w ciasteczkach na 10 minut.
+// Start of Google sign-in: state (CSRF protection) and the PKCE verifier in cookies for 10 minutes.
 export async function GET(task: NextRequest) {
-  // zawsze przy żądaniu: bez tego build zapisałby przekierowanie na stałe (np. gdy klucza Google jeszcze nie ma)
+  // always at request time: otherwise the build would store the redirect for good (e.g. while the Google key is not set
+  // yet)
   await connection();
   const google = loginEnabled() ? googleClient(task) : null;
   if (!google) redirect("/panel/logowanie");

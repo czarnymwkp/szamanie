@@ -4,9 +4,10 @@ import Image from "next/image";
 import { useOrderList } from "@/components/menu/useOrderList";
 
 /**
- * Baner motywu lokalu z jego maskotką: postać kołysze się, nad miską unosi się para, a gdy ktoś doda danie do listy
- * (albo je zdejmie), podskakuje — `key` z liczbą pozycji odtwarza animację od nowa. Pod nią nazwa (<h1> strony)
- * krojem ozdobnym, `haslo` i adres. Maskotka to grafika lokalu (public/motywy/…) — tylko za jego zgodą.
+ * Venue theme banner with its mascot: the figure sways, steam rises from the bowl, and when someone adds a dish to the
+ * list (or removes one) it jumps — a `key` with the item count replays the animation. Below it the name (the page's
+ * <h1>) in the decorative font, `haslo` and the address. The mascot is a venue graphic (public/motywy/…) — only with
+ * its consent.
  */
 export default function MascotBanner({
   slug,
@@ -28,7 +29,7 @@ export default function MascotBanner({
         <div key={liczba} className={liczba ? "ludzik-podskok" : ""}>
           <Image src={znak} alt="" width={148} height={215} priority className="h-auto w-full" />
         </div>
-        {/* para nad miską (miska po prawej, na wysokości ~40%) */}
+        {/* steam above the bowl (the bowl is on the right, at about 40% height) */}
         {[0, 1, 2].map((i) => (
           <span
             key={i}

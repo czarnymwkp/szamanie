@@ -18,17 +18,17 @@ export const MODES: { id: Mode; nazwa: string }[] = [
 export const RADII = [1, 2, 5, 10];
 export const YOUR_LOCATION = "Twoja lokalizacja";
 
-// Wyszukiwanie bez polskich znaków: „krasnik” znajdzie „Kraśnik”.
+// Search without Polish characters: „krasnik” finds „Kraśnik”.
 export const normalize = (s: string) =>
   s.toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/[̀-ͯ]/g, "");
 
-/** Cała logika listy lokali: wyszukiwanie, kategorie, tryb, „otwarte teraz” i „blisko mnie”. Wygląd — osobno. */
+/** All the logic of the venue list: search, categories, mode, „open now” and „near me”. The look is separate. */
 export function useCatalog(venues: Venue[], towns: Town[]) {
   const [szukaj, setSzukaj] = useState("");
   const [kategoria, setKategoria] = useState("wszystko");
   const [tryb, setTryb] = useState<Mode>("wszystko");
   const [tylkoOtwarte, setTylkoOtwarte] = useState(false);
-  // listek „Wege”: lokale z opcjami wegetariańskimi albo wegańskimi (OSM, poprawki, dania wege w menu)
+  // the „Wege” leaf: venues with vegetarian or vegan options (OSM, corrections, vegetarian dishes in the menu)
   const [tylkoWege, setTylkoWege] = useState(false);
   const [pozycja, setPozycja] = useState<Item | null>(null);
   const [promien, setPromien] = useState(2);
@@ -59,7 +59,7 @@ export function useCatalog(venues: Venue[], towns: Town[]) {
     [venues, pozycja],
   );
 
-  // „Otwarte do późna”: czynne teraz i co najmniej do 23:00 (albo po północy), najpóźniej zamykane pierwsze.
+  // „Open late”: open now and at least until 23:00 (or past midnight), the latest closing first.
   const openLate = useMemo(() => {
     if (!now) return [];
     return venues
@@ -91,7 +91,7 @@ export function useCatalog(venues: Venue[], towns: Town[]) {
     if (tylkoOtwarte && now) return isOpen(l);
     return true;
   });
-  // Promowane zawsze pierwsze; z lokalizacją dalej od najbliższych, bez niej — alfabetycznie (kolejność z serwera).
+  // Promoted always first; with a location then by distance, without it — alphabetically (order from the server).
   if (distances) {
     results.sort(
       (a, b) => Number(b.promowany) - Number(a.promowany) || distances.get(a.id)! - distances.get(b.id)!,
@@ -100,7 +100,7 @@ export function useCatalog(venues: Venue[], towns: Town[]) {
 
   const useLocation = () => {
     setBladPozycji("");
-    // Przeglądarki udostępniają lokalizację tylko przez HTTPS (i na localhost).
+    // Browsers share the location only over HTTPS (and on localhost).
     if (!window.isSecureContext || !("geolocation" in navigator)) {
       setBladPozycji("Lokalizacja nie jest dostępna na tym połączeniu. Wybierz miejscowość z listy.");
       return;

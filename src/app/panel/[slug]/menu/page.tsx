@@ -6,7 +6,7 @@ import MenuEditor from "./MenuEditor";
 
 export const metadata: Metadata = { title: "Menu i ceny" };
 
-// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+// the page depends on the account and the URL — it waits for the server (like the whole panel)
 export const instant = false;
 
 export default async function Menu({ params }: PageProps<"/panel/[slug]/menu">) {

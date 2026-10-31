@@ -21,7 +21,7 @@ import {
   type SectionDraft,
 } from "@/lib/panel/venue";
 
-// Każda akcja sama sprawdza, czy zalogowane konto zarządza lokalem — dane z przeglądarki nie są zaufane.
+// Every action checks on its own that the signed-in account manages the venue — data from the browser is not trusted.
 
 export type FormState = { blad?: string; ok?: string };
 
@@ -63,7 +63,7 @@ export async function saveMenu(slug: string, menu: unknown): Promise<MenuState> 
   const checked = validateMenu(menu);
   if ("blad" in checked) return { blad: checked.blad };
   saveVenueMenu(lokal.id, checked.menu);
-  // kuchnie i „opcje wegetariańskie” lokalu liczą się z menu, więc odświeżamy też listę lokali
+  // the venue's cuisines and „vegetarian options” are derived from the menu, so the venue list is refreshed too
   updateTag("menu");
   updateTag("lokale");
   updateTag("promocje");
@@ -136,7 +136,7 @@ export async function saveDeliveryAction(slug: string, zones: unknown, notes: st
   const checked = validateZones(zones);
   if ("blad" in checked) return { blad: checked.blad };
   zapiszStrefy(lokal.id, checked.strefy, String(notes ?? "").trim().slice(0, 300) || null);
-  // strefy pokazuje strona lokalu (tag „menu”), a lokal ze strefami dowozi (lista lokali)
+  // zones are shown on the venue page (tag „menu”), and a venue with zones delivers (venue list)
   updateTag("menu");
   updateTag("lokale");
   return { ok: "Zapisano strefy dostawy." };

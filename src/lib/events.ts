@@ -1,6 +1,6 @@
-// Lokale, które robią wesela i przyjęcia — strona /sale-weselne i sekcja „Przyjęcia” na stronie lokalu.
-// Na razie ręcznie, ze stron i profili lokali (źródło przy każdym wpisie); później z panelu lokalu.
-// Klucz = slug lokalu.
+// Venues that host weddings and events — the /sale-weselne page and the „Przyjęcia” section on the venue page. Entered
+// by hand for now, from the venues' websites and profiles (source next to every entry); later from the venue panel. Key
+// = venue slug.
 
 import type { Venue } from "./venues";
 
@@ -17,9 +17,9 @@ export const EVENT_NAMES: Record<EventKind, string> = {
 
 export type Events = {
   rodzaje: EventKind[];
-  doOsob?: number; // największa sala, tak jak podaje lokal
+  doOsob?: number; // the largest hall, as the venue states it
   noclegi?: boolean;
-  // sala bez zwykłej kuchni na co dzień: nie pokazujemy jej w „Co dziś szamiesz?” ani na stronach „gdzie zjeść”
+  // a hall without a regular everyday kitchen: not shown in „Co dziś szamiesz?” or on the „gdzie zjeść” pages
   tylkoPrzyjecia?: boolean;
   zrodlo: string;
 };
@@ -60,11 +60,11 @@ export const EVENTS: Record<string, Events> = {
 
 export const venueEvents = (l: Pick<Venue, "slug">): Events | undefined => EVENTS[l.slug];
 
-/** Lokale do list „gdzie zjeść” — bez sal, które działają tylko na przyjęcia. */
+/** Venues for the „gdzie zjeść” lists — without halls that only work for events. */
 export const excludeHallsOnly = <T extends Pick<Venue, "slug">>(venues: T[]) =>
   venues.filter((l) => !EVENTS[l.slug]?.tylkoPrzyjecia);
 
-/** Sale z listy lokali: najpierw wyróżnione, potem alfabetycznie (jak na stronach fraz). */
+/** Halls from the venue list: promoted first, then alphabetically (as on the phrase pages). */
 export const hallsFromList = (venues: Venue[]) =>
   venues
     .filter((l) => EVENTS[l.slug])

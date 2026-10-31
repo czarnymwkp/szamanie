@@ -4,8 +4,9 @@ import { venueTheme } from "@/lib/categoryTheme";
 import TypeIcon from "./TypeIcon";
 
 /**
- * Zdjęcie lokalu w dowolnym kadrze (rozmiar z className). Dopóki lokal nie ma własnych zdjęć — zdjęcie poglądowe
- * (każdy lokal inne — z jego menu albo kuchni) z dyskretnym dopiskiem, a bez zdjęcia — kolor z ikoną.
+ * A venue photo in any crop (size from className). Until the venue has its own photos — an illustrative photo
+ * (different for every venue, from its menu or cuisine) with a discreet note, and without a photo — a color with an
+ * icon.
  */
 export default function Thumbnail({
   lokal,
@@ -21,7 +22,7 @@ export default function Thumbnail({
   dopisek?: boolean;
 }) {
   const { kolor, ikona, zdjecie: zKategorii } = venueTheme(lokal);
-  // każdy lokal ma swoje zdjęcie poglądowe (pobierzLokale); zdjęcie kategorii tylko, gdy go nie dostał
+  // every venue has its own illustrative photo (getVenues); the category photo only when it did not get one
   const photo = lokal.zdjecie ?? zKategorii;
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ backgroundColor: kolor }}>

@@ -1,5 +1,5 @@
-// Schemat bazy SQLite. Wykonywany przy każdym otwarciu bazy, więc tylko CREATE ... IF NOT EXISTS.
-// Plik .mjs, bo korzystają z niego i aplikacja, i skrypty w scripts/.
+// SQLite database schema. Run on every database open, so only CREATE ... IF NOT EXISTS. An .mjs file, because both the
+// app and the scripts in scripts/ use it.
 export const SCHEMA = `
 CREATE TABLE IF NOT EXISTS lokale (
   id              INTEGER PRIMARY KEY,
@@ -49,13 +49,13 @@ CREATE TABLE IF NOT EXISTS pakiety (
 CREATE INDEX IF NOT EXISTS pakiety_lokal ON pakiety(lokal_id, rodzaj);
 `;
 
-// Zmiany schematu po wersji bazowej. Baza pamięta, ile migracji już wykonała (PRAGMA user_version),
-// więc nowe dopisuj tylko na końcu i nigdy nie zmieniaj istniejących.
+// Schema changes after the base version. The database remembers how many migrations it has run (PRAGMA user_version),
+// so only append new ones at the end and never change existing ones.
 export const MIGRATIONS = [
-  // 1: wygląd podstrony lokalu, wybierany przez właściciela w abonamencie
+  // 1: look of the venue subpage, chosen by the owner in a subscription
   "ALTER TABLE lokale ADD COLUMN szablon TEXT NOT NULL DEFAULT 'klasyczny'",
-  // 2: więcej danych kontaktowych, udogodnienia oraz logo/zdjęcia pobrane ze stron lokali.
-  //    Grafiki z cudzych stron mają zatwierdzone = 0 i nie są publikowane, dopóki właściciel się nie zgodzi.
+  // 2: more contact details, amenities, and logos/photos fetched from venue websites. Graphics from other people's
+  // sites have zatwierdzone = 0 and are not published until the owner agrees.
   `ALTER TABLE lokale ADD COLUMN email TEXT;
    ALTER TABLE lokale ADD COLUMN instagram TEXT;
    ALTER TABLE lokale ADD COLUMN menu_url TEXT;
@@ -64,14 +64,14 @@ export const MIGRATIONS = [
    ALTER TABLE zdjecia ADD COLUMN rodzaj TEXT NOT NULL DEFAULT 'zdjecie';
    ALTER TABLE zdjecia ADD COLUMN zrodlo TEXT;
    ALTER TABLE zdjecia ADD COLUMN zatwierdzone INTEGER NOT NULL DEFAULT 0;`,
-  // 3: miejscowości powiatu — punkt odniesienia „blisko mnie”, gdy klient nie udostępni lokalizacji
+  // 3: towns of the county — the reference point for „near me” when the customer does not share their location
   `CREATE TABLE miejscowosci (
      nazwa  TEXT PRIMARY KEY,
      typ    TEXT NOT NULL,   -- town, village
      lat    REAL NOT NULL,
      lon    REAL NOT NULL
    );`,
-  // 4: ręczne poprawki (admin teraz, właściciel w panelu później). wartosc = JSON.
+  // 4: manual corrections (by the admin now, by the owner in the panel later). wartosc = JSON.
   `CREATE TABLE poprawki (
      lokal_id   INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
      pole       TEXT NOT NULL,
@@ -80,8 +80,8 @@ export const MIGRATIONS = [
      utworzono  TEXT NOT NULL DEFAULT (datetime('now')),
      PRIMARY KEY (lokal_id, pole)
    );`,
-  // 5: menu z cenami i strefy dostawy (na start z plików dane/lokale/*.txt, później z panelu lokalu).
-  //    Ceny w groszach. menu.ceny = JSON [{"wariant":"32 cm","gr":2700}] (wariant null, gdy cena jedna).
+  // 5: menus with prices and delivery zones (initially from dane/lokale/*.txt, later from the venue panel). Prices in
+  // grosze. menu.ceny = JSON [{"wariant":"32 cm","gr":2700}] (wariant is null when there is a single price).
   `CREATE TABLE menu (
      id         INTEGER PRIMARY KEY,
      lokal_id   INTEGER NOT NULL REFERENCES lokale(id) ON DELETE CASCADE,
@@ -117,9 +117,9 @@ export const MIGRATIONS = [
    ALTER TABLE lokale ADD COLUMN dostawa_zrodlo TEXT;
    ALTER TABLE lokale ADD COLUMN dostawa_sprawdzono TEXT;
    ALTER TABLE lokale ADD COLUMN dostawa_uwagi TEXT;`,
-  // 6: panel właściciela — konta (logowanie kodem z e-maila albo przez Google), sesje, przejęcie lokalu
-  //    weryfikowane ręcznie przez admina, promocje i historia cen (dyrektywa Omnibus: najniższa cena z 30 dni).
-  //    Na start bez logowania: właściciel wchodzi prywatnym linkiem od admina (konta.link), e-mail jest opcjonalny.
+  // 6: owner panel — accounts (sign-in with an e-mailed code or with Google), sessions, venue claims verified by hand
+  // by the admin, promotions and price history (Omnibus directive: the lowest price in 30 days). Initially without
+  // sign-in: the owner enters with a private link from the admin (konta.link); the e-mail is optional.
   `CREATE TABLE konta (
      id         INTEGER PRIMARY KEY,
      email      TEXT UNIQUE,                  -- małymi literami; NULL = konto tylko z linkiem

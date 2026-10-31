@@ -18,8 +18,9 @@ import type { DishDraft, SectionDraft } from "@/lib/panel/venue";
 import { stripPolish } from "@/lib/slug.mjs";
 import type { MenuState } from "../actions";
 
-// Edytor całego menu w przeglądarce; „Zapisz” wysyła je w całości (serwer sprawdza i zapisuje w jednej transakcji).
-// Ceny zmienia się od razu na liście — to najczęstsza zmiana; resztę dania po rozwinięciu ołówkiem.
+// Editor for the whole menu in the browser; „Zapisz” sends it as a whole (the server validates it and saves it in one
+// transaction). Prices change right in the list — the most common edit; the rest of a dish after expanding it with the
+// pencil.
 
 type Price = { k: string; wariant: string; cena: string };
 type Dish = Omit<DishDraft, "ceny"> & { k: string; ceny: Price[] };
@@ -32,7 +33,7 @@ const FEATURES: { id: DishFeature; nazwa: string }[] = [
   { id: "sezonowe", nazwa: "sezonowe" },
 ];
 
-// klucze Reacta dla nowych wierszy (crypto.randomUUID nie działa na http:// z telefonu w sieci domowej)
+// React keys for new rows (crypto.randomUUID does not work over http:// from a phone on the home network)
 let counter = 0;
 const key = () => `k${++counter}`;
 
@@ -83,7 +84,7 @@ export default function MenuEditor({
 
   const changed = JSON.stringify(withoutKeys(sekcje)) !== zapisane;
 
-  // ostrzeżenie przy zamykaniu karty z niezapisanymi zmianami
+  // warning when closing the tab with unsaved changes
   useEffect(() => {
     if (!changed) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -139,7 +140,7 @@ export default function MenuEditor({
       setStan(result);
       if (result.menu) {
         const newOnes = withKeys(result.menu);
-        // otwarte działy zostają otwarte (po nazwie — klucze są nowe)
+        // open sections stay open (by name — the keys are new)
         const openNames = new Set(sekcje.filter((s) => otwarte.has(s.k)).map((s) => s.nazwa));
         setSekcje(newOnes);
         setOtwarte(new Set(newOnes.filter((s) => openNames.has(s.nazwa)).map((s) => s.k)));
@@ -218,7 +219,7 @@ export default function MenuEditor({
                 />
               </div>
             ) : (
-              // zwinięty dział: cały pasek rozwija — nazwę i kolejność zmienia się po rozwinięciu
+              // collapsed section: the whole bar expands it — name and order are changed after expanding
               <button
                 type="button"
                 onClick={() => toggle(s.k)}
@@ -290,7 +291,7 @@ export default function MenuEditor({
         </button>
       )}
 
-      {/* pasek zapisu przyklejony do dołu ekranu */}
+      {/* save bar stuck to the bottom of the screen */}
       <div className="sticky bottom-0 z-30 -mx-4 border-t border-obrys bg-tlo/95 px-4 py-3 backdrop-blur">
         {stan.blad && (
           <p role="alert" className={`mb-3 ${errorMessage}`}>
@@ -322,7 +323,7 @@ function priceDescription(d: Dish) {
   return d.ceny.filter((c) => c.cena || c.wariant);
 }
 
-/** Zwinięte danie: nazwa i pola cen do szybkiej zmiany. */
+/** Collapsed dish: the name and price fields for quick edits. */
 function DishRow({ danie, zmien, edytuj }: { danie: Dish; zmien: (f: (d: Dish) => Dish) => void; edytuj: () => void }) {
   const prices = priceDescription(danie);
   return (
@@ -520,7 +521,7 @@ function OrderButtons({ gora, dol, co }: { gora: () => void; dol: () => void; co
   );
 }
 
-/** Usuwanie w dwóch kliknięciach zamiast okienka potwierdzenia. */
+/** Deleting takes two clicks instead of a confirmation dialog. */
 function DeleteButton({ co, pytanie, usun, zNapisem = false }: { co: string; pytanie: string; usun: () => void; zNapisem?: boolean }) {
   const [pewny, setPewny] = useState(false);
   if (pewny) {

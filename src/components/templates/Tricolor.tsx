@@ -1,4 +1,4 @@
-/** Kreska w barwach Włoch (zielony, biały, czerwony) — jak ozdobniki w karcie menu włoskiej restauracji. */
+/** A line in the Italian colors (green, white, red) — like the ornaments on an Italian restaurant's menu. */
 export default function Tricolor({ className = "" }: { className?: string }) {
   return (
     <span aria-hidden className={`flex gap-1.5 ${className}`}>

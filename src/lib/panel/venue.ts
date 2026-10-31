@@ -3,10 +3,11 @@ import { db } from "../db";
 import type { DishFeature } from "../menu";
 import { stripPolish } from "../slug.mjs";
 
-// Odczyt i zapis danych lokalu z panelu właściciela. Dane lokalu idą do tabeli poprawki (jak `npm run popraw`),
-// więc import z OSM ich nie nadpisuje; menu i promocje mają własne tabele. Uprawnienia sprawdza wywołujący.
+// Reading and saving venue data from the owner panel. Venue data goes into the poprawki table (like `npm run
+// override`), so the OSM import does not overwrite it; menus and promotions have their own tables. The caller checks
+// permissions.
 
-// ——— Dane lokalu ———
+// ——— Venue data ———
 
 export const TEXT_FIELDS = ["nazwa", "telefon", "email", "www", "facebook", "instagram", "opis", "godziny"] as const;
 export const YES_NO_FIELDS = ["dostawa", "na_wynos", "zwierzeta", "wozek", "wege", "wegan"] as const;
@@ -39,7 +40,7 @@ function venueOverrides(venueId: number) {
   return result;
 }
 
-/** Aktualne dane lokalu tak, jak widzi je strona: z bazy (OSM) z nałożonymi poprawkami. */
+/** Current venue data as the page sees it: from the database (OSM) with corrections applied. */
 export function venueData(venueId: number): VenueData {
   const w = db
     .prepare(
@@ -59,7 +60,7 @@ export function venueData(venueId: number): VenueData {
   return date;
 }
 
-/** Zapisuje jako poprawki tylko pola, które się zmieniły. Pusty tekst = usunięcie (np. nieaktualnej strony www). */
+/** Saves only the fields that changed as corrections. Empty text = removal (e.g. of an outdated website). */
 export function saveVenueDetails(venueId: number, newOnes: VenueData, author: string) {
   const currentOnes = venueData(venueId);
   const save = db.prepare(
@@ -87,7 +88,7 @@ export function saveVenueDetails(venueId: number, newOnes: VenueData, author: st
 
 export const DISH_FEATURES: DishFeature[] = ["wege", "ostre", "polecane", "sezonowe"];
 
-/** Menu w postaci dla edytora: ceny jako tekst („27,50”), żeby pole formularza pokazywało to, co wpisał lokal. */
+/** Menu in the editor's shape: prices as text („27,50”), so the form field shows what the venue typed. */
 export type PriceDraft = { wariant: string; cena: string };
 export type DishDraft = { id: number | null; nazwa: string; opis: string; ceny: PriceDraft[]; cechy: DishFeature[] };
 export type SectionDraft = { nazwa: string; opis: string; dania: DishDraft[] };
@@ -125,7 +126,7 @@ export function menuDraft(venueId: number): SectionDraft[] {
   return sections;
 }
 
-/** „29,90” albo „29.90 zł” → 2990 groszy; null, gdy to nie jest cena. */
+/** „29,90” or „29.90 zł” → 2990 grosze; null when it is not a price. */
 export function toGrosze(text: string): number | null {
   const t = text.replace(/zł/gi, "").replace(/\s/g, "").replace(",", ".");
   if (!/^\d{1,5}(\.\d{1,2})?$/.test(t)) return null;
@@ -140,7 +141,7 @@ type SectionToSave = { nazwa: string; opis: string | null; dania: DishToSave[] }
 
 const textValue = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** Sprawdza menu z edytora (dane z przeglądarki — nie ufamy im) i zamienia ceny na grosze. */
+/** Validates the menu from the editor (data from the browser — not trusted) and converts prices to grosze. */
 export function validateMenu(date: unknown): { menu: SectionToSave[] } | { blad: string } {
   if (!Array.isArray(date)) return { blad: "Nieprawidłowe dane menu." };
   if (date.length > MENU_LIMITS.sekcji) return { blad: `Najwyżej ${MENU_LIMITS.sekcji} działów.` };
@@ -181,13 +182,13 @@ export function validateMenu(date: unknown): { menu: SectionToSave[] } | { blad:
   return { menu };
 }
 
-/** Tak jak scripts/menu.mjs: same słowa bez polskich znaków — wyszukiwarka dopasowuje początki słów. */
+/** Like scripts/menu.mjs: plain words without Polish characters — search matches word beginnings. */
 const searchText = (...parts: (string | null)[]) =>
   stripPolish(parts.filter(Boolean).join(" ")).replace(/[^a-z0-9]+/g, " ").trim();
 
 /**
- * Zapisuje całe menu lokalu. Dania z id zostają tymi samymi wierszami (lista zamówienia klienta ich nie gubi),
- * nowe dostają wiersze, usunięte znikają. Każda zmiana ceny trafia do historii cen.
+ * Saves a venue's whole menu. Dishes with an id stay the same rows (the customer's order list does not lose them), new
+ * ones get new rows, removed ones disappear. Every price change goes into the price history.
  */
 export function saveVenueMenu(venueId: number, menu: SectionToSave[]) {
   const old = new Map(
@@ -236,7 +237,7 @@ export function saveVenueMenu(venueId: number, menu: SectionToSave[]) {
           add.run(venueId, ...fields);
         }
         if (oldOne?.ceny === prices) continue;
-        // pierwsza zmiana ceny dania: zapisujemy też cenę sprzed zmiany, od kiedy menu było sprawdzone
+        // a dish's first price change: we also store the price from before the change, valid since the menu was checked
         if (oldOne && !hasHistory.get(venueId, oldOne.nazwa)) {
           history.run(venueId, s.nazwa, oldOne.nazwa, oldOne.ceny, sprawdzono ?? now.slice(0, 10));
         }
@@ -307,7 +308,7 @@ export function promotionsDraft(venueId: number): PromotionDraft[] {
   }));
 }
 
-/** Dania z cenami do wyboru w promocji: nazwa → warianty z ceną regularną. */
+/** Dishes with prices to choose from in a promotion: name → variants with the regular price. */
 export function dishPrices(venueId: number) {
   return (
     db.prepare("SELECT nazwa, ceny FROM menu WHERE lokal_id = ? ORDER BY kolejnosc").all(venueId) as {
@@ -348,7 +349,10 @@ export function savePromotion(venueId: number, p: Omit<PromotionDraft, "id"> & {
   }
 }
 
-/** Usunięta promocja znika ze strony i panelu, ale zostaje w bazie — jej cena liczy się do najniższej z 30 dni. */
+/**
+ * A deleted promotion disappears from the page and the panel but stays in the database — its price counts towards the
+ * lowest price in 30 days.
+ */
 export function deletePromotion(venueId: number, id: number) {
   db.prepare("UPDATE promocje SET usunieto = datetime('now'), aktywna = 0 WHERE id = ? AND lokal_id = ?").run(id, venueId);
 }
@@ -380,7 +384,7 @@ export function townNames() {
   return (db.prepare("SELECT nazwa FROM miejscowosci ORDER BY nazwa").all() as { nazwa: string }[]).map((m) => m.nazwa);
 }
 
-/** Sprawdza strefy z formularza: miejscowości muszą być z naszej listy (po nich klient szuka „dowozi do mnie”). */
+/** Validates zones from the form: towns must come from our list (customers search „dowozi do mnie” by them). */
 export function validateZones(date: unknown): { strefy: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[] } | { blad: string } {
   if (!Array.isArray(date) || date.length > 60) return { blad: "Nieprawidłowe strefy dostawy." };
   const knownOnes = new Map(townNames().map((n) => [n.toLowerCase(), n]));

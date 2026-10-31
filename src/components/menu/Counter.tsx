@@ -1,6 +1,6 @@
 import { Minus, Plus } from "lucide-react";
 
-/** Okrągły „+”, a po dodaniu: − ilość +. */
+/** A round „+”, and after adding: − quantity +. */
 export default function Counter({
   ile,
   nazwa,

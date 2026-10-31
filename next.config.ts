@@ -1,14 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // samodzielny serwer w .next/standalone — pod wdrożenie w Dockerze
+  // standalone server in .next/standalone — for the Docker deployment
   output: "standalone",
   poweredByHeader: false,
   cacheComponents: true,
   partialPrefetching: true,
-  // podgląd z telefonu w domowym Wi-Fi (next dev blokuje skrypty dla adresów innych niż localhost)
+  // preview from a phone on the home Wi-Fi (next dev blocks scripts for hosts other than localhost)
   allowedDevOrigins: ["192.168.0.*"],
-  // adresy starej wersji szamanie.pl (do 10.2026) — gdyby Google albo ktoś miał je w zakładkach
+  // URLs of the old szamanie.pl (until 10.2026) — in case Google or someone still has them bookmarked
   async redirects() {
     return [
       { source: "/discover", destination: "/", permanent: true },

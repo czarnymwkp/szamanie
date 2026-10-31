@@ -1,7 +1,7 @@
 /**
- * Baner motywu lokalu w stylu eleganckiej karty: na tle strony (np. marmur) nazwa dużą kursywą krojem ozdobnym
- * (<h1> strony, --ozdobny-lokalu), cienka kreska w kolorze akcent-tekst z rombem, `haslo` rozstrzelonymi
- * wersalikami i adres. Bez logo lokalu (tylko za jego zgodą).
+ * Venue theme banner in the style of an elegant menu: on the page background (e.g. marble) the name in large italics in
+ * the decorative font (the page's <h1>, --ozdobny-lokalu), a thin line in the accent-text color with a diamond, `haslo`
+ * in letter-spaced uppercase and the address. No venue logo (only with its consent).
  */
 export default function ElegantBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (

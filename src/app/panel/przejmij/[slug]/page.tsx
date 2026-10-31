@@ -10,12 +10,12 @@ import ClaimForm from "./ClaimForm";
 
 export const metadata: Metadata = { title: "Poproś o dostęp do lokalu" };
 
-// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+// the page depends on the account and the URL — it waits for the server (like the whole panel)
 export const instant = false;
 
 export default async function ClaimPage({ params }: PageProps<"/panel/przejmij/[slug]">) {
   const { slug } = await params;
-  // bez logowania: zgłoszenie wysyła każdy, a dostęp daje dopiero admin po telefonie na numer lokalu
+  // no sign-in: anyone can send a claim, and access is granted only by the admin after calling the venue's number
   const account = await getAccount();
   const venue = venueToClaim(slug);
   if (!venue) notFound();
@@ -25,7 +25,7 @@ export default async function ClaimPage({ params }: PageProps<"/panel/przejmij/[
   const waiting =
     !!account &&
     !!db.prepare("SELECT 1 FROM zgloszenia WHERE lokal_id = ? AND konto_id = ? AND status = 'nowe'").get(venue.id, account.id);
-  // numer z poprawkami, tak jak na stronie lokalu — na niego zadzwonimy, żeby potwierdzić
+  // the number with corrections, as on the venue page — we call it to confirm
   const phone = (await getVenue(slug))?.telefon ?? null;
 
   return (

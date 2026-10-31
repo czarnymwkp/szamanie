@@ -14,9 +14,9 @@ const SPARKS = [
 ];
 
 /**
- * Maskotka szamanie.pl: szaman w kapturze zajada burgera (trzy gryzy), widelcem-laską wyczarowuje nowego
- * i zaprasza do wyszukiwania. SVG + CSS, pętla 10 s; bez animacji przy „ogranicz ruch”.
- * `dymek` — chmurka „A Ty co szamiesz?” po lewej stronie postaci (tam, gdzie na komputerze jest wyszukiwarka).
+ * The szamanie.pl mascot: a hooded shaman eats a burger (three bites), conjures a new one with his fork-staff and
+ * invites you to search. SVG + CSS, a 10 s loop; no animation with „reduce motion”. `dymek` — a „A Ty co szamiesz?”
+ * speech bubble to the left of the figure (where the search box is on a computer).
  */
 export default function Mascot({ className = "", dymek = false }: { className?: string; dymek?: boolean }) {
   const id = useId();
@@ -27,7 +27,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
     <div aria-hidden className={className}>
       <svg viewBox="0 0 240 240" className="sz-szaman">
         <defs>
-          {/* Ugryzienia: czarne koła w masce „zjadają” prawą stronę burgera, jedno po drugim. */}
+          {/* Bites: black circles in the mask „eat” the right side of the burger, one after another. */}
           <mask id={maskId} maskUnits="userSpaceOnUse" x="30" y="100" width="100" height="90">
             <rect x="30" y="100" width="100" height="90" fill="#fff" />
             <circle className="sz-ugryz1" cx="105" cy="138" r="9" />
@@ -40,7 +40,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
         </defs>
 
         <g className="sz-oddech">
-          {/* Laska-widelec z piórkiem (jak w logo) */}
+          {/* Fork-staff with a feather (as in the logo) */}
           <g className="sz-laska">
             <path d="M200 236V58" stroke="#f5ebe1" strokeWidth="7" strokeLinecap="round" />
             <rect x="187" y="48" width="26" height="9" rx="4.5" fill="#f5ebe1" />
@@ -52,7 +52,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
             <path d="M208.5 93V119" stroke="#d6c6b3" strokeWidth="1.2" />
           </g>
 
-          {/* Płaszcz z kremowym zygzakiem i naszyjnik z kłem */}
+          {/* Cloak with a cream zigzag and a fang necklace */}
           <path d="M62 240C62 196 92 170 135 168C178 170 208 196 208 240Z" fill="#ff6400" />
           <path
             clipPath={`url(#${body})`}
@@ -75,11 +75,11 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
           ))}
           <path d="M130.5 190.5h9L135 203Z" fill="#fff8ee" stroke="#fff8ee" strokeWidth="3" strokeLinejoin="round" />
 
-          {/* Ręka z laską */}
+          {/* Hand with the staff */}
           <path d="M163 190L190 185" stroke="#e65a00" strokeWidth="18" strokeLinecap="round" />
           <circle cx="193" cy="184" r="9.5" fill="#f2c299" />
 
-          {/* Kaptur (tył), głowa, piórko, rondo kaptura z futerkiem */}
+          {/* Hood (back), head, feather, fur-trimmed hood rim */}
           <path d="M86 152C78 106 94 74 122 63C126 41 140 23 168 12C162 28 160 45 162 63C186 75 196 108 186 152Z" fill="#e65a00" />
           <circle cx="135" cy="118" r="42" fill="#f2c299" />
           <path d="M101 90C85 78 77 58 81 38C93 52 103 70 101 90Z" fill="#f5ebe1" />
@@ -88,7 +88,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
           <path d="M92 122C90 92 108 74 135 74C162 74 180 92 178 122C168 104 154 96 135 96C116 96 102 104 92 122Z" fill="#ff6400" />
           <path d="M95 116C103 103 117 96 135 96C153 96 167 103 175 116" stroke="#f5ebe1" strokeWidth="5" strokeLinecap="round" fill="none" />
 
-          {/* Twarz: malunki, rumieńce, nos */}
+          {/* Face: paint, blush, nose */}
           <g fill="#c24a00">
             <rect x="98" y="129" width="11" height="3.4" rx="1.7" />
             <rect x="98" y="135.5" width="11" height="3.4" rx="1.7" />
@@ -99,7 +99,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
           <circle cx="154" cy="134" r="5.5" fill="#ff7a45" opacity="0.35" />
           <path d="M132.5 128.5q2.5 3 5 0" stroke="#c98a62" strokeWidth="2" strokeLinecap="round" fill="none" />
 
-          {/* Oczy: otwarte (patrzą w stronę wyszukiwarki, gdy zaprasza) albo zadowolone „^ ^” przy żuciu */}
+          {/* Eyes: open (looking towards the search box while inviting) or content „^ ^” while chewing */}
           <g className="sz-oczy-otwarte">
             <g className="sz-zrenice">
               <ellipse cx="119" cy="119" rx="5.5" ry="6.5" fill="#1a1a1a" />
@@ -112,7 +112,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
             <path d="M112 121q7-7 14 0M144 121q7-7 14 0" />
           </g>
 
-          {/* Usta: uśmiech / otwarte przed gryzem / żucie */}
+          {/* Mouth: smile / open before a bite / chewing */}
           <path className="sz-usta-usmiech" d="M125 141q10 9 20 0" stroke="#4a1a0a" strokeWidth="3.5" strokeLinecap="round" fill="none" />
           <g className="sz-usta-otwarte">
             <ellipse cx="135" cy="144" rx="8" ry="9" fill="#4a1a0a" />
@@ -127,7 +127,7 @@ export default function Mascot({ className = "", dymek = false }: { className?: 
             <circle cx="118" cy="156" r="1.7" />
           </g>
 
-          {/* Ręka z burgerem: obraca się w barku do ust, burger obraca się odwrotnie, więc zostaje poziomo */}
+          {/* Hand with the burger: rotates at the shoulder towards the mouth, the burger rotates the other way, so it stays level */}
           <g className="sz-reka">
             <path d="M108 188L86 170" stroke="#e65a00" strokeWidth="18" strokeLinecap="round" />
             <g className="sz-burger">

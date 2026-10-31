@@ -1,9 +1,8 @@
-// Parser formatu opening_hours z OpenStreetMap, np. "Mo-Fr 10:00-22:00; Sa 12:00-20:00; Su off".
-// Obsługuje typowe zapisy: zakresy dni, kilka przedziałów w dniu, godziny po północy, 24/7,
-// reguły rozdzielone „;” albo „,”. Przy czymś nietypowym zwraca null i aplikacja pokazuje
-// wtedy surowy tekst zamiast statusu „otwarte/zamknięte”.
+// Parser of the OpenStreetMap opening_hours format, e.g. "Mo-Fr 10:00-22:00; Sa 12:00-20:00; Su off". Handles the usual
+// forms: day ranges, several ranges per day, hours past midnight, 24/7, rules separated by „;” or „,”. For anything
+// unusual it returns null and the app then shows the raw text instead of an „open/closed” status.
 
-/** 7 dni (Pn..Nd), każdy z listą przedziałów [start, koniec] w minutach od północy. */
+/** 7 days (Mon..Sun), each with a list of ranges [start, end] in minutes from midnight. */
 export type Week = [number, number][][];
 
 export type Status =
@@ -68,7 +67,7 @@ export function parseHours(text: string | null): Week | null {
     pos = RULE.lastIndex;
 
     if (m[1] !== "PH") {
-      // święta (PH) pomijamy; późniejsza reguła nadpisuje dni, które wymienia
+      // public holidays (PH) are skipped; a later rule overrides the days it lists
       const days = m[1] ? parseDays(m[1]) : [0, 1, 2, 3, 4, 5, 6];
       const ranges = parseRanges(m[2]);
       if (!days || !ranges) return null;
@@ -82,7 +81,7 @@ export function parseHours(text: string | null): Week | null {
   return week;
 }
 
-/** Odwrotność parsujGodziny: tydzień → „Mo-Fr 11:00-22:00; Sa 12:00-23:00; Su off” (sąsiednie takie same dni razem). */
+/** The inverse of parseHours: week → „Mo-Fr 11:00-22:00; Sa 12:00-23:00; Su off” (adjacent identical days merged). */
 export function saveHours(week: Week): string {
   const description = (ranges: [number, number][]) =>
     ranges.length ? ranges.map(([s, k]) => `${formatHour(s)}-${formatHour(k)}`).join(",") : "off";
@@ -96,7 +95,7 @@ export function saveHours(week: Week): string {
   return rules.length === 1 && rules[0].startsWith("Mo-Su ") ? rules[0].slice(6) : rules.join("; ");
 }
 
-/** Numer dnia tygodnia, gdzie 0 = poniedziałek. */
+/** Weekday number, where 0 = Monday. */
 export const weekday = (date: Date) => (date.getDay() + 6) % 7;
 
 export function openingStatus(week: Week, now: Date): Status {
@@ -133,7 +132,7 @@ export function dayDescription(ranges: [number, number][]) {
   return ranges.map(([s, k]) => `${formatHour(s)}–${formatHour(k)}`).join(", ");
 }
 
-/** Godziny w formacie schema.org dla JSON-LD, np. ["Mo 10:00-22:00", ...]. */
+/** Hours in schema.org format for JSON-LD, e.g. ["Mo 10:00-22:00", ...]. */
 export function schemaOrgHours(week: Week) {
   return week.flatMap((ranges, d) =>
     ranges.map(([s, k]) => `${OSM_DAYS[d]} ${formatHour(s)}-${formatHour(k)}`),

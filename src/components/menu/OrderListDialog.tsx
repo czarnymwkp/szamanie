@@ -11,7 +11,7 @@ import Counter from "./Counter";
 import { MARKER, decode, encode } from "./groupOrder";
 import { PICKUP, type VenueOrderList, type ListItem } from "./useOrderList";
 
-// imię do „Zamawiamy razem” pamiętamy w przeglądarce, żeby nie wpisywać go przy każdym zamówieniu
+// the name for „Zamawiamy razem” is remembered in the browser, so it does not have to be typed for every order
 const NAME_KEY = "szamanie:imie";
 function readName() {
   try {
@@ -21,7 +21,7 @@ function readName() {
   }
 }
 
-// dymek „Zamawiasz z kimś?” pokazujemy raz: po zamknięciu albo użyciu „Razem” już nie wraca
+// the „Zamawiasz z kimś?” tip is shown once: after closing it or using „Razem” it never comes back
 const TIP_SEEN_KEY = "szamanie:dymek-razem";
 function tipSeen() {
   try {
@@ -39,9 +39,10 @@ function rememberTip() {
 const itemsSum = (items: ListItem[]) => items.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
 
 /**
- * Pasek „Twoja lista” na dole ekranu i okno z listą. Przy dzwonieniu lista przełącza się w „ściągawkę”:
- * duże litery, ekran nie gaśnie — żeby zamawiać z telefonu, a nie z kartki. „Zamawiamy razem”: kod QR i link
- * z listą, druga osoba dopisuje swoje i podaje dalej (razem.ts); na liście pozycje są wtedy pogrupowane po osobach.
+ * The „Twoja lista” bar at the bottom of the screen and the list dialog. While calling, the list switches to a „cheat
+ * sheet”: big letters, the screen stays on — so people order from the phone, not from a slip of paper. „Zamawiamy
+ * razem”: a QR code and a link with the list; the next person adds their dishes and passes it on (groupOrder.ts); the
+ * list then groups items by person.
  */
 export default function OrderListDialog({
   l,
@@ -52,7 +53,7 @@ export default function OrderListDialog({
   dostawa,
 }: {
   l: VenueOrderList;
-  // bez nich (stare propozycje wyglądu) nie ma „Zamawiamy razem”
+  // without them there is no „Zamawiamy razem”
   slug?: string;
   dania?: Map<string, Omit<ListItem, "ilosc" | "kto">>;
   nazwa: string;
@@ -67,8 +68,8 @@ export default function OrderListDialog({
   const [dymekZamkniety, setDymekZamkniety] = useState(false);
   const { lista, liczba, sumaGr } = l;
 
-  // Link „Zamawiamy razem” (…#razem=…): przyjmujemy listę i od razu ją pokazujemy. Znacznik znika z adresu,
-  // żeby odświeżenie strony nie wczytało jej drugi raz.
+  // „Zamawiamy razem” link (…#razem=…): we take the list and show it right away. The marker is removed from the URL, so
+  // a page refresh does not load it a second time.
   useEffect(() => {
     if (!dania) return;
     const acceptLink = () => {
@@ -80,12 +81,12 @@ export default function OrderListDialog({
       if (!dialogRef.current?.open) dialogRef.current?.showModal();
     };
     acceptLink();
-    // link otwarty, gdy ta strona lokalu już jest otwarta — zmienia się tylko część po „#”, bez przeładowania
+    // link opened while this venue page is already open — only the part after „#” changes, without a reload
     window.addEventListener("hashchange", acceptLink);
     return () => window.removeEventListener("hashchange", acceptLink);
   }, [dania, l]);
 
-  // Do dzwonienia i wysyłki te same dania od różnych osób idą razem („3 × Margherita”).
+  // For calling and sending, the same dishes from different people are merged („3 × Margherita”).
   const merged = [
     ...lista.pozycje
       .reduce((m, p) => {
@@ -94,7 +95,7 @@ export default function OrderListDialog({
       }, new Map<string, ListItem>())
       .values(),
   ];
-  // Pozycje innych osób (z linku) pogrupowane po imionach, moje na końcu; bez „Zamawiamy razem” — jedna lista.
+  // Other people's items (from a link) grouped by name, mine last; without „Zamawiamy razem” — a single list.
   const people = [...new Set(lista.pozycje.flatMap((p) => (p.kto ? [p.kto] : [])))];
   const groups = people.length
     ? [...people, undefined].map((who) => ({ kto: who, pozycje: lista.pozycje.filter((p) => p.kto === who) }))
@@ -108,9 +109,9 @@ export default function OrderListDialog({
   const missingToMinimum = zone?.minGr && sumaGr < zone.minGr ? zone.minGr - sumaGr : 0;
   const total = sumaGr + deliveryCost;
 
-  // Po pierwszym daniu dymek nad paskiem podpowiada „Zamawiamy razem” — tylko raz i nie temu, kto dostał listę
-  // linkiem (lista ma wtedy pozycje innych osób). liczba > 0 jest tylko w przeglądarce, więc localStorage czytamy
-  // dopiero wtedy, a serwer i pierwszy render w przeglądarce są takie same.
+  // After the first dish a tip above the bar suggests „Zamawiamy razem” — only once, and not to someone who received
+  // the list by link (it then has other people's items). count > 0 happens only in the browser, so localStorage is read
+  // only then, and the server render matches the first browser render.
   const showTip =
     liczba > 0 && !!slug && !dymekZamkniety && !lista.pozycje.some((p) => p.kto) && !tipSeen();
   const closeTip = () => {
@@ -123,7 +124,7 @@ export default function OrderListDialog({
     setRazemOtwarte(true);
   };
 
-  // Pasek (i dymek nad nim) zasłaniałby dół strony — robimy mu miejsce.
+  // The bar (and the tip above it) would cover the bottom of the page — we make room for it.
   useEffect(() => {
     document.body.style.paddingBottom = liczba ? (showTip ? "12rem" : "6rem") : "";
     return () => {
@@ -131,7 +132,8 @@ export default function OrderListDialog({
     };
   }, [liczba, showTip]);
 
-  // Ściągawka: ekran nie gaśnie w czasie rozmowy (po powrocie do przeglądarki blokadę trzeba wziąć ponownie).
+  // Cheat sheet: the screen stays on during the call (after returning to the browser the lock has to be acquired
+  // again).
   useEffect(() => {
     if (!sciagawka || !("wakeLock" in navigator)) return;
     let lock: WakeLockSentinel | null = null;
@@ -169,12 +171,12 @@ export default function OrderListDialog({
       }
     } catch {}
   };
-  // link w treści wiadomości, nie w osobnym polu „url”: część aplikacji (Messenger, SMS) bierze tylko tekst
+  // the link goes in the message text, not in a separate „url” field: some apps (Messenger, SMS) take only the text
   const sendGroupLink = (who: string) =>
     send(`Zamawiamy razem — ${nazwa}`, `Zamawiamy razem w ${nazwa} — dopisz swoje dania: ${link(who)}`);
 
-  // Dolne „Wyślij”: link do dopisania dań (jak „Zamawiamy razem”) zamiast samego tekstu listy. Bez zapisanego imienia
-  // najpierw ekran „Razem”, żeby je podać; w starych propozycjach wyglądu (bez sluga) — tekst listy jak dawniej.
+  // Bottom „Wyślij”: a link for adding dishes (like „Zamawiamy razem”) instead of the plain list text. Without a saved
+  // name, the „Razem” screen first, to enter it; without a slug — the list text as before.
   const share = () => {
     if (!slug) return send(`Zamówienie — ${nazwa}`, text());
     const who = readName();
@@ -182,7 +184,8 @@ export default function OrderListDialog({
     openGroup();
   };
 
-  // Obrazek kodu QR do schowka (wklejenie w czacie); gdy telefon nie przyjmuje obrazków w schowku — plik PNG.
+  // The QR code image to the clipboard (to paste in a chat); when the phone does not accept images in the clipboard — a
+  // PNG file.
   const [kodQr, setKodQr] = useState("");
   const copyQrCode = async () => {
     const address = URL.createObjectURL(new Blob([renderSVG(groupLink, { border: 2 })], { type: "image/svg+xml" }));
@@ -206,7 +209,7 @@ export default function OrderListDialog({
       setTimeout(() => setKodQr(""), 2500);
     };
     try {
-      // Safari chce dostać obietnicę od razu, jeszcze w tym samym kliknięciu
+      // Safari wants the promise right away, still within the same click
       await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
       show("Kod skopiowany — wklej go w wiadomości");
     } catch {
@@ -264,7 +267,7 @@ export default function OrderListDialog({
                 <span className="mt-1 flex items-center gap-1.5 text-sm font-extrabold text-akcent-tekst">
                   <Users className="size-4" aria-hidden /> Kod QR albo link
                 </span>
-                {/* ogonek dymka w stronę paska */}
+                {/* the tip's tail pointing at the bar */}
                 <span aria-hidden className="absolute -bottom-[11px] left-10 size-5 rotate-45 border-r-[2.5px] border-b-[2.5px] border-tekst bg-karta" />
               </button>
               <button
@@ -318,7 +321,7 @@ export default function OrderListDialog({
               <ClipboardList className="size-5 text-akcent-tekst" aria-hidden /> Twoja lista
             </h2>
           )}
-          {/* w nagłówku, nie w stopce: na małych telefonach (iPhone mini) stopka z trzema rzędami zjadała pół okna */}
+          {/* in the header, not the footer: on small phones (iPhone mini) a footer with three rows of buttons took half the dialog */}
           {!sciagawka && !razemOtwarte && slug && (
             <button
               type="button"
@@ -339,8 +342,9 @@ export default function OrderListDialog({
         </div>
 
         {sciagawka ? (
-          // flex-auto, nie flex-1: Safari na iPhonie liczy „rozciągnij od zera” dosłownie i okno bez wysokości ściskało
-          // środek do zera (widać było sam nagłówek i przycisk); od wysokości treści i kurczenie do ekranu działa wszędzie
+          // flex-auto, not flex-1: Safari on iPhone takes „grow from zero” literally, and a dialog without a height
+          // squeezed the middle to nothing (only the header and the button were visible); starting from the content
+          // height and shrinking to the screen works everywhere
           <div className="min-h-0 flex-auto overflow-y-auto px-5 py-6">
             <p className="text-sm font-extrabold text-tekst-2 uppercase">Zamawiasz w: {nazwa}</p>
             <ul className="mt-4 space-y-3">
@@ -380,11 +384,11 @@ export default function OrderListDialog({
             </label>
             {groupLink ? (
               <>
-                {/* SVG z biblioteki uqr — same kwadraty kodu, bez tekstu z zewnątrz */}
+                {/* SVG from the uqr library — just the code's squares, no external text */}
                 <div
                   role="img"
                   aria-label="Kod QR z listą do zamówienia"
-                  // na niskich ekranach mniejszy, żeby cały był widać nad przyciskiem „Wyślij link”
+                  // smaller on short screens, so the whole code is visible above the „Wyślij link” button
                   className="mx-auto mt-4 w-[min(15rem,30dvh)] max-w-full rounded-2xl bg-white p-2 shadow-sm"
                   dangerouslySetInnerHTML={{ __html: renderSVG(groupLink, { border: 1 }) }}
                 />

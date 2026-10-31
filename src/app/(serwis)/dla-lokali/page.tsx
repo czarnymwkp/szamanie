@@ -53,7 +53,7 @@ const PACKAGES: { ikona: ReactNode; nazwa: string; opis: string; wkrotce?: boole
 const bigButton =
   "m-reczna-ramka inline-flex h-14 items-center justify-center gap-2 border-[2.5px] border-tekst px-6 text-lg font-black shadow-[4px_4px_0_#1d1b19] transition active:translate-y-0.5 active:shadow-none";
 
-/** Oferta dla lokali w wyglądzie „Szkicownik”: karteczki z pakietami, notatki i odręczne dopiski. */
+/** Offer for venues in the „Sketchbook” look: sticky notes with packages, notes and handwritten remarks. */
 export default function ForVenues() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-6">

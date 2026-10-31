@@ -5,18 +5,17 @@ import { loadSeedData } from "./seed.mjs";
 import { MIGRATIONS, SCHEMA } from "./schema.mjs";
 
 /**
- * Otwiera bazę SQLite, zakłada brakujące tabele i wykonuje zaległe migracje. Pustą bazę (bez lokali) wypełnia
- * danymi startowymi z repozytorium.
- * Ścieżka: zmienna SZAMANIE_DB albo data/szamanie.db względem katalogu projektu.
+ * Opens the SQLite database, creates missing tables and runs pending migrations. An empty database (no venues) is filled with seed data from the repository.
+ * Path: the SZAMANIE_DB variable or data/szamanie.db relative to the project directory.
  * @returns {DatabaseSync}
  */
 export function openDatabase(path = process.env.SZAMANIE_DB ?? "data/szamanie.db") {
-  // turbopackIgnore: ścieżka bazy jest znana dopiero w czasie działania, nie wolno jej śledzić przy buildzie
+  // turbopackIgnore: the database path is known only at runtime and must not be traced during the build
   const full = resolve(/* turbopackIgnore: true */ path);
   mkdirSync(dirname(full), { recursive: true });
   const db = new DatabaseSync(full);
-  // busy_timeout najpierw: przełączenie świeżej kopii bazy na WAL wymaga wyłącznej blokady, a przy buildzie
-  // bazę otwiera naraz kilka procesów — bez czekania dostają „database is locked”.
+  // busy_timeout first: switching a fresh copy of the database to WAL needs an exclusive lock, and during the build
+  // several processes open the database at once — without waiting they get „database is locked”.
   db.exec("PRAGMA busy_timeout = 5000; PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
   db.exec(SCHEMA);
 

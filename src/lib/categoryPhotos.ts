@@ -1,6 +1,6 @@
-// Zdjęcia poglądowe jedzenia dla kategorii — pokazywane, dopóki lokal nie ma własnych zdjęć.
-// Pliki w public/zdjecia/kategorie/. Źródła i licencje są wypisane na stronie /autorzy-zdjec.
-// Kategoria bez wpisu tutaj pokazuje kolorowy baner z ikoną.
+// Illustrative food photos per category — shown until a venue has its own photos. Files in public/zdjecia/kategorie/.
+// Sources and licenses are listed on the /autorzy-zdjec page. A category without an entry here shows a colored banner
+// with an icon.
 
 export type PhotoKey =
   | "pizza"
@@ -19,8 +19,8 @@ export type PhotoKey =
 
 export type CategoryPhoto = {
   plik: string;
-  opis: string; // co widać na zdjęciu (strona z autorami)
-  pozycja: string; // object-position — co ma zostać widoczne przy wąskim kadrze
+  opis: string; // what the photo shows (credits page)
+  pozycja: string; // object-position — what must stay visible in a narrow crop
   autor: string;
   licencja: string;
   zrodlo: string;

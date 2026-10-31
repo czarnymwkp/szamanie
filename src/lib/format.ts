@@ -55,7 +55,7 @@ const CUISINES: Record<string, string> = {
   international: "Międzynarodowa",
 };
 
-/** Kuchnie odgadnięte z nazwy, gdy w OSM brak tagu cuisine — „Pizzeria Parkowa” → pizza. */
+/** Cuisines guessed from the name when OSM has no cuisine tag — „Pizzeria Parkowa” → pizza. */
 export function cuisinesFromName(name: string): string[] {
   const n = name.toLowerCase();
   const result: string[] = [];
@@ -109,7 +109,7 @@ export const CATEGORIES: { id: string; nazwa: string; ikona: IconKey; pasuje: (l
   { id: "puby", nazwa: "Puby i bary", ikona: "piwo", pasuje: (l) => l.typ === "pub" || l.typ === "bar" },
 ];
 
-/** odmiana(5, ["lokal", "lokale", "lokali"]) → "lokali" */
+/** plural(5, ["lokal", "lokale", "lokali"]) → "lokali" */
 export function plural(n: number, [jeden, kilka, wiele]: [string, string, string]) {
   if (n === 1) return jeden;
   const d = n % 10;
@@ -120,7 +120,7 @@ export function plural(n: number, [jeden, kilka, wiele]: [string, string, string
 /** ileLokali(3) → "3 lokale" */
 export const venueCount = (n: number) => `${n} ${plural(n, ["lokal", "lokale", "lokali"])}`;
 
-/** jestLokali(3) → "są 3 lokale", jestLokali(10) → "jest 10 lokali" */
+/** venuesFound(3) → "są 3 lokale", venuesFound(10) → "jest 10 lokali" */
 export const venuesFound = (n: number) => `${plural(n, ["jest", "są", "jest"])} ${venueCount(n)}`;
 
 export const phoneUrl = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;

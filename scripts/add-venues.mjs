@@ -1,21 +1,19 @@
-// Dodaje lokale, których nie ma w OpenStreetMap (np. w Urzędowie OSM ma tylko punkt bez nazwy), z pliku
-// dane/lokale-spoza-osm.txt. Lokal dostaje osm_id = NULL i reczna_edycja = 1, więc import z OSM go nie rusza.
-// Ponowne uruchomienie aktualizuje lokale z pliku (po slugu), niczego nie kasuje.
-// Użycie: npm run dodaj
+// Adds venues that are missing from OpenStreetMap (e.g. in Urzędów OSM has only a nameless point) from dane/lokale-spoza-osm.txt. A venue gets osm_id = NULL and reczna_edycja = 1, so the OSM import leaves it alone. Running it again updates venues from the file (by slug) and never deletes anything.
+// Usage: npm run add-venues
 //
-// Format pliku (puste linie i linie od „# ” są pomijane), lokal za lokalem:
+// File format (empty lines and lines starting with „# ” are skipped), one venue after another:
 //   == Mały Bar PIZZA ==
 //   typ: fast_food                    restaurant, fast_food, cafe, pub, bar, ice_cream
-//   kuchnie: pizza, kebab, burger     jak w OSM (cuisine)
-//   gmina: gm. Urzędów                jak w bazie: „Kraśnik” (miasto) albo „gm. …”
-//   miejscowość: Urzędów
+// kuchnie: pizza, kebab, burger     as in OSM (cuisine)
+// gmina: gm. Urzędów                 as in the database: „Kraśnik” (town) or „gm. …”
+// miejscowość: Urzędów
 //   adres: Rynek 9
-//   współrzędne: 50.99334, 22.14287
+// współrzędne: 50.99334, 22.14287
 //   telefon / www / facebook / e-mail / menu: …
-//   godziny: Tu-Su 10:00-23:00        format opening_hours z OSM
-//   dostawa: tak / na wynos: tak
+// godziny: Tu-Su 10:00-23:00         opening_hours format from OSM
+// dostawa: tak / na wynos: tak
 //   opis: …
-//   źródło: https://…                 skąd są dane (tylko do wglądu, nie trafia do bazy)
+// źródło: https://… where the data comes from (reference only, not stored)
 import { readFileSync } from "node:fs";
 import { openDatabase } from "../src/lib/db/open.mjs";
 import { slugify } from "../src/lib/slug.mjs";

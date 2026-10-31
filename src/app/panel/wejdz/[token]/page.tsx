@@ -7,11 +7,11 @@ import { enterWithLink } from "../../actions";
 
 export const metadata: Metadata = { title: "Wejście do panelu" };
 
-// strona zależy od linku i ciasteczka — czeka na serwer (jak cały panel)
+// the page depends on the link and the cookie — it waits for the server (like the whole panel)
 export const instant = false;
 
-// Link z SMS-a otwiera tę stronę, a sesję zakłada dopiero przycisk (POST). Podglądy linków w komunikatorach
-// i skanery poczty pobierają stronę, ale nie klikają, więc nie dostają sesji.
+// A link from an SMS opens this page, and only the button (POST) starts the session. Link previews in messengers and
+// mail scanners fetch the page but do not click, so they never get a session.
 export default async function LinkEntry({ params }: PageProps<"/panel/wejdz/[token]">) {
   const { token } = await params;
   const account = accountByLink(token);

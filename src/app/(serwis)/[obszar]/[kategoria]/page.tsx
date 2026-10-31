@@ -32,9 +32,10 @@ import {
   type Area,
 } from "@/lib/seo";
 
-// Strona „Pizza w Kraśniku” — pod wyszukiwanie „pizza Kraśnik”: lista lokali z kategorii i odpowiedzi na pytania.
+// „Pizza w Kraśniku” page — for searches like „pizza Kraśnik”: the venues of a category and answers to common
+// questions.
 
-// Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
+// The whole page is static: an unknown URL waits for the result instead of a 200 skeleton, so it gets a real 404.
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
@@ -42,7 +43,7 @@ export async function generateStaticParams() {
   const pages = areasWithPage(venues).flatMap((o) =>
     categoriesWithPage(venues, o).map((k) => ({ obszar: o.slug, kategoria: k.slug })),
   );
-  // Cache Components wymaga co najmniej jednego parametru; „brak” → 404.
+  // Cache Components needs at least one parameter; „brak” → 404.
   return pages.length ? pages : [{ obszar: "brak", kategoria: "brak" }];
 }
 
@@ -62,7 +63,7 @@ export async function generateMetadata({ params }: PageProps<"/[obszar]/[kategor
   const names = w.slice(0, 3).map((l) => l.nazwa);
   const withPrices = dania.some((d) => w.some((l) => l.id === d.lokalId));
   const count = kategoria.liczba ? `${w.length} ${plural(w.length, kategoria.liczba)}` : ileLokali(w.length);
-  // „dowóz” w tytule, gdy któryś lokal dowozi — ludzie szukają „pizza Kraśnik dowóz”
+  // „dowóz” in the title when some venue delivers — people search for „pizza Kraśnik dowóz”
   const delivers = kategoria.dowoz && w.some((l) => l.dostawa);
   const what = [withPrices ? "ceny" : "godziny", delivers ? "dowóz" : withPrices ? "godziny" : "telefony"];
   return {
@@ -149,7 +150,7 @@ function questions(
   area: Area,
   category: SeoCategory,
   venues: Venue[],
-  hasDelivery: boolean, // czy obszar ma stronę /<obszar>/dowoz
+  hasDelivery: boolean, // whether the area has a /<area>/dowoz page
 ): Question[] {
   const title = `${category.nazwa} ${area.w}`;
   const result: Question[] = [

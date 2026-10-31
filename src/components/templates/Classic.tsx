@@ -49,7 +49,7 @@ const pill = "inline-flex items-center gap-1.5 rounded-full bg-krem px-3 py-1.5 
 
 const delivers = "inline-flex items-center gap-1.5 rounded-full bg-akcent px-3 py-1.5 text-na-akcencie";
 
-/** „Dostawa od 3 zł”, a gdy lokal nie podał cen — „Dostawa: cena u lokalu”. */
+/** „Dostawa od 3 zł”, and when the venue gave no prices — „Dostawa: cena u lokalu”. */
 export function deliveryDescription(delivery: Delivery) {
   const prices = delivery.strefy.map((s) => s.cenaGr).filter((c) => c !== null);
   if (!prices.length) return "Dostawa: cena u lokalu";
@@ -57,7 +57,10 @@ export function deliveryDescription(delivery: Delivery) {
   return min ? `Dostawa od ${formatPln(min)}` : "Dostawa gratis w części miejscowości";
 }
 
-/** Zmienne CSS motywu lokalu na <article>: kolory tokenów i kroje (nagłówki przez --naglowek-lokalu i font-grotesk). */
+/**
+ * CSS variables of the venue theme on <article>: token colors and fonts (headings via --naglowek-lokalu and
+ * font-grotesk).
+ */
 function themeStyle(m: PageTheme | null) {
   if (!m) return { className: "", style: undefined };
   const style: Record<string, string> = {};
@@ -83,7 +86,7 @@ function themeStyle(m: PageTheme | null) {
   return { className: classes.join(" "), style: style as CSSProperties };
 }
 
-/** Domyślny wygląd strony lokalu. Kolejne szablony (wybierane w abonamencie) mają ten sam interfejs. */
+/** Default look of a venue page. Further templates (chosen in a subscription) have the same interface. */
 export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; powrot?: string }) {
   const [menu, dostawa, promocje] = await Promise.all([
     getMenu(lokal.id),
@@ -96,7 +99,7 @@ export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; p
   const map = mapUrl(lokal);
   const theme = pageTheme(lokal.slug);
   const { className: krojeMotywu, style: stylStrony } = themeStyle(theme);
-  // Krój nagłówków z motywu lokalu; bez motywu nagłówki zostają w kroju strony.
+  // Heading font from the venue theme; without a theme headings keep the site font.
   const heading = theme?.kroje ? "font-[family-name:var(--naglowek-lokalu)]" : "";
 
   return (
@@ -144,8 +147,7 @@ export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; p
       <div className="mx-auto max-w-5xl px-5">
         {lokal.promowany && <PromoLabel className={`${theme?.baner ? "mt-2" : "mt-5"} animate-wjazd`} />}
 
-        {/* Telefon: nagłówek → menu → adres → godziny → reszta. Komputer: nagłówek | godziny, pod spodem menu
-            na całą szerokość, na dole adres | dostawa i usługi. */}
+        {/* Phone: header → menu → address → hours → the rest. Computer: header | hours, the menu full width below, address | delivery and services at the bottom. */}
         <div className={`${theme?.baner ? "mt-2" : "mt-5"} flex flex-col lg:grid lg:grid-cols-[1fr_340px] lg:gap-x-10`}>
           <div className="min-w-0 lg:col-start-1 lg:row-start-1">
             {!theme?.baner && (
@@ -159,9 +161,9 @@ export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; p
             <OpeningStatus godziny={lokal.godziny} className="mt-2 animate-wjazd [animation-delay:160ms]" />
             {(menu || lokal.dostawa) && (
               <p className="mt-3 flex animate-wjazd flex-wrap gap-2 text-sm font-extrabold [animation-delay:180ms]">
-                {/* dowóz na samej górze i w kolorze akcentu — przy zamawianiu to pierwsze pytanie */}
+                {/* delivery at the very top and in the accent color — it is the first question when ordering */}
                 {dostawa ? (
-                  // Na telefonie karta dostawy jest dopiero pod menu — stąd skrót do niej.
+                  // On a phone the delivery card is only below the menu — hence the shortcut to it.
                   <a href="#dostawa" className={delivers}>
                     <Truck className="size-4" aria-hidden /> {deliveryDescription(dostawa)}
                   </a>
@@ -181,7 +183,7 @@ export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; p
               </p>
             )}
             {badges.length > 0 && (
-              // zwierzęta, niepełnosprawni, wege — ważne przy wyborze lokalu, więc od razu pod nazwą
+              // pets, accessibility, vegetarian — important when choosing a venue, so right below the name
               <ul
                 aria-label="Przyjazny dla"
                 className="mt-3 flex animate-wjazd flex-wrap gap-2 [animation-delay:190ms]"
@@ -208,7 +210,7 @@ export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; p
               <DirectionsButton lokal={lokal} className={button("bg-tekst text-tlo")}>
                 <Navigation className="size-5" aria-hidden /> Prowadź
               </DirectionsButton>
-              {/* gwiazdki i opinie zostają w Google — zwykły link do Map, bez klucza i bez kopiowania danych */}
+              {/* stars and reviews stay in Google — a plain link to Maps, no API key and no copied data */}
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lokal.nazwa}, ${fullAddress(lokal)}`)}`}
                 target="_blank"
@@ -382,7 +384,7 @@ export default async function Classic({ lokal, powrot = "/" }: { lokal: Venue; p
   );
 }
 
-/** Strefy dostawy: miejscowość → cena i minimalne zamówienie (pierwsze widać od razu, resztę po rozwinięciu). */
+/** Delivery zones: town → price and minimum order (the first one visible right away, the rest after expanding). */
 export function DeliveryCard({ dostawa }: { dostawa: Delivery }) {
   const INITIAL = 6;
   const row = (s: Delivery["strefy"][number]) => (

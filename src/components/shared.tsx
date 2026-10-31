@@ -2,9 +2,7 @@ import type { Venue, Town } from "@/lib/venues";
 import type { Delivery, Menu } from "@/lib/menu";
 import type { FooterLink } from "./site/FooterContent";
 
-// Druga seria propozycji (27.10): cały wygląd na telefon — strona główna i strona lokalu.
-// Każda ma inne tło „z prześwitem”, inny układ i inne animacje. Wspólne: dane, lista do zamówienia,
-// miejsce na banery reklamowe pod wyszukiwarką i listek „Wege”.
+// Shared helpers of the mobile design proposals (27.10).
 
 export type HomeProps = { lokale: Venue[]; miejscowosci: Town[]; nr: number; linki: FooterLink[] };
 export type VenueProps = { lokal: Venue; menu: Menu | null; dostawa: Delivery | null; nr: number; linki: FooterLink[] };
@@ -32,9 +30,9 @@ export const MOBILE_PROPOSALS = [
   { nr: 20, nazwa: "Kino", opis: "„Teraz grane” to otwarte lokale, lokale jak plakaty filmowe, menu jako repertuar, reflektory w tle." },
 ] as const;
 
-/** Lokal z najdłuższym menu — na nim pokazujemy stronę lokalu. */
+/** The venue with the longest menu — the venue page is shown on it. */
 export const SAMPLE_VENUE = "musicaffe-krasnik";
-/** Do podglądu na liście propozycji: różne kuchnie i długości menu. */
+/** For the preview on the proposals list: different cuisines and menu lengths. */
 export const PREVIEW_VENUES = [
   { slug: "musicaffe-krasnik", nazwa: "MusiCaffe" },
   { slug: "burger-pizza-krasnik", nazwa: "Burger&Pizza" },
@@ -46,7 +44,7 @@ export const PREVIEW_VENUES = [
 export const venueUrl = (nr: number) => `/propozycje/m/${nr}`;
 export const venueHref = (nr: number, slug: string) => `/propozycje/m/${nr}/lokal/${slug}`;
 
-/** Stałe losowanie (to samo na serwerze i w przeglądarce) do rozrzucania ozdób tła. */
+/** Seeded random numbers (the same on the server and in the browser) for scattering background decorations. */
 export function seededRandom(seed: number) {
   let s = seed;
   return () => {

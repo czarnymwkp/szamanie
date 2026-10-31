@@ -1,6 +1,6 @@
 const POLISH_CHARS = { ą: "a", ć: "c", ę: "e", ł: "l", ń: "n", ó: "o", ś: "s", ź: "z", ż: "z" };
 
-/** „Żurek z JAJKIEM” → „zurek z jajkiem” — do wyszukiwania bez polskich znaków. */
+/** „Żurek z JAJKIEM” → „zurek z jajkiem” — for search without Polish characters. */
 export function stripPolish(text) {
   return text
     .toLowerCase()

@@ -12,8 +12,8 @@ import Tricolor from "../templates/Tricolor";
 import OrderListDialog from "./OrderListDialog";
 import { itemKey, useOrderList, type VenueOrderList, type ListItem } from "./useOrderList";
 
-// Pełne pigułki w kolorach tokenów: kontrast ≥ 4,9:1 i w jasnym, i w ciemnym motywie lokalu
-// (półprzezroczyste tło z kolorowym tekstem nie przechodziło 4,5:1 na kremowym tle).
+// Solid pills in token colors: contrast ≥ 4.9:1 in both the light and the dark venue theme (a translucent background
+// with colored text did not reach 4.5:1 on the cream background).
 const FEATURES: Record<DishFeature, { nazwa: string; ikona: typeof Leaf; kolor: string }> = {
   wege: { nazwa: "Wege", ikona: Leaf, kolor: "bg-otwarte text-karta" },
   ostre: { nazwa: "Ostre", ikona: Flame, kolor: "bg-zamkniete text-karta" },
@@ -21,11 +21,11 @@ const FEATURES: Record<DishFeature, { nazwa: string; ikona: typeof Leaf; kolor: 
   sezonowe: { nazwa: "Sezonowe", ikona: Sun, kolor: "bg-akcent-tekst text-karta" },
 };
 
-// Drobne napisy wersalikami krojem etykiet motywu (--etykiety-lokalu); bez niego zostaje krój tekstu.
+// Small uppercase labels in the theme's label font (--etykiety-lokalu); without it the body font is used.
 const LABEL = "font-[family-name:var(--etykiety-lokalu)] font-medium uppercase";
 
-// Na komputerze menu startuje rozwinięte, na telefonie zwinięte do kafelków kategorii (mniej przewijania).
-// Domyślny stan robi CSS (lg:), więc nic nie mruga przy wczytaniu; JS zna go tylko do aria-expanded i przełączania.
+// On a computer the menu starts expanded, on a phone collapsed to category tiles (less scrolling). The default state
+// comes from CSS (lg:), so nothing flickers on load; JS knows it only for aria-expanded and toggling.
 const DESKTOP = "(min-width: 1024px)";
 
 function useDesktop() {
@@ -41,8 +41,8 @@ function useDesktop() {
 }
 
 /**
- * Menu lokalu z przyciskami „+”: dania trafiają na listę, z której potem zamawia się przez telefon.
- * Działy to kafelki ze zdjęciem kategorii — dotknięcie rozwija albo zwija dział.
+ * Venue menu with „+” buttons: dishes go onto the list people then order from by phone. Sections are tiles with a
+ * category photo — a tap expands or collapses the section.
  */
 export default function VenueMenu({
   menu,
@@ -60,13 +60,13 @@ export default function VenueMenu({
   slug: string;
   nazwa: string;
   telefon: string | null;
-  numerowane?: boolean; // pozycje z numerami i kropkami do ceny (motyw lokalu)
-  belki?: boolean; // działy na czarnych belkach, ceny na etykietach (motyw lokalu)
-  karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
-  spis?: "wersaliki" | "tablica" | "srodek" | "kropki"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
+  numerowane?: boolean; // items with numbers and dot leaders to the price (venue theme)
+  belki?: boolean; // sections on black bars, prices on labels (venue theme)
+  karty?: boolean; // dishes on cards in a grid, prices on pills in the label font (venue theme)
+  spis?: "wersaliki" | "tablica" | "srodek" | "kropki"; // like a list on the venue's own menu card, price on the right (venue theme, see menuSpis)
 }) {
   const l = useOrderList(slug);
-  // klucz pozycji → nazwa, wariant i cena: lista z linku „Zamawiamy razem” ma same klucze
+  // item key → name, variant and price: a list from a „Zamawiamy razem” link has keys only
   const dishes = useMemo(() => {
     const m = new Map<string, Omit<ListItem, "ilosc" | "kto">>();
     for (const p of menu.sekcje.flatMap((s) => s.pozycje)) {
@@ -84,7 +84,7 @@ export default function VenueMenu({
   }, [menu]);
   const [szukaj, setSzukaj] = useState("");
   const desktop = useDesktop();
-  // Działy, które ktoś sam rozwinął (true) albo zwinął (false); reszta ma stan domyślny dla ekranu.
+  // Sections someone expanded (true) or collapsed (false) by hand; the rest have the default state for the screen.
   const [wybor, setWybor] = useState<ReadonlyMap<string, boolean>>(() => new Map());
   const phrase = stripPolish(szukaj.trim());
   const sections = phrase
@@ -160,7 +160,7 @@ export default function VenueMenu({
             belki={belki}
             karty={karty}
             spis={spis}
-            // przy szukaniu pokazujemy od razu wszystkie trafienia
+            // while searching, all matches are shown right away
             stan={phrase ? true : wybor.get(s.nazwa)}
             desktop={desktop}
             przelacz={(expanded) => toggle(s.nazwa, expanded)}
@@ -175,7 +175,7 @@ export default function VenueMenu({
       )}
 
       {menu.zrodlo === "panel" ? (
-        // menu prowadzi sam lokal w panelu
+        // the venue runs its menu in the panel
         <p className="mt-6 text-xs font-semibold text-tekst-2">
           Menu i ceny podaje lokal. Ceny mogą się zmienić — lokal potwierdza je przy zamówieniu. Zdjęcia działów są
           poglądowe.
@@ -199,7 +199,7 @@ export default function VenueMenu({
   );
 }
 
-/** Ile sztuk z działu jest już na liście (wszystkie warianty). */
+/** How many portions from a section are already on the list (all variants). */
 function countInSection(s: MenuSectionData, l: VenueOrderList) {
   return s.pozycje.reduce(
     (sum, p) =>
@@ -211,7 +211,7 @@ function countInSection(s: MenuSectionData, l: VenueOrderList) {
   );
 }
 
-/** Dział menu: kafelek ze zdjęciem kategorii, a po rozwinięciu — lista dań (bez zdjęć). */
+/** Menu section: a tile with a category photo, and once expanded — the list of dishes (without photos). */
 function MenuSection({
   s,
   l,
@@ -230,18 +230,19 @@ function MenuSection({
   belki: boolean;
   karty: boolean;
   spis: "wersaliki" | "tablica" | "srodek" | "kropki" | undefined;
-  stan: boolean | undefined; // undefined = domyślny dla ekranu
+  stan: boolean | undefined; // undefined = the default for the screen
   desktop: boolean;
   przelacz: (expanded: boolean) => void;
   pierwszy: boolean;
 }) {
   const expanded = stan ?? desktop;
-  // Klasy dla: zwiniętego, rozwiniętego i stanu domyślnego (telefon zwinięty, od lg rozwinięty).
+  // Classes for: collapsed, expanded and the default state (collapsed on a phone, expanded from lg).
   const classes = (collapsed: string, isExpanded: string, defaultValue: string) =>
     stan === undefined ? defaultValue : stan ? isExpanded : collapsed;
   const ref = useRef<HTMLElement>(null);
-  // Zdjęcie kafelka działu: pierwszy od razu, dalsze dopiero ok. 300 px przed ekranem — leniwe ładowanie przeglądarki
-  // pobierało wszystkie naraz (Parkowa: 12 zdjęć przy wejściu). Do tego czasu ciemne tło kafelka.
+  // Section tile photo: the first one right away, the rest only about 300 px before they reach the screen — the
+  // browser's lazy loading fetched all of them at once (Parkowa: 12 photos on entry). Until then the tile has a dark
+  // background.
   const [zdjecie, setZdjecie] = useState(pierwszy);
   useEffect(() => {
     const el = ref.current;
@@ -267,8 +268,8 @@ function MenuSection({
     const el = ref.current;
     if (el) {
       const top = el.getBoundingClientRect().top;
-      // Zwijany dział, w którym jesteśmy głęboko → wracamy do jego kafelka, żeby nie zgubić miejsca.
-      // Rozwijany kafelek nisko na ekranie → podjeżdża do góry, żeby było widać dania.
+      // Collapsing a section we are deep inside → scroll back to its tile, so we do not lose our place. Expanding a
+      // tile low on the screen → it moves up, so the dishes are visible.
       if ((expanded && top < 0) || (!expanded && top > window.innerHeight * 0.55)) {
         window.scrollBy({ top: top - 80, behavior: "smooth" });
       }
@@ -288,16 +289,16 @@ function MenuSection({
             belki
               ? `bg-tekst text-tlo ${classes("h-16", "h-14", "h-16 lg:h-14")}`
               : karty
-                ? // jak pigułki działów na stronie lokalu: zwinięty biały z ramką, rozwinięty w kolorze akcentu
+                ? // like the section pills on the venue's site: collapsed white with a border, expanded in the accent color
                   `h-16 rounded-full border ${classes(
                     "border-obrys bg-karta text-tekst",
                     "border-akcent bg-akcent text-na-akcencie",
                     "border-obrys bg-karta text-tekst lg:border-akcent lg:bg-akcent lg:text-na-akcencie",
                   )}`
                 : spis
-                  ? // jak dział w karcie lokalu: sam podkreślony tytuł; tło strony, bo przyklejony zasłania dania
-                    // tablica: ta sama kreda co tło strony, żeby przyklejony nagłówek nie był płaskim prostokątem
-                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : // kropki: przydymione szkło zamiast drugiego kawałka marmuru (inny wzór żyłek tworzył prostokąt)
+                  ? // like a section on the venue's menu card: just an underlined title; page background, because when sticky it covers the dishes
+                    // chalkboard: the same chalk as the page background, so the sticky header is not a flat rectangle
+                    `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : // dots: frosted glass instead of a second piece of marble (a different vein pattern made a visible rectangle)
                     spis === "kropki" ? "h-20 bg-tlo/80! backdrop-blur-sm" : spis === "srodek" ? "h-16" : "h-14"}`
                   : `rounded-2xl shadow-sm ${classes("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
@@ -309,7 +310,8 @@ function MenuSection({
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 640px, 100vw"
-                // pierwszy kafelek bywa największym elementem ekranu (LCP) — od razu; reszta leniwie, przy przewijaniu
+                // the first tile is often the largest element on screen (LCP) — loaded right away; the rest lazily,
+                // while scrolling
                 preload={pierwszy}
                 className="object-cover"
                 style={{ objectPosition: s.okladka.pozycja }}
@@ -317,7 +319,7 @@ function MenuSection({
               <span className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15" />
             </>
           )}
-          {/* srodek: lewy odstęp jak strzałka po prawej, żeby nazwa stała na środku */}
+          {/* center: left padding equal to the arrow on the right, so the name stays centered */}
           <span className={`relative min-w-0 flex-1 ${karty ? "pl-6" : spis === "srodek" ? "pl-10 text-center" : spis ? "" : "pl-4"}`}>
             <span
               className={`block truncate leading-tight ${spis === "tablica" || spis === "srodek" || spis === "kropki" ? "" : "font-grotesk"} ${
@@ -326,14 +328,14 @@ function MenuSection({
                   : karty
                     ? "text-lg font-medium uppercase"
                     : spis === "tablica"
-                      ? // pismo odręczne + kreska w barwach Włoch; py: miejsce na laski liter, które `truncate` by obcięło
+                      ? // handwriting + a line in the Italian colors; py: room for letter stems that `truncate` would cut off
                         "py-1 font-[family-name:var(--ozdobny-lokalu)] text-[1.9rem] leading-tight"
                       : spis === "kropki"
                         ? "py-1 font-[family-name:var(--ozdobny-lokalu)] text-[1.9rem] leading-tight italic"
                       : spis === "srodek"
                         ? "font-[family-name:var(--ozdobny-lokalu)] text-base font-semibold tracking-[0.04em] uppercase sm:text-xl sm:tracking-[0.06em]"
                       : spis
-                        ? // pb: miejsce na podkreślenie, które `truncate` (overflow: hidden) inaczej by obcięło
+                        ? // pb: room for the underline that `truncate` (overflow: hidden) would otherwise cut off
                           "pb-2 text-xl font-bold tracking-[0.18em] uppercase underline decoration-2 underline-offset-[6px]"
                       : "text-xl font-bold"
               }`}
@@ -363,7 +365,7 @@ function MenuSection({
           />
         </button>
       </h3>
-      {/* zwinięta treść jest niewidoczna (visibility), więc nie łapie fokusu; visibility przełącza się po animacji */}
+      {/* collapsed content is invisible (visibility), so it does not take focus; visibility switches after the animation */}
       <div
         id={contentId}
         className={`grid transition-[grid-template-rows,visibility] duration-300 ease-out ${classes(
@@ -374,7 +376,7 @@ function MenuSection({
       >
         <div className="min-h-0 overflow-hidden px-1">
           {s.opis && <p className="pt-3 text-sm font-semibold text-tekst-2">{s.opis}</p>}
-          {/* na komputerze menu ma całą szerokość strony — dania w dwóch kolumnach */}
+          {/* on a computer the menu has the full page width — dishes in two columns */}
           {karty ? (
             <ul className="grid gap-3 pt-3 pb-3 sm:grid-cols-2 lg:grid-cols-3">
               {s.pozycje.map((p) => (
@@ -421,7 +423,7 @@ function MenuRow({
   const priceText = price ? formatPln(price.gr) : <span className="font-bold text-tekst-2">cena w lokalu</span>;
 
   return (
-    // linia na <li>, podświetlenie na środku — zaokrąglone tło nie zagina linii
+    // the line is on the <li>, the highlight in the middle — a rounded background does not bend the line
     <li className="border-b border-obrys">
       <div
         className={`-mx-3 flex items-start gap-3 rounded-2xl px-3 py-3.5 transition-colors duration-300 ${onList ? "bg-akcent/[0.08]" : ""}`}
@@ -431,7 +433,7 @@ function MenuRow({
         )}
         <div className="min-w-0 flex-1">
           {belki ? (
-            // jak w karcie lokalu: „1. BURGER KLASYK” i cena na etykiecie tuż za nazwą
+            // as on the venue's menu card: „1. BURGER KLASYK” and the price on a label right after the name
             <h4 className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-grotesk text-lg leading-tight font-black uppercase">
                 {numer !== null && `${numer}. `}
@@ -444,7 +446,7 @@ function MenuRow({
               )}
             </h4>
           ) : numer !== null && singlePrice ? (
-            // jak w karcie lokalu: nazwa ······ cena
+            // as on the venue's menu card: name ······ price
             <h4 className="flex items-baseline gap-2">
               <span className="font-grotesk text-lg leading-snug font-bold">{p.nazwa}</span>
               <span aria-hidden className="mb-1 min-w-4 flex-1 border-b border-dotted border-obrys-2" />
@@ -488,7 +490,7 @@ function MenuRow({
   );
 }
 
-/** Przyciski wariantów dania („32 cm 38 zł +”) — każdy dodaje swój wariant do listy. */
+/** Dish variant buttons („32 cm 38 zł +”) — each adds its own variant to the list. */
 function Variants({ p, l, className = "" }: { p: MenuItem; l: VenueOrderList; className?: string }) {
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`}>
@@ -517,7 +519,9 @@ function Variants({ p, l, className = "" }: { p: MenuItem; l: VenueOrderList; cl
   );
 }
 
-/** Danie na karcie (motyw lokalu z `menuKarty`): nazwa wersalikami, skład, cena na pigułce i „+” w rogu. */
+/**
+ * Dish on a card (venue theme with `menuKarty`): uppercase name, ingredients, price on a pill and „+” in the corner.
+ */
 function DishCard({ p, l }: { p: MenuItem; l: VenueOrderList }) {
   const singlePrice = p.ceny.length <= 1;
   const price = p.ceny[0] ?? null;
@@ -537,7 +541,7 @@ function DishCard({ p, l }: { p: MenuItem; l: VenueOrderList }) {
           {p.cechy.map((c) => (
             <span
               key={c}
-              // „Polecane” jak „Danie dnia” u lokalu: pełna pigułka; reszta obrysowana
+              // „Polecane” like the venue's „Danie dnia”: a solid pill; the rest outlined
               className={`${LABEL} rounded-full px-2 py-0.5 text-[10.5px] tracking-[0.12em] ${
                 c === "polecane" ? "bg-akcent-tekst text-krem" : "border border-obrys-2 text-tekst-2"
               }`}
@@ -568,8 +572,10 @@ function DishCard({ p, l }: { p: MenuItem; l: VenueOrderList }) {
   );
 }
 
-/** Danie w karcie-spisie (motyw lokalu z `menuSpis`), cena po prawej. wersaliki: nazwa rozstrzelonymi wersalikami,
- *  cechy ikonkami, skład rozdzielony „|”; tablica: zwykła nazwa, „(vege)” na zielono, cena podkreślona. */
+/**
+ * Dish in a list-style menu (venue theme with `menuSpis`), price on the right. wersaliki: letter-spaced uppercase name,
+ * features as icons, ingredients separated by „|”; tablica: plain name, „(vege)” in green, underlined price.
+ */
 function ListStyleItem({
   p,
   l,
@@ -589,7 +595,7 @@ function ListStyleItem({
     : l.ilosc(key) > 0;
 
   if (styl === "srodek") {
-    // jak karta na stronie lokalu: wszystko na środku, składniki krojem etykiet po „•”, pod nimi cena i „+”
+    // as on the venue's menu card: everything centered, ingredients in the label font after „•”, price and „+” below
     return (
       <li className={`border-b border-obrys px-2 py-4 text-center transition-colors duration-300 ${onList ? "bg-krem" : ""}`}>
         <h4 className="font-grotesk text-[15px] leading-snug tracking-[0.02em]">
@@ -658,7 +664,7 @@ function ListStyleItem({
                 );
               })}
             </span>
-            {/* kropki: nazwa ······ cena, jak w karcie lokalu */}
+            {/* dots: name ······ price, as on the venue's menu card */}
             {dots && singlePrice && <span aria-hidden className="mb-1 min-w-4 flex-1 border-b-2 border-dotted border-tekst-2/60" />}
             {singlePrice && (
               <span

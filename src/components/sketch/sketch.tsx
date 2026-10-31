@@ -22,13 +22,13 @@ import {
 import { seededRandom } from "../shared";
 import "./sketch.css";
 
-// Wygląd serwisu „Szkicownik” (propozycja 3 z /propozycje/m, wybrana 29.10): papier w kropki, w tle rysowane ikony
-// jedzenia powoli płyną po skosie, lokale jak polaroidy przyklejone taśmą, odręczne dopiski krojem Caveat.
+// The „Sketchbook” look of the site (proposal 3, chosen 29.10): dotted paper, drawn food icons slowly drifting
+// diagonally in the background, venues as polaroids stuck on with tape, handwritten notes in the Caveat font.
 
-/** Odręczne dopiski (Caveat). */
+/** Handwritten notes (Caveat). */
 export const hand = Caveat({ weight: "700", subsets: ["latin", "latin-ext"] });
 
-/** Kolory papieru — nadpisują tokeny strony na elemencie, na którym je ustawimy. */
+/** Paper colors — override the page tokens on the element they are set on. */
 export const PAPER = {
   "--color-tlo": "#fffdf7",
   "--color-krem": "#f6eedf",
@@ -40,7 +40,7 @@ export const PAPER = {
 
 const ICONS = [Pizza, Coffee, Hamburger, Soup, IceCreamCone, Croissant, Cherry, Carrot, Salad, Fish, Wine, Beer, CakeSlice, Donut, Drumstick, Sandwich, CupSoda];
 const rand = seededRandom(11);
-// kafel wzoru 360×360: ikony w siatce 4×4 z rozrzutem i obrotem — powtarza się bez szwów
+// 360×360 pattern tile: icons in a 4×4 grid with jitter and rotation — repeats without seams
 const DRAWINGS = Array.from({ length: 16 }, (_, i) => ({
   Ikona: ICONS[i % ICONS.length],
   x: (i % 4) * 90 + 10 + rand() * 30,
@@ -49,7 +49,7 @@ const DRAWINGS = Array.from({ length: 16 }, (_, i) => ({
   rozmiar: 30 + Math.round(rand() * 16),
 }));
 
-/** Tło z rysowanymi ikonami jedzenia (rodzic: relative isolate). */
+/** Background with drawn food icons (parent: relative isolate). */
 export function SketchBackground() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 [clip-path:inset(0)]">
@@ -69,7 +69,7 @@ export function SketchBackground() {
   );
 }
 
-/** Odręczne podkreślenie, które „rysuje się” po wczytaniu. */
+/** Handwritten underline that „draws itself” after loading. */
 export function Underline({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden viewBox="0 0 300 24" preserveAspectRatio="none" className={`m-rysuj ${className}`}>
@@ -78,7 +78,7 @@ export function Underline({ className = "" }: { className?: string }) {
   );
 }
 
-/** Przycisk-pigułka w ręcznie rysowanej ramce (filtry, linki lokalu). */
+/** Pill button in a hand-drawn frame (filters, venue links). */
 export const chip = (isActive: boolean) =>
   `m-reczna-ramka flex h-10 shrink-0 items-center gap-1.5 border-2 border-tekst px-4 text-sm font-extrabold transition active:translate-y-0.5 ${
     isActive ? "bg-[#ffd36e] shadow-none" : "bg-white shadow-[3px_3px_0_#1d1b19]"

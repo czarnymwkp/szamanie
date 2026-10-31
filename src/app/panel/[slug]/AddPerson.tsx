@@ -8,7 +8,10 @@ import { ShowLink } from "../PanelLink";
 
 type Action = (state: PersonState, date: FormData) => Promise<PersonState>;
 
-/** Admin: dostęp do lokalu dla osoby z lokalu (po rozmowie, bez zgłoszenia) i od razu link do wysłania. */
+/**
+ * Admin: venue access for a person from the venue (after a conversation, without a claim) and a link to send right
+ * away.
+ */
 export default function AddPerson({ dodaj, nazwa }: { dodaj: Action; nazwa: string }) {
   const [stan, akcja, trwa] = useActionState(dodaj, {} satisfies PersonState);
 

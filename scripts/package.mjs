@@ -1,12 +1,12 @@
-// Ręczne przyznawanie płatnych pakietów, dopóki nie ma panelu i płatności.
-// Użycie:
-//   npm run pakiet -- <slug> <top|galeria> <liczba dni>   dodaje pakiet od dziś
-//   npm run pakiet -- lista                              pokazuje aktywne i przyszłe pakiety
+// Grants paid packages by hand until there is a panel and payments.
+// Usage:
+//   npm run package -- <slug> <top|galeria> <number of days>   adds a package starting today
+//   npm run package -- lista                                   shows active and future packages
 import { openDatabase } from "../src/lib/db/open.mjs";
 
 const [polecenie, rodzaj, dni] = process.argv.slice(2);
 const db = openDatabase();
-// Data lokalna (nie UTC), żeby pakiet kupiony o 0:30 nie zaczynał się „wczoraj”.
+// Local date (not UTC), so a package bought at 0:30 does not start „yesterday”.
 const day = (date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 

@@ -8,7 +8,7 @@ import VenueList from "./dodaj/VenueList";
 
 export const metadata: Metadata = { title: { absolute: "Twoje lokale · Panel lokalu" } };
 
-// strona zależy od konta i adresu — czeka na serwer (jak cały panel)
+// the page depends on the account and the URL — it waits for the server (like the whole panel)
 export const instant = false;
 
 export default async function PanelPage({ searchParams }: PageProps<"/panel">) {
@@ -114,7 +114,7 @@ export default async function PanelPage({ searchParams }: PageProps<"/panel">) {
   );
 }
 
-/** Panel bez sesji: jak dostać link do panelu (na razie zamiast logowania). */
+/** Panel without a session: how to get a panel link (instead of signing in, for now). */
 function EnterPage({ zgloszono, nieaktywny }: { zgloszono: boolean; nieaktywny: boolean }) {
   return (
     <div className="space-y-6">

@@ -1,11 +1,6 @@
-// Uzupełnia dane lokali z ich własnych stron www: telefon, e-mail, Facebook, Instagram, link do menu.
-// Wypełnia tylko puste pola (nie nadpisuje danych z OSM ani ręcznych poprawek).
-// Logo i zdjęcia zapisuje jako kandydatów (zdjecia.zatwierdzone = 0) w data/kandydaci/ — NIE są publikowane,
-// dopóki właściciel lokalu się nie zgodzi (prawa autorskie).
-// Grzecznie: sprawdzamy robots.txt, jedno zapytanie o stronę główną, przedstawiamy się w User-Agent.
-// Facebooka i Instagrama nie pobieramy (regulaminy zabraniają) — tylko zapisujemy linki.
-// Użycie: npm run dane:strony            (strony niesprawdzane od 30 dni)
-//         npm run dane:strony -- --wszystkie
+// Fills in venue data from the venues' own websites: phone, e-mail, Facebook, Instagram, menu link. Only empty fields are filled (OSM data and manual corrections are never overwritten). Logos and photos are stored as candidates (zdjecia.zatwierdzone = 0) in data/kandydaci/ — they are NOT published until the venue owner agrees (copyright). Politely: we check robots.txt, make one request for the home page and identify ourselves in the User-Agent. Facebook and Instagram are not fetched (their terms forbid it) — we only store the links.
+// Usage: npm run scrape:websites                (sites not checked for 30 days)
+//        npm run scrape:websites -- --wszystkie
 import { mkdirSync, writeFileSync } from "node:fs";
 import { openDatabase } from "../src/lib/db/open.mjs";
 
@@ -74,7 +69,7 @@ function phoneFromLink(href) {
   return digits.length === 9 || (digits.length === 11 && digits.startsWith("48")) ? number : null;
 }
 
-/** Wyciąga z HTML-a dane kontaktowe i adresy grafik. */
+/** Extracts contact details and image URLs from the HTML. */
 function analyze(html, database) {
   const result = { telefon: null, email: null, facebook: null, instagram: null, menu_url: null, logo: null, zdjecie: null };
 
@@ -90,7 +85,7 @@ function analyze(html, database) {
     }
   }
 
-  // Dane strukturalne (schema.org) — bywają dokładniejsze niż linki.
+  // Structured data (schema.org) — often more precise than links.
   for (const [, json] of html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const objects = [JSON.parse(json)].flat().flatMap((o) => (o["@graph"] ? o["@graph"] : [o]));
@@ -103,7 +98,7 @@ function analyze(html, database) {
         if (menu) result.menu_url ??= absolute(menu, database);
       }
     } catch {
-      // nieprawidłowy JSON-LD — pomijamy
+      // invalid JSON-LD — skipped
     }
   }
 
@@ -149,7 +144,7 @@ for (const venue of venues) {
   const host = new URL(address).hostname;
   const missing = { telefon: null, email: null, facebook: null, instagram: null, menu_url: null };
 
-  // Strona www wpisana jako profil FB/IG — nie pobieramy, tylko przenosimy link do właściwego pola.
+  // A website entered as an FB/IG profile — not fetched, the link just moves to the right field.
   if (/(^|\.)facebook\.com$/i.test(host) || /(^|\.)instagram\.com$/i.test(host)) {
     const fb = /facebook/i.test(host);
     fillIn.run({ ...missing, id: venue.id, facebook: fb ? address : null, instagram: fb ? null : address });

@@ -1,6 +1,5 @@
-# TODO: switch comments in this file to English.
-# Na serwerze: /opt/szamanie/app (kod, podmieniany przy każdym wdrożeniu), /opt/szamanie/data (baza — zostaje),
-# /opt/szamanie/.env (ustawienia). Uruchamia deploy/wdroz.sh; ręcznie: cd /opt/szamanie/app && docker compose -f deploy/docker-compose.yml up -d --build
+# On the server: /opt/szamanie/app (code, replaced on every deployment), /opt/szamanie/data (database — stays),
+# /opt/szamanie/.env (settings). Started by deploy/deploy.sh; by hand: cd /opt/szamanie/app && docker compose -f deploy/docker-compose.yml up -d --build
 name: szamanie
 
 services:
@@ -13,11 +12,11 @@ services:
         required: false
     volumes:
       - ../../data:/app/data
-    # tylko dla Caddy (sieć wewnętrzna) i do podglądu z samego serwera: curl localhost:3000
+    # only for Caddy (internal network) and for checks from the server itself: curl localhost:3000
     ports:
       - "127.0.0.1:3000:3000"
 
-  # HTTPS z automatycznym certyfikatem Let's Encrypt dla szamanie.pl (www → bez www)
+  # HTTPS with an automatic Let's Encrypt certificate for szamanie.pl (www → without www)
   caddy:
     image: caddy:2
     restart: unless-stopped

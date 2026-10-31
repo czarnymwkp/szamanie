@@ -15,7 +15,7 @@ import { sendLoginCode } from "@/lib/panel/mail";
 
 export type LoginState = { krok: "email" | "kod"; email: string; blad?: string; info?: string };
 
-/** Jeden formularz w dwóch krokach: „wyslij” — kod na e-mail, „zaloguj” — sprawdzenie kodu. */
+/** One form in two steps: „wyslij” — a code by e-mail, „zaloguj” — checking the code. */
 export async function login(_: LoginState, formData: FormData): Promise<LoginState> {
   if (!loginEnabled()) redirect("/panel");
   const email = normalizeEmail(String(formData.get("email") ?? ""));
@@ -44,7 +44,8 @@ export async function login(_: LoginState, formData: FormData): Promise<LoginSta
     console.error("[panel] wysyłka kodu:", error);
     return { krok: "email", email, blad: "Nie udało się wysłać maila. Spróbuj za chwilę." };
   }
-  // lokalny podgląd bez skrzynki pocztowej: kod na ekranie (na serwerze — nigdy, tam bez SMTP jest tylko w logach)
+  // local preview without a mailbox: the code on screen (never on the server — there, without SMTP it only goes to the
+  // logs)
   if (process.env.NODE_ENV === "development" && !process.env.SMTP_HOST) {
     return { krok: "kod", email, info: `Podgląd lokalny bez poczty — Twój kod: ${outcome.kod}` };
   }

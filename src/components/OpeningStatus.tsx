@@ -11,12 +11,12 @@ export default function OpeningStatus({
 }: {
   godziny: string | null;
   className?: string;
-  ciemne?: boolean; // jaśniejsze kolory na ciemnym tle
+  ciemne?: boolean; // brighter colors on a dark background
 }) {
   const now = useNow();
   const week = useMemo(() => parseHours(godziny), [godziny]);
   if (!week) return null;
-  // Zanim przeglądarka poda godzinę, trzymamy miejsce, żeby lista nie skakała.
+  // Until the browser provides the time, we keep the space, so the list does not jump.
   if (!now) return <p className={`invisible ${className}`} aria-hidden>Otwarte</p>;
 
   const status = openingStatus(week, now);

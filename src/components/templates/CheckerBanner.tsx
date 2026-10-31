@@ -1,7 +1,7 @@
 /**
- * Baner motywu lokalu w stylu jego karty menu: kremowe tło, hasło drobnym krojem etykiet (--etykiety-lokalu),
- * nazwa wersalikami (<h1> strony, krój --naglowek-lokalu), adres i na dole pasek w czarno-białą szachownicę.
- * Szachownica to wzór z CSS, nie grafika lokalu.
+ * Venue theme banner in the style of its menu card: cream background, the tagline in the small label font
+ * (--etykiety-lokalu), the name in uppercase (the page's <h1>, font --naglowek-lokalu), the address and a
+ * black-and-white checkered strip at the bottom. The checkerboard is a CSS pattern, not a venue graphic.
  */
 export default function CheckerBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (

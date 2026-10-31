@@ -1,5 +1,5 @@
-/* Wygląd serwisu „Szkicownik” (propozycja 3, wybrana 29.10): papier w kropki, rysowane ikony jedzenia płyną
-   po skosie, ręcznie rysowane ramki i naklejki z taśmą. */
+/* The site's „Szkicownik” (sketchbook) look (proposal 3, chosen 29.10): dotted paper, drawn food icons drifting
+   diagonally, hand-drawn frames and stickers with tape. */
 .m-papier {
   background-color: #fffdf7;
   background-image:
@@ -47,7 +47,7 @@
   }
 }
 
-/* szaman w stopce: podskok z obrotem po dotknięciu */
+/* the shaman in the footer: a jump with a spin when tapped */
 @keyframes m-skok {
   30% {
     transform: translateY(-38px) rotate(-12deg) scale(1.08);

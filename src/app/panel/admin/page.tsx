@@ -42,7 +42,7 @@ export default async function AdminPage() {
       )
       .all() as Claim[]
   ).map((z) => ({ ...z }));
-  // numer lokalu z poprawkami — na niego dzwonimy, nie na numer podany w zgłoszeniu
+  // the venue's number with corrections applied — that is the number we call, not the one given in the claim
   const phones = new Map((await getVenues()).map((l) => [l.slug, l.telefon]));
   const accesses = (
     db

@@ -6,7 +6,7 @@ import { addPerson, newPanelLink, revokeAccess } from "../admin/actions";
 import PanelLink from "../PanelLink";
 import AddPerson from "./AddPerson";
 
-/** Tylko dla admina: kto ma dostęp do panelu lokalu, linki do panelu i nowa osoba bez zgłoszenia. */
+/** Admin only: who has access to the venue panel, panel links and a new person without a claim. */
 export default function VenueAccess({ lokal }: { lokal: PanelVenue }) {
   const people = (
     db

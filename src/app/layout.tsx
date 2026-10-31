@@ -8,7 +8,7 @@ const nunito = Nunito({
   subsets: ["latin", "latin-ext"],
 });
 
-// Krój nagłówków strony głównej (font-grotesk).
+// Heading font of the home page (font-grotesk).
 const grotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin", "latin-ext"],
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description:
     "Restauracje, pizzerie, kebaby i kawiarnie w Kraśniku i powiecie kraśnickim. Godziny otwarcia, telefon i dojazd w jednym miejscu.",
   openGraph: { siteName: "szamanie.pl", locale: "pl_PL", type: "website" },
-  // potwierdzenie własności w Search Console i Bing Webmaster (kody w lib/konfiguracja.ts)
+  // ownership verification for Search Console and Bing Webmaster (codes in lib/config.ts)
   verification: {
     google: GOOGLE_VERIFICATION || undefined,
     other: BING_VERIFICATION ? { "msvalidate.01": BING_VERIFICATION } : undefined,
@@ -34,7 +34,7 @@ export const viewport: Viewport = {
   themeColor: "#ff6400",
 };
 
-// Nagłówek i stopka serwisu są w app/(serwis)/layout.tsx; propozycje wyglądu (app/propozycje) mają własne.
+// The site header and footer are in app/(serwis)/layout.tsx; the panel and the printable sticker page have their own.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pl" className={`${nunito.variable} ${grotesk.variable} h-full antialiased`}>

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Kolory z logo szamanie.pl. Pomarańcz #ff6400 na tła i akcenty; na tekst na białym — akcent-tekst (kontrast 4,9:1). */
+/* Colors from the szamanie.pl logo. Orange #ff6400 for backgrounds and accents; for text on white — akcent-tekst (contrast 4.9:1). */
 @theme {
   --color-akcent: #ff6400;
   --color-akcent-tekst: #c24a00;
@@ -13,9 +13,9 @@
   --color-obrys-2: #d9d0c5;
   --color-otwarte: #157a3a;
   --color-zamkniete: #b42318;
-  /* Tekst na przyciskach w kolorze akcentu (motyw lokalu może mieć jasny akcent na ciemnym tle) */
+  /* Text on buttons in the accent color (a venue theme may have a light accent on a dark background) */
   --color-na-akcencie: #111111;
-  /* Ciemne sekcje strony głównej (z propozycji 3 „Tryb nocny”) */
+  /* Dark sections of the home page (from proposal 3 „Tryb nocny”) */
   --color-noc: #0e0e0e;
   --color-noc-2: #181818;
 
@@ -30,7 +30,7 @@
   --animate-wysun: wysun 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Okno wysuwane od dołu (lista do zamówienia). */
+/* Sheet sliding up from the bottom (the order list). */
 @keyframes wysun {
   from {
     transform: translateY(40px);
@@ -105,7 +105,7 @@
   }
 }
 
-/* Pinezka lokalu na mapie (Leaflet divIcon). */
+/* Venue pin on the map (Leaflet divIcon). */
 .pinezka {
   display: block;
   width: 100%;
@@ -123,14 +123,14 @@
   box-shadow: 0 0 0 6px rgba(255, 100, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Delikatny wzór kropek na kolorowych banerach lokali. */
+/* Subtle dot pattern on the colored venue banners. */
 .wzor-kropki {
   background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1.2px, transparent 1.4px);
   background-size: 14px 14px;
 }
 
-/* Karty wyłaniają się przy przewijaniu, nagłówek dostaje cień po zjechaniu w dół.
-   Tylko w przeglądarkach z animacjami sterowanymi przewijaniem; pozostałe po prostu pokazują treść. */
+/* Cards fade in while scrolling, the header gets a shadow after scrolling down.
+   Only in browsers with scroll-driven animations; the others simply show the content. */
 @supports (animation-timeline: view()) {
   .pojawianie {
     animation: wjazd linear both;
@@ -144,8 +144,8 @@
   }
 }
 
-/* Świetliki na banerze motywu lokalu (np. Pizzeria Parkowa — „pizzeria w parku”). Pozycja, rozmiar i tempo
-   każdego świetlika przychodzą w zmiennych z komponentu BanerSwietliki. */
+/* Fireflies on the venue theme banner (e.g. Pizzeria Parkowa — „pizzeria w parku”). The position, size and pace
+   of every firefly come in variables from the FireflyBanner component. */
 .swietlik {
   position: absolute;
   width: var(--r);
@@ -177,7 +177,7 @@
   }
 }
 
-/* Motyw lokalu „kreda” (Si!): strona jak tablica kredowa — jaśniejsze smugi starej kredy i drobny pył na ciemnym tle. */
+/* The „kreda” venue theme (Si!): the page as a chalkboard — lighter smudges of old chalk and fine dust on a dark background. */
 .tlo-kreda {
   background-image:
     radial-gradient(ellipse 55% 30% at 18% 8%, rgb(255 255 255 / 0.13), transparent 70%),
@@ -188,8 +188,8 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 
-/* Motyw lokalu „marmur” (Kinowa): ciemny brązowy marmur — jaśniejsze plamy i cienkie złote żyłki (wąskie pasmo
-   szumu SVG: tabela przezroczystości przepuszcza tylko środek zakresu, więc z chmur zostają kręte linie). */
+/* The „marmur” venue theme (Kinowa): dark brown marble — lighter patches and thin gold veins (a narrow band of
+   SVG noise: the opacity table lets only the middle of the range through, so the clouds leave winding lines). */
 .tlo-marmur {
   background-image:
     radial-gradient(ellipse 60% 35% at 25% 15%, rgb(150 110 75 / 0.18), transparent 70%),
@@ -198,7 +198,7 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0045 0.013' numOctaves='5' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.72 0 0 0 0 0.52 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0 0 0 0 0 0 0 0 0.2 0 0 0 0 0 0 0 0 0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
 }
 
-/* Motyw lokalu „plamy” (Tam Tam): beżowe plamy w rogach i cienkie czerwone warstwice jak na ich karcie. */
+/* The „plamy” venue theme (Tam Tam): beige blobs in the corners and thin red contour lines, as on their card. */
 .tlo-plamy {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%23b23a2b' stroke-opacity='0.55' stroke-width='1.3'%3E%3Cpath d='M210 60c70 0 140 50 140 130s-60 160-140 160S60 300 70 220s70-160 140-160z'/%3E%3Cpath d='M210 95c55 0 105 40 105 100s-45 120-105 120-110-45-102-105 47-115 102-115z'/%3E%3Cpath d='M210 130c40 0 72 28 72 68s-30 84-72 84-75-30-70-72 30-80 70-80z'/%3E%3Cpath d='M210 165c22 0 40 16 40 38s-17 46-40 46-41-17-38-40 16-44 38-44z'/%3E%3Cpath d='M210 25c90 0 180 65 180 165S315 390 210 390 25 330 35 225 120 25 210 25z'/%3E%3C/g%3E%3C/svg%3E"),
@@ -210,7 +210,7 @@
   background-repeat: no-repeat;
 }
 
-/* Maskotka lokalu (BanerLudzik): kołysze się, podskakuje przy dodaniu dania, nad miską unosi się para. */
+/* Venue mascot (MascotBanner): sways, jumps when a dish is added, steam rises above the bowl. */
 .ludzik-kolysanie {
   transform-origin: 50% 100%;
   animation: ludzik-kolysanie 2.8s ease-in-out infinite;
@@ -268,7 +268,7 @@
   }
 }
 
-/* Plakietka „Dowóz” na karcie lokalu: autko podskakuje na drodze, za nim lecą smużki. */
+/* The „Dowóz” badge on a venue card: the car bounces on the road, speed lines fly behind it. */
 .dowoz-auto {
   animation: dowoz-jazda 0.9s ease-in-out infinite;
 }
@@ -316,7 +316,7 @@
   }
 }
 
-/* Przejście karty w nagłówek strony lokalu. */
+/* Transition of the card into the venue page header. */
 ::view-transition-group(.morph) {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);

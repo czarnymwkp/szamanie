@@ -6,11 +6,11 @@ import { venueChanges } from "@/lib/changes";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [lokale, zmiany] = await Promise.all([getVenues(), venueChanges()]);
-  // strony lokali z noindex (bez telefonu, godzin, www i menu) nie idą do mapy
+  // venue pages with noindex (no phone, hours, website or menu) are left out of the sitemap
   const index = await Promise.all(lokale.map(toIndex));
   return [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
-    // strony fraz: /krasnik, /krasnik/pizza…
+    // phrase pages: /krasnik, /krasnik/pizza…
     ...allPages(lokale).map(({ obszar, kategoria }) => ({
       url: `${SITE_URL}/${obszar.slug}${kategoria ? `/${kategoria.slug}` : ""}`,
       changeFrequency: "daily" as const,

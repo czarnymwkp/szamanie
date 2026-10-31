@@ -12,12 +12,12 @@ import { facebookUrl, websiteUrl, cuisineName, venueDescription, fullAddress } f
 import { venueEvents } from "@/lib/events";
 import { toIndex, categoriesWithPage, categoryVenues, areasWithPage, pageTitle, type Area } from "@/lib/seo";
 
-// Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
+// The whole page is static: an unknown URL waits for the result instead of a 200 skeleton, so it gets a real 404.
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
   const venues = await getVenues();
-  // Cache Components wymaga co najmniej jednego parametru; pusta baza → strona 404.
+  // Cache Components needs at least one parameter; an empty database → 404 page.
   return venues.length ? venues.map((l) => ({ slug: l.slug })) : [{ slug: "brak" }];
 }
 
@@ -27,9 +27,9 @@ export async function generateMetadata({ params }: PageProps<"/lokal/[slug]">): 
   if (!venue) return {};
   const [menu, lokale, indeks] = await Promise.all([getMenu(venue.id), getVenues(), toIndex(venue)]);
   const city = venue.miejscowosc ?? "Kraśnik";
-  // „Zapiekanki Kraśnik - Bar Przekąskowy” bez drugiego „Kraśnik”; lokale o tej samej nazwie w tej samej
-  // miejscowości (trzy lodziarnie Sandomierskiej Manufaktury Lodów) rozróżnia ulica — krótko, bez imion i stopni
-  // („Generała Władysława Sikorskiego 7a” → „Sikorskiego 7a”), bo tytuł i tak jest długi.
+  // „Zapiekanki Kraśnik - Bar Przekąskowy” without a second „Kraśnik”; venues with the same name in the same town
+  // (three ice-cream shops of Sandomierska Manufaktura Lodów) are told apart by the street — short, without first names
+  // and ranks („Generała Władysława Sikorskiego 7a” → „Sikorskiego 7a”), because the title is long anyway.
   const street = venue.adres?.match(/(?:(?:Plac|Aleja|Al\.|Rynek|Osiedle|Os\.) )?\S+ \d\S*$/)?.[0] ?? venue.adres;
   const where = [
     venue.nazwa.toLowerCase().includes(city.toLowerCase()) ? "" : ` ${city}`,
@@ -38,15 +38,16 @@ export async function generateMetadata({ params }: PageProps<"/lokal/[slug]">): 
       : "",
   ].join("");
   const services = [venue.dostawa && "dowóz", venue.naWynos && "na wynos"].filter(Boolean).join(" i ");
-  // rodzaj i najwyżej dwie kuchnie — pełna lista („Kawa · Lody · Makarony · Sałatki…”) wydłuża opis ponad 160 znaków
+  // type and at most two cuisines — the full list („Kawa · Lody · Makarony · Sałatki…”) pushes the description past 160
+  // characters
   const kind = venueDescription(venue).split(" · ").slice(0, 3).join(" · ");
-  // Z menu tytuł łapie wyszukiwania „<lokal> Kraśnik menu”, „… ceny”. Nazwa w opisie, bo bez niej pięć kebabów
-  // miałoby ten sam opis.
+  // With a menu the title catches searches like „<venue> Kraśnik menu”, „… ceny”. The name goes into the description,
+  // otherwise five kebab places would share one description.
   const fullPath = `${venue.nazwa}${where} — ${menu ? "menu i ceny" : "godziny i telefon"}`;
-  // bardzo długa nazwa (z ulicą): krótsza końcówka, żeby całość zmieściła się w wyniku Google
+  // very long name (with the street): a shorter ending, so the whole title fits in a Google result
   const title = fullPath.length > 60 ? `${venue.nazwa}${where} — ${menu ? "menu" : "godziny"}` : fullPath;
   return {
-    // długa nazwa lokalu: bez „ | szamanie.pl” na końcu, żeby Google nie uciął „menu i ceny”
+    // long venue name: no „ | szamanie.pl” suffix, so Google does not cut off „menu i ceny”
     title: pageTitle(title),
     description: menu
       ? `${venue.nazwa}: menu z cenami (${menu.liczba} pozycji), godziny otwarcia, telefon i dojazd. ${kind}, ${fullAddress(venue)}.`
@@ -65,7 +66,7 @@ const SCHEMA_TYPES: Record<string, string> = {
   ice_cream: "IceCreamShop",
 };
 
-// Dane strukturalne dla Google (schema.org), żeby lokal mógł się pokazać z adresem, godzinami i menu.
+// Structured data for Google (schema.org), so the venue can show up with its address, opening hours and menu.
 function structuredData(venue: Venue, menu: Menu | null) {
   const week = parseHours(venue.godziny);
   return {
@@ -98,7 +99,8 @@ function structuredData(venue: Venue, menu: Menu | null) {
               "@type": "MenuItem",
               name: p.nazwa,
               description: p.opis ?? undefined,
-              // pozycja bez ceny (lokal nie podaje cen) — bez offers zamiast pustej listy albo ceny 0
+              // item without a price (the venue does not publish prices) — no offers instead of an empty list or a
+              // price of 0
               offers: p.ceny.some((c) => c.gr > 0)
                 ? p.ceny
                     .filter((c) => c.gr > 0)
@@ -116,7 +118,7 @@ function structuredData(venue: Venue, menu: Menu | null) {
   };
 }
 
-/** Okruszki dla Google: szamanie.pl › Kraśnik › lokal (obszar tylko, gdy ma swoją stronę). */
+/** Breadcrumbs for Google: szamanie.pl › Kraśnik › venue (the area only when it has its own page). */
 function breadcrumbs(venue: Venue, area: Area | undefined) {
   const path = [
     { name: "szamanie.pl", item: SITE_URL },
@@ -130,8 +132,8 @@ function breadcrumbs(venue: Venue, area: Area | undefined) {
   };
 }
 
-// Treść zależna od adresu jest w <Suspense>, żeby wspólny szkielet strony mógł się pokazać od razu.
-// Karty na liście mają prefetch, więc przy kliknięciu treść jest już pobrana i baner płynnie przechodzi.
+// URL-dependent content is inside <Suspense>, so the shared page shell can show right away. Cards in the list prefetch,
+// so on click the content is already loaded and the banner morphs smoothly.
 export default function VenuePage({ params }: PageProps<"/lokal/[slug]">) {
   return (
     <Suspense fallback={<VenueSkeleton />}>
@@ -145,7 +147,7 @@ async function VenueContent({ params }: Pick<PageProps<"/lokal/[slug]">, "params
   const venue = await getVenue(slug);
   if (!venue) notFound();
   const [menu, lokale] = await Promise.all([getMenu(venue.id), getVenues()]);
-  // Linki do stron fraz, na których jest ten lokal („Pizza w Kraśniku”…).
+  // Links to the phrase pages that include this venue („Pizza w Kraśniku”…).
   const area = areasWithPage(lokale).find((o) => venue.gmina && [...o.gminy, ...o.okolica].includes(venue.gmina));
   const links = area
     ? [
@@ -195,7 +197,7 @@ async function VenueContent({ params }: Pick<PageProps<"/lokal/[slug]">, "params
 
 function VenueSkeleton() {
   return (
-    // wysoki na cały ekran: przy pierwszym wczytaniu stopka nie mignie tuż pod szkieletem i nie skoczy w dół (CLS)
+    // full screen height: on first load the footer does not flash right below the skeleton and jump down (CLS)
     <div aria-busy="true" aria-label="Wczytywanie lokalu" className="min-h-svh animate-pulse">
       <div className="h-44 bg-obrys sm:h-56 lg:h-64" />
       <div className="mx-auto max-w-5xl px-5">

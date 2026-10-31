@@ -5,8 +5,8 @@ import { useState } from "react";
 import { POLISH_DAYS, formatHour, parseHours, saveHours, type Week } from "@/lib/hours";
 import { field, smallButton } from "@/components/panel/style";
 
-// Godziny otwarcia jako 7 wierszy (dzień: zamknięte albo od–do, opcjonalnie druga zmiana, np. po przerwie).
-// Wynik idzie w ukrytym polu „godziny” w formacie OpenStreetMap, tak jak resztę danych czyta strona lokalu.
+// Opening hours as 7 rows (day: closed or from–to, optionally a second shift, e.g. after a break). The result goes into
+// a hidden „godziny” field in OpenStreetMap format, the same way the venue page reads the rest of the data.
 
 type Change = { od: string; do: string };
 type Day = Change[];
@@ -30,7 +30,7 @@ function toText(days: Day[]) {
     d.map(({ od, do: doo }): [number, number] => {
       const s = minutes(od);
       const k = minutes(doo === "24:00" ? "00:00" : doo);
-      return [s, k <= s ? k + 24 * 60 : k]; // do 02:00 = po północy
+      return [s, k <= s ? k + 24 * 60 : k]; // until 02:00 = after midnight
     }),
   );
   return saveHours(week);
@@ -52,7 +52,7 @@ export default function HoursEditor({ godziny }: { godziny: string | null }) {
           </p>
         )}
         {!unusual && <p className="text-sm text-tekst-2">Godziny otwarcia nie są jeszcze podane.</p>}
-        {/* bez zmian zostaje to, co było */}
+        {/* unchanged keeps what was there */}
         <input type="hidden" name="godziny" value={godziny ?? ""} />
         <button
           type="button"

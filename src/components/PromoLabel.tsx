@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 
-// Płatne wyróżnienie musi być wyraźnie oznaczone (przepisy o nieuczciwych praktykach rynkowych).
+// Paid promotion must be clearly marked (unfair commercial practices rules).
 export default function PromoLabel({ className = "" }: { className?: string }) {
   return (
     <span

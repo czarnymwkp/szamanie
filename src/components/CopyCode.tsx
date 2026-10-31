@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 
-/** Pole z kodem do wklejenia i przycisk „Kopiuj”. */
+/** A code field to paste from and a „Kopiuj” button. */
 export default function CopyCode({ kod, etykieta }: { kod: string; etykieta: string }) {
   const [skopiowane, setSkopiowane] = useState(false);
   return (
@@ -24,7 +24,7 @@ export default function CopyCode({ kod, etykieta }: { kod: string; etykieta: str
             setSkopiowane(true);
             setTimeout(() => setSkopiowane(false), 2000);
           } catch {
-            // brak dostępu do schowka — kod można zaznaczyć w polu
+            // no clipboard access — the code can be selected in the field
           }
         }}
         className="mt-2 inline-flex h-10 items-center gap-1.5 rounded-full bg-tekst px-4 text-sm font-black text-white active:scale-95"

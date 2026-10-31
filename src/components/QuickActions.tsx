@@ -4,9 +4,9 @@ import { phoneUrl } from "@/lib/format";
 import DirectionsButton from "./DirectionsButton";
 
 /**
- * Dolny pasek karty lokalu w jednej linii: plakietka „Dowóz” z jadącym autkiem (rozciągnięta na wolne miejsce,
- * pomysł usera; dotknięcie przechodzi do karty — pointer-events-none), dojazd i telefon (zamówienie). Bez numeru
- * telefon jest wyszarzony, żeby było widać, że to brak danych, a nie błąd. `ciemne` — wersja na ciemne tło.
+ * Bottom bar of a venue card in one line: a „Dowóz” badge with a driving car (stretched over the free space, the user's
+ * idea; a tap goes to the card — pointer-events-none), directions and phone (ordering). Without a number the phone is
+ * greyed out, so it reads as missing data, not an error. `ciemne` — the version for a dark background.
  */
 export default function QuickActions({ lokal, ciemne = false }: { lokal: Venue; ciemne?: boolean }) {
   const round = "flex size-10 items-center justify-center rounded-full transition hover:scale-110 active:scale-95";

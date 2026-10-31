@@ -11,8 +11,9 @@ declare global {
 }
 
 /**
- * Statystyki odwiedzin (Umami, bez ciasteczek) tylko na stronach serwisu, bez panelu. Do tego kliknięcia w telefon
- * i dojazd z każdej strony — jedno nasłuchiwanie zamiast znaczników przy każdym przycisku; telefon mówi, który lokal.
+ * Visit statistics (Umami, cookieless) only on the site pages, not in the panel. Plus clicks on the phone and
+ * directions from every page — one listener instead of attributes on every button; the phone link tells which venue it
+ * is.
  */
 export default function Analytics() {
   useEffect(() => {

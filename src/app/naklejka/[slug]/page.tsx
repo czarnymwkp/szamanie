@@ -7,8 +7,9 @@ import CopyCode from "@/components/CopyCode";
 import { SITE_URL } from "@/lib/config";
 import { getVenue, getVenues } from "@/lib/venues";
 
-// Naklejka do druku z kodem QR do strony lokalu i odznaka na stronę www lokalu (link do nas — ważny dla Google).
-// Bez nagłówka i stopki serwisu, żeby wydruk był czysty; nie do indeksowania (robots.ts: Disallow /naklejka).
+// Printable sticker with a QR code to the venue page, plus a badge for the venue's own website (a link to us — it
+// matters for Google). No site header or footer, so the print is clean; not for indexing (robots.ts: Disallow
+// /naklejka).
 
 export const ensureStatic = "navigation";
 
@@ -51,7 +52,7 @@ export default async function Sticker({ params }: PageProps<"/naklejka/[slug]">)
           <p className="text-2xl leading-tight font-black text-balance">{venue.nazwa}</p>
           <div
             className="mt-3 w-3/5 [&_svg]:h-auto [&_svg]:w-full"
-            // SVG z biblioteki uqr — same kwadraty kodu
+            // SVG from the uqr library — just the code's squares
             dangerouslySetInnerHTML={{ __html: renderSVG(address, { border: 1 }) }}
           />
           <p className="mt-3 text-base leading-snug font-extrabold">Zeskanuj aparatem w telefonie:</p>
@@ -67,7 +68,7 @@ export default async function Sticker({ params }: PageProps<"/naklejka/[slug]">)
           Wklej ten kod na swojej stronie (np. w stopce). Goście trafią prosto do Twojego menu na szamanie.pl.
         </p>
         <div className="mt-3 flex items-center gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element -- podgląd dokładnie tej odznaki, którą wkleja lokal */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- preview of exactly the badge the venue pastes */}
           <img src="/odznaka.svg" alt="Znajdziesz nas na szamanie.pl" width={200} height={64} />
         </div>
         <div className="mt-3">

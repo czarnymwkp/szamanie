@@ -34,10 +34,10 @@ function cuisineTheme(k: string): Theme | null {
 }
 
 /**
- * Wygląd banera karty, dopóki lokal nie ma własnych zdjęć: zdjęcie poglądowe kategorii, a gdy go brak —
- * kolor z ikoną. Każdy kolor ma kontrast co najmniej 4,5:1 z bielą (biała ikona na kolorze).
- * Decyduje pierwsza rozpoznana kuchnia: najpierw idą te z danych lokalu, potem dopisane z nazwy i menu
- * (`pobierzLokale`), więc włoska restauracja z pizzą w karcie nie dostaje banera pizzerii.
+ * Look of the card banner until a venue has its own photos: an illustrative category photo, or without one — a color
+ * with an icon. Every color has at least 4.5:1 contrast with white (a white icon on the color). The first recognized
+ * cuisine decides: those from the venue data come first, then those inferred from the name and the menu (`getVenues`),
+ * so an Italian restaurant with pizza on its menu does not get a pizzeria banner.
  */
 export function venueTheme(l: Pick<Venue, "typ" | "kuchnie">): Theme {
   for (const k of l.kuchnie) {

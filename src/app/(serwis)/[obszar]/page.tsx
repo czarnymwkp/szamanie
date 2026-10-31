@@ -30,14 +30,14 @@ import {
   type Area,
 } from "@/lib/seo";
 
-// Strona „Gdzie zjeść w Kraśniku?” — wszystkie lokale obszaru i kafelki kategorii (/krasnik/pizza itd.).
+// „Gdzie zjeść w Kraśniku?” page — all venues of the area and category tiles (/krasnik/pizza etc.).
 
-// Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
+// The whole page is static: an unknown URL waits for the result instead of a 200 skeleton, so it gets a real 404.
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
   const areas = areasWithPage(await getVenues());
-  // Cache Components wymaga co najmniej jednego parametru; „brak” → 404.
+  // Cache Components needs at least one parameter; „brak” → 404.
   return areas.length ? areas.map((o) => ({ obszar: o.slug })) : [{ obszar: "brak" }];
 }
 
@@ -128,7 +128,7 @@ function questions(
   area: Area,
   venues: Venue[],
   categories: { k: { nazwa: string }; ile: number }[],
-  hasDelivery: boolean, // czy obszar ma stronę /<obszar>/dowoz
+  hasDelivery: boolean, // whether the area has a /<area>/dowoz page
 ): Question[] {
   const result: Question[] = [];
   const cuisines = [...new Set(venues.flatMap((l) => l.kuchnie.map(cuisineName)))];

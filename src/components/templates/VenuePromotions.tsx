@@ -7,8 +7,9 @@ import type { Promotion } from "@/lib/promotions";
 import { scheduleDescription, isRunningNow } from "@/lib/promotionSchedule";
 
 /**
- * Promocje lokalu (dodaje je właściciel w panelu) — nad menu, bo to pierwsze, co warto zobaczyć przed zamówieniem.
- * „Trwa teraz” liczy przeglądarka: strona jest statyczna, więc „teraz” serwera nie jest „teraz” klienta.
+ * Venue promotions (the owner adds them in the panel) — above the menu, because that is the first thing worth seeing
+ * before ordering. „Trwa teraz” is computed by the browser: the page is static, so the server's „now” is not the
+ * client's „now”.
  */
 export default function VenuePromotions({ promocje, naglowek }: { promocje: Promotion[]; naglowek: string }) {
   const now = useNow();
@@ -34,7 +35,7 @@ export default function VenuePromotions({ promocje, naglowek }: { promocje: Prom
                     {p.danie}
                     {p.wariant ? ` ${p.wariant}` : ""}: <b className="text-base text-akcent-tekst">{formatPln(p.cenaGr)}</b>
                   </p>
-                  {/* dyrektywa Omnibus: przy obniżce ceny najniższa cena z 30 dni przed nią */}
+                  {/* Omnibus directive: with a price cut, the lowest price from the 30 days before it */}
                   {p.najnizsza30Gr !== null && (
                     <p className="text-xs text-tekst-2">Najniższa cena z 30 dni przed obniżką: {formatPln(p.najnizsza30Gr)}</p>
                   )}

@@ -30,15 +30,15 @@ import {
   type Area,
 } from "@/lib/seo";
 
-// Strona „Jedzenie z dowozem w Kraśniku” — pod wyszukiwania „dowóz Kraśnik”, „pizza z dowozem Kraśnik”:
-// kto dowozi, ile kosztuje dostawa do której miejscowości i od jakiej kwoty.
+// „Jedzenie z dowozem w Kraśniku” page — for searches like „dowóz Kraśnik”, „pizza z dowozem Kraśnik”: who delivers,
+// how much delivery costs to which town and from what order value.
 
-// Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
+// The whole page is static: an unknown URL waits for the result instead of a 200 skeleton, so it gets a real 404.
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
   const areas = areasWithDelivery(await getVenues());
-  // Cache Components wymaga co najmniej jednego parametru; „brak” → 404.
+  // Cache Components needs at least one parameter; „brak” → 404.
   return areas.length ? areas.map((o) => ({ obszar: o.slug })) : [{ obszar: "brak" }];
 }
 
@@ -155,7 +155,7 @@ function questions(
     },
   ];
 
-  // Strefy obejmujące sam obszar, np. „Kraśnik Fabryczny” i „Kraśnik Stary” → miejsca ["Kraśnik"].
+  // Zones covering the area itself, e.g. „Kraśnik Fabryczny” and „Kraśnik Stary” → places ["Kraśnik"].
   const inArea = pricing.flatMap(({ lokal, dostawa }) => {
     const zones = dostawa.strefy.filter((s) => s.miejsca.includes(area.nazwa));
     return zones.length ? [{ lokal, strefy: zones }] : [];
@@ -185,7 +185,7 @@ function questions(
     });
   }
 
-  // „Pizza z dowozem w Kraśniku” — tylko kategorie, w których ktoś dowozi.
+  // „Pizza z dowozem w Kraśniku” — only categories where someone delivers.
   for (const k of categoriesWithPage(venues, area).filter((k) => k.dowoz)) {
     const fromCategory = categoryVenues(venues, area, k).w.filter((l) => l.dostawa);
     if (!fromCategory.length) continue;
@@ -206,7 +206,8 @@ function questions(
     });
   }
 
-  // bez lodziarni — lody na wynos to oczywistość, a sieciówka z trzema punktami trzy razy powtarza tę samą nazwę
+  // without ice-cream shops — takeaway ice cream is obvious, and a chain with three outlets would repeat the same name
+  // three times
   const takeaway = withDelivery(areaVenues(venues, area).w).naWynos.filter((l) => l.typ !== "ice_cream");
   if (takeaway.length) {
     result.push({

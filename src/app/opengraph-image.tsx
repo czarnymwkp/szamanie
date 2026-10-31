@@ -1,6 +1,6 @@
 import { SIZE, shareImage } from "@/lib/shareImage";
 
-// Domyślny obrazek przy linkach do szamanie.pl; strony fraz i lokali mają własne.
+// Default image for links to szamanie.pl; phrase and venue pages have their own.
 
 export const alt = "szamanie.pl — gdzie zjeść w Kraśniku i okolicy";
 export const size = SIZE;

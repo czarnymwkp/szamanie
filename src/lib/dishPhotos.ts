@@ -1,6 +1,6 @@
-// Zdjęcia poglądowe dań — przy pozycji menu, dopóki lokal nie doda własnego zdjęcia.
-// Pliki w public/zdjecia/dania/ (kwadrat 600×600). Źródła i licencje są wypisane na stronie /autorzy-zdjec.
-// Danie bez pasującej reguły (albo z kluczem bez zdjęcia) nie ma zdjęcia — lepsze to niż zdjęcie czegoś innego.
+// Illustrative dish photos — next to a menu item until the venue adds its own photo. Files in public/zdjecia/dania/
+// (600×600 squares). Sources and licenses are listed on the /autorzy-zdjec page. A dish without a matching rule (or
+// with a key that has no photo) gets no photo — better than a photo of something else.
 import { stripPolish } from "./slug.mjs";
 
 export type DishKey =
@@ -84,7 +84,7 @@ export type DishKey =
 
 export type DishPhoto = {
   plik: string;
-  opis: string; // co widać na zdjęciu (strona z autorami)
+  opis: string; // what the photo shows (credits page)
   autor: string;
   licencja: string;
   zrodlo: string;
@@ -92,7 +92,7 @@ export type DishPhoto = {
 
 const p = (file: string) => `/zdjecia/dania/${file}.jpg`;
 
-// Rosół celowo bez zdjęcia — w wolnych zasobach są tylko azjatyckie zupy z makaronem.
+// Rosół deliberately has no photo — free stock only has Asian noodle soups.
 export const DISH_PHOTOS: Partial<Record<DishKey, DishPhoto>> = {
   pizza: {
     plik: p("pizza"),
@@ -630,9 +630,9 @@ export const DISH_PHOTOS: Partial<Record<DishKey, DishPhoto>> = {
 
 type Rule = [RegExp, DishKey | null];
 
-// Pizza po składnikach: nazwa + opis. Kolejność ma znaczenie — pierwsza pasująca reguła wygrywa.
+// Pizza by its toppings: name + description. Order matters — the first matching rule wins.
 const PIZZA: Rule[] = [
-  [/nutell/, null], // pizza na słodko — żadne ze zdjęć nie pasuje
+  [/nutell/, null], // sweet pizza — none of the photos fits
   [/calzone|zawijan/, "calzone"],
   [/ananas|hawaj/, "pizza-hawajska"],
   [/sos smietan|bianca|formaggi|cztery sery|gorski raj/, "pizza-biala"],
@@ -641,15 +641,15 @@ const PIZZA: Rule[] = [
   [/pieczark|funghi|szynk|cotto|capricc/, "pizza-pieczarki"],
 ];
 
-// Makaron po sosie: nazwa + opis.
+// Pasta by its sauce: name + description.
 const PASTA: Rule[] = [
   [/carbonar/, "carbonara"],
   [/krewet|owoce morza|owocami morza|gamber|mare\b|scampi/, "makaron-owoce-morza"],
   [/pesto/, "pesto"],
-  [/sos (winno-)?pomidor|pomidorow|bolog|bolon/, "bolognese"], // „suszone pomidory” to jeszcze nie sos
+  [/sos (winno-)?pomidor|pomidorow|bolog|bolon/, "bolognese"], // „suszone pomidory” is not a sauce yet
 ];
 
-// Pozostałe dania — tylko po nazwie (opis typu „lody waniliowe” przy szarlotce zmyliłby reguły).
+// Other dishes — by name only (a description like „lody waniliowe” next to szarlotka would mislead the rules).
 const BY_NAME: Rule[] = [
   [/pierog/, "pierogi"],
   [/(krem|zupa).*pomidor|pomidorowa/, "zupa-pomidorowa"],
@@ -657,7 +657,7 @@ const BY_NAME: Rule[] = [
   [/rosol|zupa jajeczna/, "rosol"],
   [/flak|flacz/, "flaki"],
   [/zurek/, "zurek"],
-  [/kwasnic/, null], // nie „żeberka”, choć z żeberkiem
+  [/kwasnic/, null], // not „żeberka”, even though it comes with ribs
   [/schab|kotlet|sznycel/, "schabowy"],
   [/kacz/, "kaczka"],
   [/golonk/, "golonka"],
@@ -687,7 +687,7 @@ const BY_NAME: Rule[] = [
   [/szarlotk|kruszonk|ciasto/, "szarlotka"],
   [/tart[ay]\b/, "tarta"],
   [/^lody/, "lody"],
-  [/\bice\b|mrozon|orange espresso/, "kawa-mrozona"], // \b: nie „Spice Cinnamon”
+  [/\bice\b|mrozon|orange espresso/, "kawa-mrozona"], // \b: not „Spice Cinnamon”
   [/cappucc/, "cappuccino"],
   [/latte|kawa biala/, "latte"],
   [/espresso|americano/, "espresso"],
@@ -706,7 +706,7 @@ const BY_NAME: Rule[] = [
 
 const first = (rules: Rule[], text: string) => rules.find(([wzor]) => wzor.test(text));
 
-/** Które zdjęcie poglądowe pasuje do pozycji menu; null, gdy żadne. */
+/** Which illustrative photo matches a menu item; null when none does. */
 export function dishKey(section: string, name: string, description: string | null): DishKey | null {
   const s = stripPolish(section);
   const n = stripPolish(name);
@@ -721,7 +721,7 @@ export function dishKey(section: string, name: string, description: string | nul
   if (/pizz|calzone/.test(s) || /pizz/.test(n)) {
     const r = first(PIZZA, no);
     if (r) return r[1];
-    return /mozzarell|\bser\b/.test(no) && !/pomidor|\bsos\b/.test(no) ? "pizza-biala" : "pizza"; // ser bez sosu = biała
+    return /mozzarell|\bser\b/.test(no) && !/pomidor|\bsos\b/.test(no) ? "pizza-biala" : "pizza"; // cheese without sauce = white pizza
   }
   if (/burger/.test(s) || /burger/.test(n)) {
     if (/double|triple|podwojn|[23] ×/.test(no)) return "burger-podwojny";
@@ -731,14 +731,15 @@ export function dishKey(section: string, name: string, description: string | nul
   if (/salat|insalat/.test(s) || /salat|insalat/.test(n)) {
     return /cezar|caesar/.test(n) ? "salatka-cezar" : /greck/.test(n) ? "salatka-grecka" : "salatka";
   }
-  const soup = /rosol|zup|krem\b|pomidorowa|flak|zurek|kwasnic/.test(n); // „Rosół z makaronem” to nie makaron
+  const soup = /rosol|zup|krem\b|pomidorowa|flak|zurek|kwasnic/.test(n); // „Rosół z makaronem” is not a pasta dish
   if (!soup && (/makaron/.test(s) || /makaron|spaghetti|penne|tagliatel|linguin|bucatini|rigatoni|fettucc/.test(n))) {
     return first(PASTA, no)?.[1] ?? "makaron-kremowy";
   }
 
   const r = first(BY_NAME, n);
   if (r) return r[1];
-  // Po sekcji albo opisie, gdy nazwa nic nie mówi („Spice Cinnamon”, „Pornstar Martini”, „Cantina Borba Bianco”).
+  // By section or description when the name says nothing („Spice Cinnamon”, „Pornstar Martini”, „Cantina Borba
+  // Bianco”).
   if (/herbat|rooibos/.test(no)) return "herbata";
   if (/shot/.test(no)) return "shot";
   if (/drink|koktajl/.test(s) || /spritz|martini|sour/.test(n)) return "drink";
@@ -747,7 +748,7 @@ export function dishKey(section: string, name: string, description: string | nul
   return null;
 }
 
-/** Ścieżka zdjęcia poglądowego dla pozycji menu; null, gdy nie mamy pasującego. */
+/** Path of the illustrative photo for a menu item; null when we have no match. */
 export function dishPhoto(section: string, name: string, description: string | null) {
   const key = dishKey(section, name, description);
   return (key && DISH_PHOTOS[key]?.plik) || null;

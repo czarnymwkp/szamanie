@@ -1,7 +1,7 @@
 /**
- * Baner motywu lokalu w stylu nagłówka jego karty menu: `haslo` rozstrzelonymi wersalikami, gruba czarna kreska,
- * pod nią nazwa (<h1> strony, krój --naglowek-lokalu). Nazwa „Kwadrat - Miejsce Spotkań” dzieli się na dużą część
- * przed myślnikiem i mniejszy dopisek po nim. Bez logo lokalu (tylko za jego zgodą).
+ * Venue theme banner in the style of its menu card header: `haslo` in letter-spaced uppercase, a thick black line, the
+ * name below it (the page's <h1>, font --naglowek-lokalu). The name „Kwadrat - Miejsce Spotkań” splits into a large
+ * part before the dash and a smaller suffix after it. No venue logo (only with its consent).
  */
 export default function RuleBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   const [glowna, ...reszta] = nazwa.split(/\s+[-–—]\s+/);

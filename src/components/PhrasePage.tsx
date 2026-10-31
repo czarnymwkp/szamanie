@@ -11,7 +11,7 @@ import type { SeoCategory, Area } from "@/lib/seo";
 import { CATEGORY_PHOTOS, type PhotoKey } from "@/lib/categoryPhotos";
 import VenueCard from "./VenueCard";
 
-// Wspólne kawałki stron fraz (/krasnik, /krasnik/pizza): baner, listy lokali, pytania i dane dla Google.
+// Shared pieces of the phrase pages (/krasnik, /krasnik/pizza): banner, venue lists, questions and data for Google.
 
 export { venueCount as ileLokali };
 
@@ -84,7 +84,7 @@ export function VenueGrid({ lokale }: { lokale: Venue[] }) {
   );
 }
 
-/** Informacja o kolejności — przy płatnym wyróżnieniu wymagana prawem. */
+/** Note on the ordering — required by law when there is paid promotion. */
 export function Order() {
   return (
     <p className="mt-4 text-xs font-semibold text-tekst-2">
@@ -134,7 +134,7 @@ export function CategoryTile({ k, o, ile }: { k: SeoCategory; o: Area; ile: numb
   );
 }
 
-/** Linki do lokali po przecinku: „Parkowa, Roma i U Górala”. */
+/** Venue links separated by commas: „Parkowa, Roma i U Górala”. */
 export function NameList({ lokale, dopisek }: { lokale: Venue[]; dopisek?: (l: Venue) => string }) {
   return lokale.map((l, i) => (
     <span key={l.id}>
@@ -149,7 +149,7 @@ export function NameList({ lokale, dopisek }: { lokale: Venue[]; dopisek?: (l: V
 
 const lowest = (d: Dish) => Math.min(...d.ceny.map((c) => c.gr));
 
-/** „Ile kosztuje pizza w Kraśniku?” — dania z menu lokali z cenami, po kilka na lokal. */
+/** „Ile kosztuje pizza w Kraśniku?” — dishes with prices from the venues' menus, a few per venue. */
 export function DishPrices({
   tytul,
   w,
@@ -163,7 +163,7 @@ export function DishPrices({
   dania: Dish[];
   menu: Map<number, Menu>;
 }) {
-  // tylko lokale z tej strony — kebab z menu Nadwiślanki (Annopol) nie trafia do cen „w Kraśniku”
+  // only venues from this page — a kebab from Nadwiślanka's menu (Annopol) does not land in the „w Kraśniku” prices
   const withPrice = dania.filter((d) => d.ceny.length && lokale.some((l) => l.id === d.lokalId));
   const venuesWithDishes = lokale.filter((l) => withPrice.some((d) => d.lokalId === l.id));
   if (!venuesWithDishes.length) return null;
@@ -179,7 +179,7 @@ export function DishPrices({
         <strong className="text-tekst">{formatPln(lowest(najdrozsze))}</strong>. Najtaniej: {najtansze.nazwa} w{" "}
         {venueName(najtansze.lokalId)}.
       </p>
-      {/* grid-cols-1 = minmax(0, 1fr) — bez tego ucięte opisy dań rozpychają kolumnę na telefonie */}
+      {/* grid-cols-1 = minmax(0, 1fr) — without it truncated dish descriptions widen the column on a phone */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {venuesWithDishes.map((l) => {
           const venueDishes = withPrice.filter((d) => d.lokalId === l.id);
@@ -228,10 +228,10 @@ export function DishPrices({
   );
 }
 
-/** Cena dostawy jak na stronie lokalu: „3 zł”, „gratis”, „zapytaj”. */
+/** Delivery price as on the venue page: „3 zł”, „gratis”, „zapytaj”. */
 export const deliveryPrice = (s: Zone) => (s.cenaGr === null ? "zapytaj" : s.cenaGr ? formatPln(s.cenaGr) : "gratis");
 
-/** „Ile kosztuje dowóz?” — strefy dostawy lokali z ceną i minimalnym zamówieniem, po karcie na lokal. */
+/** „Ile kosztuje dowóz?” — the venues' delivery zones with price and minimum order, one card per venue. */
 export function DeliveryPricing({ cenniki }: { cenniki: { lokal: Venue; dostawa: Delivery }[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -330,7 +330,7 @@ export function Pills({ linki }: { linki: { nazwa: string; adres: string }[] }) 
   );
 }
 
-/** Dane strukturalne dla Google: ścieżka okruszków i lista lokali (strona zbiorcza → strony lokali). */
+/** Structured data for Google: breadcrumb trail and a list of venues (collection page → venue pages). */
 export function StructuredData({ okruszki, lokale }: { okruszki: Breadcrumb[]; lokale: Venue[] }) {
   const date = [
     {

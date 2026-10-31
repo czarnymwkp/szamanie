@@ -4,7 +4,7 @@ import type { Venue } from "@/lib/venues";
 import { phoneUrl, fullAddress } from "@/lib/format";
 import { EVENT_NAMES, type Events } from "@/lib/events";
 
-/** Pojemność, noclegi i rodzaje przyjęć — wspólne dla karty sali i sekcji na stronie lokalu. */
+/** Capacity, lodging and event types — shared by the hall card and the section on the venue page. */
 export function EventDetails({ przyjecia: p }: { przyjecia: Events }) {
   return (
     <>

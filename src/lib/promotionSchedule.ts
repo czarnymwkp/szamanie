@@ -1,9 +1,9 @@
-// Termin promocji słowami („w piątki i soboty, 12:00–15:00, do 30.11”) — wspólne dla panelu i strony lokalu.
+// Promotion schedule in words („w piątki i soboty, 12:00–15:00, do 30.11”) — shared by the panel and the venue page.
 
 export type PromotionSchedule = {
   odDnia: string | null; // RRRR-MM-DD
   doDnia: string | null;
-  dni: number[]; // 0 = poniedziałek; pusta lista = codziennie
+  dni: number[]; // 0 = Monday; empty list = every day
   odGodz: string | null; // GG:MM
   doGodz: string | null;
 };
@@ -38,7 +38,7 @@ export function scheduleDescription(t: PromotionSchedule) {
   return parts.join(", ");
 }
 
-/** Czy promocja obowiązuje w tej chwili (data, dzień tygodnia i godzina). */
+/** Whether the promotion applies right now (date, weekday and hour). */
 export function isRunningNow(t: PromotionSchedule, now: Date) {
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   if (t.odDnia && today < t.odDnia) return false;

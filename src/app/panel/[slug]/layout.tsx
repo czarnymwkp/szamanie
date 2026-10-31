@@ -3,7 +3,8 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { requireVenue } from "@/lib/panel/accounts";
 import Tabs from "./Tabs";
 
-// jak cały panel: zależy od konta, więc czeka na serwer (bez tego Next ostrzega o odczycie adresu przy prerenderze)
+// like the whole panel: depends on the account, so it waits for the server (otherwise Next warns about reading the URL
+// during prerender)
 export const instant = false;
 
 export default async function VenueLayout({ children, params }: LayoutProps<"/panel/[slug]">) {

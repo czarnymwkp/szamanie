@@ -5,12 +5,11 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "../db";
 
-// Konta właścicieli lokali i sesje. Sesja = losowy token w ciasteczku httpOnly; w bazie tylko jego SHA-256.
-// Na razie bez logowania: właściciel wchodzi prywatnym linkiem od admina (/panel/wejdz/<token>) — sesję zakłada
-// przycisk „Wejdź do panelu” na tej stronie.
-// Logowanie kodem z e-maila i przez Google jest gotowe, ale wyłączone — włącza je PANEL_LOGOWANIE=1.
-// Każda strona i akcja panelu sprawdza uprawnienia sama (wymagajKonta / wymagajLokalu / wymagajAdmina),
-// bo ukrycie przycisku w interfejsie niczego nie chroni.
+// Venue owner accounts and sessions. A session = a random token in an httpOnly cookie; the database keeps only its
+// SHA-256. No sign-in for now: the owner enters with a private link from the admin (/panel/wejdz/<token>) — the „Wejdź
+// do panelu” button on that page starts the session. Sign-in with an e-mailed code and with Google is ready but
+// switched off — PANEL_LOGOWANIE=1 turns it on. Every panel page and action checks permissions by itself
+// (requireAccount / requireVenue / requireAdmin), because hiding a button in the UI protects nothing.
 
 export type Account = { id: number; email: string | null; imie: string | null; rola: "wlasciciel" | "admin" };
 export type PanelVenue = { id: number; slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
@@ -22,13 +21,13 @@ export const digest = (text: string) => createHash("sha256").update(text).digest
 
 export const loginEnabled = () => process.env.PANEL_LOGOWANIE === "1";
 
-/** Adres IP klienta do limitów (za Caddy — z nagłówka X-Forwarded-For). */
+/** Client IP address for rate limits (behind Caddy — from the X-Forwarded-For header). */
 export async function ipAddress() {
   const h = await headers();
   return h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "lokalnie";
 }
 
-/** Adres do przekierowania po logowaniu — tylko wewnątrz panelu (bez „//host”, żeby nie wyprowadzić poza serwis). */
+/** Redirect target after sign-in — only inside the panel (no „//host”, so it cannot lead off the site). */
 export function safeTarget(next: unknown) {
   return typeof next === "string" && /^\/panel(\/|$|\?)/.test(next) && !next.startsWith("//") ? next : "/panel";
 }
@@ -41,7 +40,10 @@ export function validEmail(email: string) {
   return email.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-/** Konto o tym adresie albo nowe. Adres musi być już potwierdzony (kodem z e-maila albo przez Google). */
+/**
+ * The account with this address, or a new one. The address must already be verified (with an e-mailed code or by
+ * Google).
+ */
 export function accountByEmail(email: string, name?: string | null): number {
   const e = normalizeEmail(email);
   const existing = db.prepare("SELECT id, imie FROM konta WHERE email = ?").get(e) as
@@ -54,7 +56,7 @@ export function accountByEmail(email: string, name?: string | null): number {
   return Number(db.prepare("INSERT INTO konta (email, imie) VALUES (?, ?)").run(e, name ?? null).lastInsertRowid);
 }
 
-/** Konto przypięte do konta Google (po „sub”); pierwszy raz — po potwierdzonym adresie e-mail. */
+/** Account linked to a Google account (by „sub”); the first time — by the verified e-mail address. */
 export function externalAccount(provider: string, identifier: string, email: string, name: string | null) {
   const pinned = db
     .prepare("SELECT konto_id FROM konta_zewnetrzne WHERE dostawca = ? AND identyfikator = ?")
@@ -69,7 +71,7 @@ export function externalAccount(provider: string, identifier: string, email: str
   return id;
 }
 
-/** Nowy link do panelu dla konta; poprzedni przestaje działać. W bazie zostaje tylko skrót tokenu. */
+/** A new panel link for the account; the previous one stops working. The database keeps only a hash of the token. */
 export function newLink(accountId: number) {
   const token = randomBytes(24).toString("base64url");
   db.prepare("UPDATE konta SET link = ? WHERE id = ?").run(digest(token), accountId);
@@ -84,8 +86,8 @@ export function accountByLink(token: string) {
 const digits = (phone: string) => phone.replace(/\D/g, "").slice(-9);
 
 /**
- * Konto osoby z lokalu, której admin daje dostęp: istniejące po e-mailu albo (konto bez e-maila) po telefonie,
- * inaczej nowe. E-mail jest opcjonalny, bo na razie wchodzi się linkiem.
+ * Account of a person from the venue the admin grants access to: an existing one by e-mail or (an account without
+ * e-mail) by phone, otherwise a new one. E-mail is optional, because for now people enter with a link.
  */
 export function personAccount(name: string, phone: string, email: string | null): number {
   const existing =
@@ -110,7 +112,7 @@ export function personAccount(name: string, phone: string, email: string | null)
   );
 }
 
-/** Zakłada sesję i ustawia ciasteczko. Tylko w akcji serwera albo route handlerze (ciasteczka ustawia odpowiedź). */
+/** Starts a session and sets the cookie. Only in a server action or a route handler (the response sets cookies). */
 export async function loginAccount(accountId: number) {
   const token = randomBytes(32).toString("base64url");
   const expires = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
@@ -133,13 +135,13 @@ export async function logoutAccount() {
   jar.delete(COOKIE);
 }
 
-/** Zalogowane konto albo null; raz na żądanie. */
+/** The signed-in account or null; once per request. */
 export const getAccount = cache(async (): Promise<Account | null> => {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
   const account = db
     .prepare(
-      // „teraz” liczy SQLite: new Date() w komponencie serwera Next uznaje za blokowanie prerenderu
+      // „now” is computed by SQLite: Next treats new Date() in a server component as blocking prerender
       `SELECT k.id, k.email, k.imie, k.rola FROM sesje s JOIN konta k ON k.id = s.konto_id
        WHERE s.id = ? AND s.wygasa > strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
     )
@@ -166,7 +168,10 @@ const venueBySlug = (slug: string) =>
     | PanelVenue
     | undefined;
 
-/** Lokal, którym zalogowane konto może zarządzać (admin — każdym). Cudzy lokal = 404, bez zdradzania, że istnieje. */
+/**
+ * A venue the signed-in account may manage (the admin — any). Someone else's venue = 404, without revealing that it
+ * exists.
+ */
 export async function requireVenue(slug: string): Promise<{ konto: Account; lokal: PanelVenue }> {
   const account = await requireAccount(`/panel/${slug}`);
   const venue = venueBySlug(slug);
@@ -182,7 +187,7 @@ export function venueToClaim(slug: string) {
   return venue ? { ...venue } : null;
 }
 
-/** Lokale do wyboru przy zgłoszeniu „to mój lokal”. */
+/** Venues to choose from in a „to mój lokal” claim. */
 export function selectableVenues() {
   return (
     db.prepare("SELECT slug, nazwa, adres, miejscowosc FROM lokale WHERE ukryty = 0 ORDER BY nazwa COLLATE NOCASE").all() as {
@@ -205,5 +210,5 @@ export function accountVenues(accountId: number): PanelVenue[] {
   ).map((l) => ({ ...l }));
 }
 
-/** Podpis zmian w tabeli poprawki — wiadomo, kto co zmienił. */
+/** Author of changes in the poprawki table — so we know who changed what. */
 export const changeAuthor = (account: Account) => `konto:${account.id}`;

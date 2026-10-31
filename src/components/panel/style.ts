@@ -1,6 +1,6 @@
-// Wspólne klasy panelu właściciela. Pola mają 16 px, żeby iPhone nie powiększał strony przy pisaniu.
+// Shared classes of the owner panel. Inputs are 16 px, so iPhone does not zoom the page while typing.
 
-/** Karta bez wewnętrznego odstępu — dla list z wierszami od krawędzi do krawędzi. */
+/** Card without inner padding — for lists with edge-to-edge rows. */
 export const framedCard = "rounded-2xl bg-karta shadow-[0_1px_2px_rgba(0,0,0,0.06),0_6px_16px_rgba(0,0,0,0.05)] ring-1 ring-obrys/60";
 
 export const card = `${framedCard} p-5`;

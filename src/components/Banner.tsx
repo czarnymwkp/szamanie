@@ -5,8 +5,8 @@ import { venueTheme } from "@/lib/categoryTheme";
 import TypeIcon from "./TypeIcon";
 
 /**
- * Górna część karty i nagłówek strony lokalu: zdjęcie poglądowe kategorii (z podpisem), a bez zdjęcia —
- * kolor z dużą ikoną. `rozmiar` decyduje o wielkości ikony i podpowiedzi rozmiaru obrazka.
+ * Top part of a card and the header of a venue page: an illustrative category photo (with a caption), or without a
+ * photo — a color with a large icon. `rozmiar` sets the icon size and the image size hint.
  */
 export default function Banner({
   lokal,
@@ -32,10 +32,10 @@ export default function Banner({
             sizes={card ? "(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw" : "100vw"}
             className={`object-cover ${card ? "transition-transform duration-700 ease-out group-hover:scale-110" : ""}`}
             style={{ objectPosition: zdjecie.pozycja }}
-            // baner strony lokalu to największy element na ekranie (LCP) — ładowany od razu, nie leniwie
+            // the venue page banner is the largest element on screen (LCP) — loaded right away, not lazily
             preload={!card}
           />
-          {/* lekkie przyciemnienie u góry, żeby etykiety na zdjęciu były czytelne */}
+          {/* slight darkening at the top, so the labels on the photo stay readable */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/10" />
           <span className="absolute right-2 bottom-1.5 rounded bg-black/45 px-1.5 py-0.5 text-[10px] font-bold text-white/90">
             zdjęcie poglądowe

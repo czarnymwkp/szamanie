@@ -1,9 +1,10 @@
 import { Hamburger, Pizza } from "lucide-react";
 
 /**
- * Baner motywu lokalu w stylu jego karty menu: nazwa wersalikami na czarnej belce, która wjeżdża od lewej,
- * pod nią kreska w kolorze akcentu, hasło i adres. Nazwa to <h1> strony, w kroju motywu (--naglowek-lokalu).
- * Szkice w tle to ikony, nie grafiki z karty lokalu (te tylko za jego zgodą).
+ * Venue theme banner in the style of its menu card: the name in uppercase on a black bar that slides in from the left,
+ * below it a line in the accent color, the tagline and the address. The name is the page's <h1>, in the theme font
+ * (--naglowek-lokalu). The sketches in the background are icons, not graphics from the venue's card (those only with
+ * its consent).
  */
 export default function BarBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (

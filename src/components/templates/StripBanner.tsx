@@ -1,7 +1,7 @@
 /**
- * Baner motywu lokalu w stylu jego strony: ciemny pas, nazwa wyśrodkowana rozstrzelonymi wersalikami
- * (<h1> strony, krój --naglowek-lokalu), krótka kreska i `haslo` w kolorze `obrys-2`, pod spodem adres.
- * Bez logo lokalu (tylko za jego zgodą).
+ * Venue theme banner in the style of its website: a dark strip, the name centered in letter-spaced uppercase (the
+ * page's <h1>, font --naglowek-lokalu), a short line and `haslo` in the `obrys-2` color, the address below. No venue
+ * logo (only with its consent).
  */
 export default function StripBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (

@@ -16,8 +16,8 @@ import { getVenues, type Venue } from "@/lib/venues";
 import { plural } from "@/lib/format";
 import { hallsFromList, type Events, type EventKind } from "@/lib/events";
 
-// Strona pod wyszukiwania „sala weselna Kraśnik”, „komunia Kraśnik”, „chrzciny Kraśnik” — sale z całego powiatu,
-// bo na wesele jedzie się dalej niż na pizzę.
+// Page for searches like „sala weselna Kraśnik”, „komunia Kraśnik”, „chrzciny Kraśnik” — halls from the whole county,
+// because people travel further for a wedding than for a pizza.
 
 const BREADCRUMBS: Breadcrumb[] = [
   { nazwa: "szamanie.pl", adres: "/" },
@@ -28,7 +28,7 @@ const hallCount = (n: number) => `${n} ${plural(n, ["sala", "sale", "sal"])}`;
 
 export async function generateMetadata(): Promise<Metadata> {
   const halls = hallsFromList(await getVenues());
-  // w opisie największe sale z pojemnością — to najczęstsze pytanie przy wyborze
+  // the description lists the biggest halls with their capacity — the most common question when choosing
   const names = halls
     .filter((s) => s.przyjecia.doOsob)
     .sort((x, y) => y.przyjecia.doOsob! - x.przyjecia.doOsob!)

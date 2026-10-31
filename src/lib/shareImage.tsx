@@ -1,6 +1,6 @@
-// Obrazek, który Facebook, Messenger czy WhatsApp pokazują przy linku do szamanie.pl (og:image).
-// Rysowany przez next/og: zdjęcie poglądowe, logo, tytuł strony. Fonty (OFL) leżą w public/fonty/ —
-// generator nie czyta woff2 z next/font, a domyślny krój nie ma polskich znaków.
+// The image Facebook, Messenger or WhatsApp show next to a link to szamanie.pl (og:image). Drawn by next/og: an
+// illustrative photo, the logo, the page title. The fonts (OFL) live in public/fonty/ — the generator does not read
+// woff2 from next/font, and the default typeface has no Polish characters.
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -20,8 +20,8 @@ async function fonts() {
     fromPublic("fonty/nunito-latin-900-normal.woff"),
     fromPublic("fonty/nunito-latin-ext-900-normal.woff"),
   ]);
-  // Każdy plik pod osobną nazwą: pliki o tej samej nazwie i grubości generator traktuje jak jeden krój
-  // i gubi polskie znaki z drugiego (latin-ext). Style podają obie nazwy: KROJ_TYTULU, KROJ_TEKSTU.
+  // Every file under its own name: the generator treats files with the same name and weight as one typeface and loses
+  // the Polish characters from the second one (latin-ext). Styles give both names: TITLE_FONT, BODY_FONT.
   return [
     { name: "Grotesk", data: grotesk, weight: 700 as const },
     { name: "GroteskExt", data: groteskExt, weight: 700 as const },
@@ -39,14 +39,14 @@ async function image(path: string, type: string) {
   return `data:${type};base64,${(await fromPublic(path)).toString("base64")}`;
 }
 
-/** Długi tytuł („Restauracja Dom-bar Smacznie zdrowo bo domowo”) dostaje mniejszy krój, żeby zmieścił się w 3 wierszach. */
+/** A long title („Restauracja Dom-bar Smacznie zdrowo bo domowo”) gets a smaller size, so it fits in 3 lines. */
 const titleSize = (title: string) => (title.length > 40 ? 60 : title.length > 24 ? 72 : 88);
 
 type Image = {
   tytul: string;
   podtytul: string;
-  zdjecie?: string; // ścieżka w public/, np. „/zdjecia/kategorie/pizza.jpg”
-  dopisek?: string; // w pigułce obok adresu, np. „Menu z cenami”
+  zdjecie?: string; // path in public/, e.g. „/zdjecia/kategorie/pizza.jpg”
+  dopisek?: string; // in the pill next to the address, e.g. „Menu z cenami”
 };
 
 export async function shareImage(date: Image) {
@@ -55,7 +55,7 @@ export async function shareImage(date: Image) {
   });
 }
 
-/** PNG w cache — rysowanie trwa ok. pół sekundy, a dane strony zmieniają się rzadko. */
+/** PNG in the cache — drawing takes about half a second, and page data changes rarely. */
 async function draw({ tytul, podtytul, zdjecie, dopisek }: Image): Promise<Uint8Array<ArrayBuffer>> {
   "use cache";
   cacheLife("hours");
@@ -70,7 +70,7 @@ async function draw({ tytul, podtytul, zdjecie, dopisek }: Image): Promise<Uint8
     (
       <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: "#111111" }}>
         {tlo && (
-          // eslint-disable-next-line @next/next/no-img-element -- w next/og działa tylko zwykły <img>
+          // eslint-disable-next-line @next/next/no-img-element -- next/og only supports a plain <img>
           <img
             src={tlo}
             alt=""
@@ -103,7 +103,7 @@ async function draw({ tytul, podtytul, zdjecie, dopisek }: Image): Promise<Uint8
             justifyContent: "space-between",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- w next/og działa tylko zwykły <img> */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/og only supports a plain <img> */}
           <img src={logo} alt="" height={60} width={Math.round((60 * 1793) / 388)} />
 
           <div style={{ display: "flex", flexDirection: "column", maxWidth: 860 }}>

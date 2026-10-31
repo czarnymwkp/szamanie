@@ -1,9 +1,9 @@
 import { DISH_PHOTOS, type DishKey } from "./dishPhotos";
 import { CATEGORY_PHOTOS, type PhotoKey } from "./categoryPhotos";
 
-// Zdjęcie poglądowe na kartę lokalu — każdy lokal inne, dopóki nie ma własnych zdjęć. Kolejność wyboru: dania
-// z jego menu (najczęstsze najpierw), potem jego kuchnie i rodzaj lokalu, a gdy pula się wyczerpie — dowolne
-// nieużyte zdjęcie. Zdjęć (dania + kategorie) jest więcej niż lokali, więc nic się nie powtarza.
+// Illustrative photo for a venue card — a different one for every venue until it has its own photos. Order of choice:
+// dishes from its menu (most common first), then its cuisines and venue type, and once the pool runs out — any unused
+// photo. There are more photos (dishes + categories) than venues, so nothing repeats.
 
 export type VenuePhoto = { plik: string; pozycja?: string };
 type Candidate = DishKey | `kategoria:${PhotoKey}`;
@@ -122,7 +122,7 @@ const BY_TYPE: Record<string, Candidate[]> = {
   ],
 };
 
-// Napoje z menu nie idą na kartę lokalu — bary, puby i kawiarnie dostają je z puli swojego rodzaju.
+// Drinks from the menu do not go on the venue card — bars, pubs and cafés get them from the pool of their type.
 const DRINKS = new Set<DishKey>([
   "espresso",
   "cappuccino",
@@ -142,7 +142,7 @@ const DRINKS = new Set<DishKey>([
   "shot",
   "whisky",
 ]);
-// Na ostatnią chwilę (gdy pule się wyczerpią) — bez napojów, które słabo wyglądają jako zdjęcie lokalu.
+// Last resort (when the pools run out) — without drinks, which look poor as a venue photo.
 const ALL: Candidate[] = [
   ...(Object.keys(CATEGORY_PHOTOS) as PhotoKey[]).map((k) => `kategoria:${k}` as const),
   ...(Object.keys(DISH_PHOTOS) as DishKey[]).filter((k) => !DRINKS.has(k)),
@@ -157,14 +157,17 @@ function photo(k: Candidate): VenuePhoto | null {
   return z ? { plik: z.plik } : null;
 }
 
-/** Dania z menu lokalu do wyboru zdjęcia (bez napojów), od najczęstszego. */
+/** Dishes from the venue's menu to choose a photo from (without drinks), most common first. */
 export function dishesForPhoto(keys: DishKey[]): DishKey[] {
   const count = new Map<DishKey, number>();
   for (const k of keys) if (!DRINKS.has(k)) count.set(k, (count.get(k) ?? 0) + 1);
   return [...count.keys()].sort((a, b) => count.get(b)! - count.get(a)!);
 }
 
-/** Każdemu lokalowi inne zdjęcie: najpierw lokale z najkrótszą listą pasujących, żeby nie zostały z niczym. */
+/**
+ * A different photo for every venue: venues with the shortest list of matches go first, so they are not left with
+ * nothing.
+ */
 export function assignPhotos(
   venues: { id: number; typ: string; kuchnie: string[] }[],
   dishesFromMenu: Map<number, DishKey[]>,

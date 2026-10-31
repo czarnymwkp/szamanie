@@ -1,6 +1,6 @@
-/* Maskotka: jedna pętla 10 s (1% = 100 ms).
-   0,5–1,0 s gryz 1 · 2,1–2,6 s gryz 2 · 3,7–4,2 s gryz 3 · żucie po każdym · 5,4–6,4 s czary widelcem (burger wraca)
-   · 6,3–9,6 s zaproszenie do wyszukiwania (dymek, wzrok w stronę pola). */
+/* Mascot: one 10 s loop (1% = 100 ms).
+   0.5–1.0 s bite 1 · 2.1–2.6 s bite 2 · 3.7–4.2 s bite 3 · chewing after each · 5.4–6.4 s fork magic (the burger comes back)
+   · 6.3–9.6 s invitation to search (speech bubble, eyes towards the search box). */
 
 .sz-szaman {
   display: block;
@@ -24,7 +24,7 @@
   }
 }
 
-/* Ręka obraca się w barku (punkt 108,188), burger w niej — w przeciwną stronę, więc trzyma poziom. */
+/* The arm rotates at the shoulder (point 108,188), the burger in it — the other way, so it stays level. */
 .sz-reka {
   transform-box: view-box;
   transform-origin: 108px 188px;
@@ -134,7 +134,7 @@
   }
 }
 
-/* Usta i oczy: przełączanie wariantów (uśmiech / otwarte / żucie). */
+/* Mouth and eyes: switching variants (smile / open / chewing). */
 .sz-usta-usmiech {
   animation: sz-usmiech 10s infinite;
 }
@@ -284,7 +284,7 @@
   }
 }
 
-/* Czary: machnięcie widelcem w dłoni (punkt 193,184) i iskry wokół burgera. */
+/* Magic: a flick of the fork in the hand (point 193,184) and sparks around the burger. */
 .sz-laska {
   transform-box: view-box;
   transform-origin: 193px 184px;
@@ -329,7 +329,7 @@
   }
 }
 
-/* Dymek z zaproszeniem — po lewej, „ogonek” w stronę szamana. */
+/* Speech bubble with the invitation — on the left, the „tail” pointing at the shaman. */
 .sz-dymek {
   position: absolute;
   top: 26%;

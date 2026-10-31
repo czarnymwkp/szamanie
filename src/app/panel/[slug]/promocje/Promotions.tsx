@@ -36,10 +36,10 @@ export default function Promotions({
   zapisz: SaveButton;
   usun: (id: number) => Promise<void>;
 }) {
-  // null = lista; "nowa" albo id = otwarty formularz
+  // null = list; "nowa" or an id = open form
   const [edytowana, setEdytowana] = useState<"nowa" | number | null>(promocje.length ? null : "nowa");
   const [trwaUsuwanie, startUsuwanie] = useTransition();
-  const [doUsuniecia, setDoUsuniecia] = useState<number | null>(null); // usuwanie w dwóch kliknięciach
+  const [doUsuniecia, setDoUsuniecia] = useState<number | null>(null); // deleting takes two clicks
 
   if (edytowana !== null) {
     return (

@@ -2,9 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 
-// Aktualny czas z dokładnością do minuty, tylko w przeglądarce.
-// Na serwerze (i przy pierwszym renderze) zwraca null, bo strona jest generowana z wyprzedzeniem
-// i „teraz” serwera nie jest „teraz” użytkownika.
+// The current time to the minute, only in the browser. On the server (and on the first render) it returns null, because
+// the page is generated ahead of time and the server's „now” is not the user's „now”.
 const minute = () => Math.floor(Date.now() / 60_000);
 
 function subscribe(change: () => void) {

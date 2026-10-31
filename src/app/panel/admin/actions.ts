@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/config";
 import { personAccount, loginEnabled, venueToClaim, newLink, validEmail, requireAdmin } from "@/lib/panel/accounts";
 import { sendToOwner } from "@/lib/panel/mail";
 
-/** Przyjęcie albo odrzucenie zgłoszenia „to mój lokal” (po telefonie na numer lokalu). */
+/** Accepting or rejecting a „to mój lokal” claim (after calling the venue's number). */
 export async function reviewClaim(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));
@@ -29,7 +29,8 @@ export async function reviewClaim(formData: FormData) {
     id,
   );
   if (decision === "przyjete") {
-    // zgłoszenie bez logowania nie ma konta — powstaje teraz; link do panelu admin wysyła z listy „Kto zarządza”
+    // a claim sent without signing in has no account — it is created now; the admin sends the panel link from the „Kto
+    // zarządza” list
     const account = z.konto_id ?? personAccount(z.imie, z.telefon, z.email);
     db.prepare("UPDATE zgloszenia SET konto_id = ? WHERE id = ?").run(account, id);
     db.prepare("INSERT OR IGNORE INTO lokale_konta (lokal_id, konto_id) VALUES (?, ?)").run(z.lokal_id, account);
@@ -49,7 +50,7 @@ export async function reviewClaim(formData: FormData) {
   revalidatePath("/panel/admin");
 }
 
-/** Odbiera dostęp do lokalu; konto bez żadnego lokalu traci też link i sesje. */
+/** Revokes access to a venue; an account left without any venue also loses its link and sessions. */
 export async function revokeAccess(formData: FormData) {
   await requireAdmin();
   const venue = Number(formData.get("lokal"));
@@ -65,7 +66,7 @@ export async function revokeAccess(formData: FormData) {
   revalidatePath("/panel", "layout");
 }
 
-/** Nowy link do panelu dla konta — zwraca ścieżkę, adres z domeną składa przeglądarka. */
+/** New panel link for an account — returns the path, the browser builds the URL with the domain. */
 export async function newPanelLink(account: number) {
   await requireAdmin();
   const path = newLink(account);
@@ -75,7 +76,7 @@ export async function newPanelLink(account: number) {
 
 export type PersonState = { blad?: string; sciezka?: string; telefon?: string };
 
-/** Dostęp do lokalu bez zgłoszenia (np. po rozmowie z właścicielem) — od razu z linkiem do panelu. */
+/** Venue access without a claim (e.g. after talking to the owner) — with a panel link right away. */
 export async function addPerson(slug: string, _: PersonState, formData: FormData): Promise<PersonState> {
   await requireAdmin();
   const venue = venueToClaim(slug);

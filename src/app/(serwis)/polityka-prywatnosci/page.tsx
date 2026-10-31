@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/polityka-prywatnosci" },
 };
 
-// Opis zgodny z tym, co serwis faktycznie robi: bez kont i ciasteczek; statystyki Umami (bez ciasteczek) tylko, gdy
-// ustawione UMAMI_ID — wtedy też nowa data aktualizacji; ulubione i lista zamówienia tylko w localStorage; lokalizacja
-// liczona w przeglądarce. Przy zmianie tego (konta, statystyki) — zaktualizować.
+// Describes what the site actually does: no accounts and no cookies; Umami analytics (cookieless) only when UMAMI_ID is
+// set — then also a new „last updated” date; favorites and the order list only in localStorage; location computed in
+// the browser. Update this when any of that changes (accounts, analytics).
 const UPDATE = "25 października 2026";
 
 function Point({ tytul, children }: { tytul: string; children: ReactNode }) {

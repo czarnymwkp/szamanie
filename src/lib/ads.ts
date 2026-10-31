@@ -1,5 +1,5 @@
-// Banery w miejscu na reklamy na stronie głównej (pod wyszukiwarką, nad „Na co masz ochotę?”).
-// Dopóki nie ma reklamodawców, są tu banery samego serwisu. Reklama lokalu dostaje etykietę „Reklama”.
+// Banners in the ad slot on the home page (below the search box, above „Na co masz ochotę?”). Until there are
+// advertisers, these are the site's own banners. A venue ad gets the „Reklama” label.
 
 export type Ad = {
   id: string;
@@ -9,7 +9,7 @@ export type Ad = {
   cta: string;
   href: string;
   tlo: string; // CSS background
-  ciemna: boolean; // jasny tekst na ciemnym tle
+  ciemna: boolean; // light text on a dark background
   ikona: "megafon" | "menu" | "procent";
 };
 

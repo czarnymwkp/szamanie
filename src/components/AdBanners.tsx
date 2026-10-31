@@ -8,8 +8,9 @@ import { ADS } from "@/lib/ads";
 const ICONS = { megafon: Megaphone, menu: BookOpen, procent: BadgePercent };
 
 /**
- * Miejsce na banery reklamowe: przewijana taśma (następny baner wystaje z prawej), sama przewija się co 6 s,
- * dopóki ktoś jej nie dotknie. Na komputerze po trzy w rzędzie, na całą szerokość treści. Zaokrąglenie z `--promien-reklamy`, żeby pasowało do wyglądu strony.
+ * Slot for ad banners: a scrolling strip (the next banner peeks in on the right) that advances every 6 s until someone
+ * touches it. On a computer three in a row, across the full content width. Corner radius from `--promien-reklamy`, to
+ * match the page's look.
  */
 export default function AdBanners({ className = "", ciemne = false }: { className?: string; ciemne?: boolean }) {
   const tape = useRef<HTMLDivElement>(null);
@@ -88,7 +89,7 @@ export default function AdBanners({ className = "", ciemne = false }: { classNam
           );
         })}
       </div>
-      {/* na komputerze trzy banery mieszczą się obok siebie — kropki tylko, gdy jest ich więcej */}
+      {/* on a computer three banners fit side by side — dots only when there are more */}
       <div className={`mt-2.5 flex justify-center gap-1.5 ${ADS.length <= 3 ? "lg:hidden" : ""}`} aria-hidden>
         {ADS.map((r, i) => (
           <span

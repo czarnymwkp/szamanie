@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 
-// Stałe losowanie (to samo na serwerze i w przeglądarce), żeby świetliki nie skakały po wczytaniu strony.
+// Seeded random numbers (the same on the server and in the browser), so the fireflies do not jump after the page loads.
 function seededRandom(seed: number) {
   let s = seed;
   return () => {
@@ -22,8 +22,8 @@ const FIREFLIES = Array.from({ length: 26 }, () => ({
 })) as CSSProperties[];
 
 /**
- * Baner motywu lokalu jak na stronie lokalu: noc, świetliki, znak lokalu, a pod nim nazwa (to jest <h1> strony)
- * i linijka z adresem. Nagłówek w kroju motywu (--naglowek-lokalu).
+ * Venue theme banner as on the venue's website: night, fireflies, the venue's emblem, and below it the name (the page's
+ * <h1>) and a line with the address. Heading in the theme font (--naglowek-lokalu).
  */
 export default function FireflyBanner({
   znak,
@@ -64,7 +64,7 @@ export default function FireflyBanner({
           {podpis}
         </p>
       </div>
-      {/* płynne przejście w tło strony */}
+      {/* smooth transition into the page background */}
       <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-tlo to-transparent" />
     </div>
   );

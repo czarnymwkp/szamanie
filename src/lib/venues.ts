@@ -26,19 +26,21 @@ export type Venue = {
   menuUrl: string | null;
   cechy: Features;
   opis: string | null;
-  szablon: string; // wygląd podstrony lokalu (src/components/szablony)
-  // płatne pakiety aktywne dzisiaj
+  szablon: string; // look of the venue subpage (src/components/templates)
+  // paid packages active today
   promowany: boolean;
   galeria: boolean;
-  promocja: string | null; // tytuł pierwszej trwającej promocji (z panelu lokalu) — na karcie na liście
-  zdjecie?: VenuePhoto | null; // zdjęcie poglądowe na kartę, każdy lokal inne (lib/zdjeciaLokali.ts)
+  promocja: string | null; // title of the first running promotion (from the venue panel) — on the card in the list
+  zdjecie?: VenuePhoto | null; // illustrative photo for the card, different for every venue (lib/venuePhotos.ts)
 };
 
-/** Udogodnienia z OSM (scripts/import-osm.mjs → cechy), poprawek (npm run popraw) i menu (dania wege). */
+/**
+ * Amenities from OSM (scripts/import-osm.mjs → cechy), corrections (npm run override) and the menu (vegetarian dishes).
+ */
 export type Features = {
   ogrodek?: boolean;
   wozek?: "yes" | "limited";
-  zwierzeta?: boolean; // można wejść z psem
+  zwierzeta?: boolean; // dogs welcome
   karta?: boolean;
   wifi?: boolean;
   wege?: boolean;
@@ -59,9 +61,10 @@ type Row = Omit<Venue, "kuchnie" | "dostawa" | "naWynos" | "promowany" | "galeri
   galeria: number;
 };
 
-// Udogodnienia, które da się ustawić poprawką: `npm run popraw -- <slug> zwierzeta tak` („nie” usuwa).
+// Amenities that can be set with a correction: `npm run override -- <slug> zwierzeta tak` („nie” removes it).
 const FEATURES_FROM_OVERRIDES = ["zwierzeta", "wozek", "wege", "wegan"] as const;
-// Tyle dań wege w menu (bez napojów i dodatków) wystarcza, żeby lokal dostał „Opcje wegetariańskie”.
+// This many vegetarian dishes in the menu (without drinks and extras) is enough for the venue to get „Opcje
+// wegetariańskie”.
 const VEG_DISHES = 3;
 
 function venueFeatures(features: string, overrides: Record<string, unknown>, vegFromMenu: boolean): Features {
@@ -76,15 +79,15 @@ function venueFeatures(features: string, overrides: Record<string, unknown>, veg
   return c;
 }
 
-// Data lokalna w formacie RRRR-MM-DD, tak jak w tabeli pakiety.
+// Local date as YYYY-MM-DD, as in the pakiety table.
 function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 /**
- * Wszystkie widoczne lokale: najpierw promowane (pakiet „top”), potem alfabetycznie.
- * Wynik jest w cache i odświeża się co minutę, więc zmiany w bazie widać po chwili.
+ * All visible venues: promoted first (the „top” package), then alphabetically. The result is cached and refreshed every
+ * minute, so database changes show up after a moment.
  */
 export async function getVenues(): Promise<Venue[]> {
   "use cache";
@@ -107,7 +110,7 @@ export async function getVenues(): Promise<Venue[]> {
     )
     .all({ dzis: today() }) as Row[];
 
-  // Ręczne poprawki (tabela poprawki) wygrywają z danymi z OSM.
+  // Manual corrections (the poprawki table) win over OSM data.
   const overrides = new Map<number, Record<string, unknown>>();
   for (const p of db.prepare("SELECT lokal_id, pole, wartosc FROM poprawki").all() as {
     lokal_id: number;
@@ -117,7 +120,8 @@ export async function getVenues(): Promise<Venue[]> {
     overrides.set(p.lokal_id, { ...overrides.get(p.lokal_id), [p.pole]: JSON.parse(p.wartosc) });
   }
 
-  // Kuchnie z menu: lokal z pizzą w karcie trafia do kategorii „Pizza” (sos czy dodatek do pizzy się nie liczy).
+  // Cuisines from the menu: a venue with pizza on its card lands in the „Pizza” category (a pizza sauce or topping does
+  // not count).
   const fromMenu = new Map<number, Set<string>>();
   for (const d of db.prepare("SELECT lokal_id, sekcja, nazwa FROM menu").all() as {
     lokal_id: number;
@@ -139,12 +143,13 @@ export async function getVenues(): Promise<Venue[]> {
         .all(VEG_DISHES) as { lokal_id: number }[]
     ).map((m) => m.lokal_id),
   );
-  // Lokal, który podał strefy dostawy, dowozi — nawet jeśli w OSM tego nie ma.
+  // A venue that gave delivery zones delivers — even if OSM does not say so.
   const withZones = new Set(
     (db.prepare("SELECT DISTINCT lokal_id FROM strefy_dostawy").all() as { lokal_id: number }[]).map((s) => s.lokal_id),
   );
 
-  // Dania z menu do wyboru zdjęcia poglądowego lokalu (np. lokal z karbonarą w karcie może dostać karbonarę).
+  // Menu dishes to choose the venue's illustrative photo from (e.g. a venue with carbonara on its card can get
+  // carbonara).
   const menuKeys = new Map<number, DishKey[]>();
   for (const d of db.prepare("SELECT lokal_id, sekcja, nazwa, opis FROM menu ORDER BY lokal_id, kolejnosc").all() as {
     lokal_id: number;
@@ -160,7 +165,7 @@ export async function getVenues(): Promise<Venue[]> {
     .map((row) => {
       const p = overrides.get(row.id) ?? {};
       const { kuchnie: kuchniePoprawione, dostawa, na_wynos: naWynosPoprawione, ...reszta } = p;
-      // udogodnienia z poprawek trafiają do cech, nie jako osobne pola lokalu
+      // amenities from corrections go into the features, not as separate venue fields
       const fields = Object.fromEntries(
         Object.entries(reszta).filter(([k]) => !(FEATURES_FROM_OVERRIDES as readonly string[]).includes(k)),
       );
@@ -194,11 +199,11 @@ export async function getVenues(): Promise<Venue[]> {
   return list.map((l) => ({ ...l, zdjecie: photos.get(l.id) ?? null }));
 }
 
-/** Miejscowości powiatu (miasta i wsie), Kraśnik pierwszy — do wyboru „blisko …” bez GPS. */
+/** Towns of the county (towns and villages), Kraśnik first — for choosing „blisko …” without GPS. */
 export async function getTowns(): Promise<Town[]> {
   "use cache";
   cacheLife("days");
-  // node:sqlite zwraca obiekty bez prototypu — React nie przekaże ich do komponentu klienta, więc kopiujemy.
+  // node:sqlite returns objects without a prototype — React will not pass them to a client component, so we copy them.
   const rows = (db.prepare("SELECT nazwa, typ, lat, lon FROM miejscowosci").all() as Town[]).map((m) => ({
     ...m,
   }));
