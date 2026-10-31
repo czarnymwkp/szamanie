@@ -17,7 +17,7 @@ import {
 } from "@/components/StronaFrazy";
 import { pobierzLokale, type Lokal } from "@/lib/lokale";
 import { pobierzMenu, type Menu } from "@/lib/menu";
-import { jestLokali } from "@/lib/nazwy";
+import { jestLokali, odmiana } from "@/lib/nazwy";
 import {
   daniaKategorii,
   kategorieZeStrona,
@@ -25,6 +25,7 @@ import {
   obszaryZDowozem,
   obszaryZeStrona,
   otwarteWNiedziele,
+  tytulStrony,
   znajdzStrone,
   zDowozem,
   type KategoriaSeo,
@@ -60,8 +61,12 @@ export async function generateMetadata({ params }: PageProps<"/[obszar]/[kategor
   const { w } = lokaleKategorii(lokale, obszar, kategoria);
   const nazwy = w.slice(0, 3).map((l) => l.nazwa);
   const zCenami = dania.some((d) => w.some((l) => l.id === d.lokalId));
+  const ile = kategoria.liczba ? `${w.length} ${odmiana(w.length, kategoria.liczba)}` : ileLokali(w.length);
+  // „dowóz” w tytule, gdy któryś lokal dowozi — ludzie szukają „pizza Kraśnik dowóz”
+  const dowoz = kategoria.dowoz && w.some((l) => l.dostawa);
+  const co = [zCenami ? "ceny" : "godziny", dowoz ? "dowóz" : zCenami ? "godziny" : "telefony"];
   return {
-    title: `${kategoria.fraza} ${obszar.nazwa} — ${ileLokali(w.length)}, ${zCenami ? "ceny, godziny" : "godziny, telefony"}`,
+    title: tytulStrony(`${kategoria.fraza} ${obszar.nazwa} — ${ile}, ${co.join(", ")}`),
     description: `${kategoria.nazwa} ${obszar.w}: ${nazwy.join(", ")}${w.length > 3 ? " i inne" : ""}. Sprawdź, co jest teraz otwarte, zadzwoń i zamów albo podjedź.`,
     alternates: { canonical: `/${obszar.slug}/${kategoria.slug}` },
   };

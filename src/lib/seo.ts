@@ -36,6 +36,8 @@ export type KategoriaSeo = {
   slug: string; // w adresie: /krasnik/<slug>
   nazwa: string; // nagłówek: „Pizza w Kraśniku”
   fraza: string; // tytuł w Google, tak jak ludzie wpisują: „Pizza Kraśnik”, „Burger Kraśnik”
+  // jak liczyć lokale w tytule („9 pizzerii”) — druga fraza, którą ludzie wpisują („pizzeria Kraśnik”)
+  liczba?: [string, string, string];
   gdzie: string; // pytanie: „Gdzie zjeść pizzę” + „ w Kraśniku?”
   zdjecie: KluczZdjecia;
   dowoz: boolean; // czy pytać o dowóz (przy kawie czy piwie nie ma to sensu)
@@ -52,6 +54,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     slug: "pizza",
     nazwa: "Pizza",
     fraza: "Pizza",
+    liczba: ["pizzeria", "pizzerie", "pizzerii"],
     gdzie: "Gdzie zjeść pizzę",
     zdjecie: "pizza",
     dowoz: true,
@@ -74,6 +77,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     slug: "kebab",
     nazwa: "Kebab",
     fraza: "Kebab",
+    liczba: ["kebab", "kebaby", "kebabów"],
     gdzie: "Gdzie zjeść kebaba",
     zdjecie: "kebab",
     dowoz: true,
@@ -85,6 +89,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     slug: "restauracje",
     nazwa: "Restauracje",
     fraza: "Restauracje",
+    liczba: ["restauracja", "restauracje", "restauracji"],
     gdzie: "Gdzie iść do restauracji",
     zdjecie: "restauracja",
     dowoz: true,
@@ -140,6 +145,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     slug: "kawiarnie",
     nazwa: "Kawiarnie",
     fraza: "Kawiarnie",
+    liczba: ["kawiarnia", "kawiarnie", "kawiarni"],
     gdzie: "Gdzie na kawę",
     zdjecie: "kawa",
     dowoz: false,
@@ -150,6 +156,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     slug: "lody",
     nazwa: "Lody",
     fraza: "Lody",
+    liczba: ["lodziarnia", "lodziarnie", "lodziarni"],
     gdzie: "Gdzie na lody",
     zdjecie: "lody",
     dowoz: false,
@@ -195,6 +202,12 @@ export async function daniaKategorii(k: KategoriaSeo): Promise<Danie[]> {
 export async function doIndeksu(l: Lokal) {
   return Boolean(l.telefon || l.godziny || l.www || l.facebook || (await pobierzMenu(l.id)));
 }
+
+/**
+ * Tytuł strony w Google. Dłuższy niż ok. 50 znaków idzie bez „ | szamanie.pl”, żeby Google nie uciął końcówki
+ * (ceny, dowóz), która przyciąga kliknięcie.
+ */
+export const tytulStrony = (tytul: string) => (tytul.length > 50 ? { absolute: tytul } : tytul);
 
 /** Strona obszaru wymaga tylu lokali w obszarze, strona kategorii — tylu lokali z kategorii. */
 const MIN_W_OBSZARZE = 3;

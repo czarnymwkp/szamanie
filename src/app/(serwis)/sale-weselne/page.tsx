@@ -28,10 +28,15 @@ const ileSal = (n: number) => `${n} ${odmiana(n, ["sala", "sale", "sal"])}`;
 
 export async function generateMetadata(): Promise<Metadata> {
   const sale = saleZListy(await pobierzLokale());
-  const nazwy = sale.slice(0, 3).map(({ lokal, przyjecia }) => `${lokal.nazwa}${przyjecia.doOsob ? ` (do ${przyjecia.doOsob} osób)` : ""}`);
+  // w opisie największe sale z pojemnością — to najczęstsze pytanie przy wyborze
+  const nazwy = sale
+    .filter((s) => s.przyjecia.doOsob)
+    .sort((x, y) => y.przyjecia.doOsob! - x.przyjecia.doOsob!)
+    .slice(0, 2)
+    .map(({ lokal, przyjecia }) => `${lokal.nazwa} (do ${przyjecia.doOsob} osób)`);
   return {
     title: "Sale weselne Kraśnik — wesela, komunie, chrzciny",
-    description: `Sale na wesela, komunie i chrzciny w Kraśniku i okolicy: ${nazwy.join(", ")}${sale.length > 3 ? " i inne" : ""}. Ile osób mieszczą, noclegi i telefony.`,
+    description: `${ileSal(sale.length)} na wesela, komunie i chrzciny w Kraśniku i okolicy, m.in. ${nazwy.join(", ")}. Pojemność, noclegi i telefon.`,
     alternates: { canonical: "/sale-weselne" },
   };
 }

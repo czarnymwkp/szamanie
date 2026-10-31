@@ -10,7 +10,7 @@ import { pobierzLokal, pobierzLokale, type Lokal } from "@/lib/lokale";
 import { pobierzMenu, type Menu } from "@/lib/menu";
 import { linkFacebooka, linkWww, nazwaKuchni, opisLokalu, pelnyAdres } from "@/lib/nazwy";
 import { przyjeciaLokalu } from "@/lib/przyjecia";
-import { doIndeksu, kategorieZeStrona, lokaleKategorii, obszaryZeStrona, type Obszar } from "@/lib/seo";
+import { doIndeksu, kategorieZeStrona, lokaleKategorii, obszaryZeStrona, tytulStrony, type Obszar } from "@/lib/seo";
 
 // Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
 export const ensureStatic = "navigation";
@@ -42,10 +42,12 @@ export async function generateMetadata({ params }: PageProps<"/lokal/[slug]">): 
   const rodzaj = opisLokalu(lokal).split(" · ").slice(0, 3).join(" · ");
   // Z menu tytuł łapie wyszukiwania „<lokal> Kraśnik menu”, „… ceny”. Nazwa w opisie, bo bez niej pięć kebabów
   // miałoby ten sam opis.
-  const tytul = `${lokal.nazwa}${gdzie} — ${menu ? "menu i ceny" : "godziny i telefon"}`;
+  const pelny = `${lokal.nazwa}${gdzie} — ${menu ? "menu i ceny" : "godziny i telefon"}`;
+  // bardzo długa nazwa (z ulicą): krótsza końcówka, żeby całość zmieściła się w wyniku Google
+  const tytul = pelny.length > 60 ? `${lokal.nazwa}${gdzie} — ${menu ? "menu" : "godziny"}` : pelny;
   return {
     // długa nazwa lokalu: bez „ | szamanie.pl” na końcu, żeby Google nie uciął „menu i ceny”
-    title: tytul.length > 50 ? { absolute: tytul } : tytul,
+    title: tytulStrony(tytul),
     description: menu
       ? `${lokal.nazwa}: menu z cenami (${menu.liczba} pozycji), godziny otwarcia, telefon i dojazd. ${rodzaj}, ${pelnyAdres(lokal)}.`
       : `${lokal.nazwa} — ${rodzaj}, ${pelnyAdres(lokal)}. ${uslugi ? `${uslugi[0].toUpperCase()}${uslugi.slice(1)}. ` : ""}Sprawdź godziny otwarcia, telefon i dojazd.`,

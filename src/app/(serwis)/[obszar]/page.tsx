@@ -24,6 +24,7 @@ import {
   obszaryZDowozem,
   obszaryZeStrona,
   otwarteWNiedziele,
+  tytulStrony,
   znajdzStrone,
   zDowozem,
   type Obszar,
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: PageProps<"/[obszar]">): Prom
   const { w } = lokaleObszaru(lokale, obszar);
   const kategorie = kategorieZeStrona(lokale, obszar).map((k) => k.nazwa.toLowerCase());
   return {
-    title: `Gdzie zjeść ${obszar.w}? ${ileLokali(w.length)}`,
+    title: tytulStrony(`Gdzie zjeść ${obszar.w}? ${ileLokali(w.length)}: ${kategorie.slice(0, 3).join(", ")}`),
     description: `Gdzie zjeść ${obszar.w}: ${[...kategorie.slice(0, 4), "inne"].join(", ")}. ${ileLokali(w.length)} z godzinami otwarcia, telefonem i dojazdem w jednym miejscu.`,
     alternates: { canonical: `/${obszar.slug}` },
   };
