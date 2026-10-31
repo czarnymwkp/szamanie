@@ -1,6 +1,6 @@
 // Schemat bazy SQLite. Wykonywany przy każdym otwarciu bazy, więc tylko CREATE ... IF NOT EXISTS.
 // Plik .mjs, bo korzystają z niego i aplikacja, i skrypty w scripts/.
-export const SCHEMAT = `
+export const SCHEMA = `
 CREATE TABLE IF NOT EXISTS lokale (
   id              INTEGER PRIMARY KEY,
   slug            TEXT NOT NULL UNIQUE,
@@ -51,7 +51,7 @@ CREATE INDEX IF NOT EXISTS pakiety_lokal ON pakiety(lokal_id, rodzaj);
 
 // Zmiany schematu po wersji bazowej. Baza pamięta, ile migracji już wykonała (PRAGMA user_version),
 // więc nowe dopisuj tylko na końcu i nigdy nie zmieniaj istniejących.
-export const MIGRACJE = [
+export const MIGRATIONS = [
   // 1: wygląd podstrony lokalu, wybierany przez właściciela w abonamencie
   "ALTER TABLE lokale ADD COLUMN szablon TEXT NOT NULL DEFAULT 'klasyczny'",
   // 2: więcej danych kontaktowych, udogodnienia oraz logo/zdjęcia pobrane ze stron lokali.

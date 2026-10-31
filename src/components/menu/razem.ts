@@ -3,53 +3,53 @@
 // W linku są imiona, nazwy dań z wariantem i ilości; ceny telefon odbiorcy bierze z menu na stronie lokalu.
 // Po nazwie, nie po numerze pozycji: menu wczytane na nowo (plik karty, synchronizacja na serwerze) dostaje nowe
 // numery, a dania dodane do listy wcześniej muszą dalej dojść do odbiorcy.
-import type { PozycjaListy } from "./useLista";
+import type { ListItem } from "./useLista";
 
-export const ZNACZNIK = "#razem=";
+export const MARKER = "#razem=";
 
-type Danie = Omit<PozycjaListy, "ilosc" | "kto">;
+type Dish = Omit<ListItem, "ilosc" | "kto">;
 // v2: [osoba, nazwa, wariant (0 = bez wariantu), ilość]; dawne linki: [osoba, klucz pozycji, ilość]
-type Paczka = { v?: 2; o: string[]; p: ([number, string, string | 0, number] | [number, string, number])[]; u?: string };
+type Payload = { v?: 2; o: string[]; p: ([number, string, string | 0, number] | [number, string, number])[]; u?: string };
 
-const doBase64 = (tekst: string) =>
-  btoa(String.fromCharCode(...new TextEncoder().encode(tekst)))
+const toBase64 = (text: string) =>
+  btoa(String.fromCharCode(...new TextEncoder().encode(text)))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 
-const zBase64 = (tekst: string) =>
-  new TextDecoder().decode(Uint8Array.from(atob(tekst.replace(/-/g, "+").replace(/_/g, "/")), (z) => z.charCodeAt(0)));
+const fromBase64 = (text: string) =>
+  new TextDecoder().decode(Uint8Array.from(atob(text.replace(/-/g, "+").replace(/_/g, "/")), (z) => z.charCodeAt(0)));
 
-const poNazwie = (nazwa: string, wariant: string | null) => `${nazwa.toLowerCase()}|${wariant ?? ""}`;
+const byName = (name: string, variant: string | null) => `${name.toLowerCase()}|${variant ?? ""}`;
 
 /** Część linku po „#razem=”: pozycje innych z ich imionami, moje (bez `kto`) pod moim imieniem. */
-export function zakoduj(pozycje: PozycjaListy[], uwagi: string, mojeImie: string): string {
-  const osoby: string[] = [];
-  const indeks = (kto: string) => (osoby.includes(kto) ? osoby.indexOf(kto) : osoby.push(kto) - 1);
-  const paczka: Paczka = {
+export function encode(items: ListItem[], notes: string, myName: string): string {
+  const people: string[] = [];
+  const index = (who: string) => (people.includes(who) ? people.indexOf(who) : people.push(who) - 1);
+  const payload: Payload = {
     v: 2,
-    o: osoby,
-    p: pozycje.map((p) => [indeks(p.kto ?? mojeImie), p.nazwa, p.wariant ?? 0, p.ilosc]),
+    o: people,
+    p: items.map((p) => [index(p.kto ?? myName), p.nazwa, p.wariant ?? 0, p.ilosc]),
   };
-  if (uwagi) paczka.u = uwagi;
-  return doBase64(JSON.stringify(paczka));
+  if (notes) payload.u = notes;
+  return toBase64(JSON.stringify(payload));
 }
 
 /** Pozycje z linku (kto = imię osoby) albo null, gdy link jest uszkodzony. `dania`: menu lokalu po kluczach pozycji. */
-export function odkoduj(kod: string, dania: Map<string, Danie>): { pozycje: PozycjaListy[]; uwagi: string } | null {
+export function decode(code: string, dishes: Map<string, Dish>): { pozycje: ListItem[]; uwagi: string } | null {
   try {
-    const { v, o, p, u } = JSON.parse(zBase64(kod)) as Paczka;
-    const wgNazwy = new Map([...dania.values()].map((d) => [poNazwie(d.nazwa, d.wariant), d]));
-    const pozycje = p.flatMap((w) => {
-      const osoba = w[0];
+    const { v, o, p, u } = JSON.parse(fromBase64(code)) as Payload;
+    const byNameIndex = new Map([...dishes.values()].map((d) => [byName(d.nazwa, d.wariant), d]));
+    const items = p.flatMap((w) => {
+      const person = w[0];
       const [d, ilosc] =
         v === 2 && w.length === 4
-          ? [wgNazwy.get(poNazwie(w[1], w[2] || null)), w[3]]
-          : [dania.get(w[1]), w[2] as number];
+          ? [byNameIndex.get(byName(w[1], w[2] || null)), w[3]]
+          : [dishes.get(w[1]), w[2] as number];
       // danie, którego już nie ma w menu (lokal zmienił kartę), po prostu pomijamy
-      return d && o[osoba] && ilosc > 0 ? [{ ...d, ilosc, kto: o[osoba].slice(0, 30) }] : [];
+      return d && o[person] && ilosc > 0 ? [{ ...d, ilosc, kto: o[person].slice(0, 30) }] : [];
     });
-    return { pozycje, uwagi: typeof u === "string" ? u.slice(0, 500) : "" };
+    return { pozycje: items, uwagi: typeof u === "string" ? u.slice(0, 500) : "" };
   } catch {
     return null;
   }

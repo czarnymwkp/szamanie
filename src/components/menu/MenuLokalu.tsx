@@ -3,18 +3,18 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, Flame, Leaf, Plus, Search, Star, Sun, X } from "lucide-react";
-import { dataPl, zl } from "@/lib/ceny";
-import type { CechaDania, Dostawa, Menu, PozycjaMenu, SekcjaMenu } from "@/lib/menu";
-import { odmiana } from "@/lib/nazwy";
-import { bezPolskich, slugify } from "@/lib/slug.mjs";
-import Licznik from "./Licznik";
-import Trikolor from "../szablony/Trikolor";
-import ListaZamowienia from "./ListaZamowienia";
-import { kluczPozycji, useLista, type ListaLokalu, type PozycjaListy } from "./useLista";
+import { formatDatePl, formatPln } from "@/lib/ceny";
+import type { DishFeature, Delivery, Menu, MenuItem, MenuSectionData } from "@/lib/menu";
+import { plural } from "@/lib/nazwy";
+import { stripPolish, slugify } from "@/lib/slug.mjs";
+import Counter from "./Licznik";
+import Tricolor from "../szablony/Trikolor";
+import OrderListDialog from "./ListaZamowienia";
+import { itemKey, useOrderList, type VenueOrderList, type ListItem } from "./useLista";
 
 // Pełne pigułki w kolorach tokenów: kontrast ≥ 4,9:1 i w jasnym, i w ciemnym motywie lokalu
 // (półprzezroczyste tło z kolorowym tekstem nie przechodziło 4,5:1 na kremowym tle).
-const CECHY: Record<CechaDania, { nazwa: string; ikona: typeof Leaf; kolor: string }> = {
+const FEATURES: Record<DishFeature, { nazwa: string; ikona: typeof Leaf; kolor: string }> = {
   wege: { nazwa: "Wege", ikona: Leaf, kolor: "bg-otwarte text-karta" },
   ostre: { nazwa: "Ostre", ikona: Flame, kolor: "bg-zamkniete text-karta" },
   polecane: { nazwa: "Polecane", ikona: Star, kolor: "bg-akcent-tekst text-karta" },
@@ -22,7 +22,7 @@ const CECHY: Record<CechaDania, { nazwa: string; ikona: typeof Leaf; kolor: stri
 };
 
 // Drobne napisy wersalikami krojem etykiet motywu (--etykiety-lokalu); bez niego zostaje krój tekstu.
-const ETYKIETA = "font-[family-name:var(--etykiety-lokalu)] font-medium uppercase";
+const LABEL = "font-[family-name:var(--etykiety-lokalu)] font-medium uppercase";
 
 // Na komputerze menu startuje rozwinięte, na telefonie zwinięte do kafelków kategorii (mniej przewijania).
 // Domyślny stan robi CSS (lg:), więc nic nie mruga przy wczytaniu; JS zna go tylko do aria-expanded i przełączania.
@@ -30,10 +30,10 @@ const DESKTOP = "(min-width: 1024px)";
 
 function useDesktop() {
   return useSyncExternalStore(
-    (zmiana) => {
+    (change) => {
       const m = matchMedia(DESKTOP);
-      m.addEventListener("change", zmiana);
-      return () => m.removeEventListener("change", zmiana);
+      m.addEventListener("change", change);
+      return () => m.removeEventListener("change", change);
     },
     () => matchMedia(DESKTOP).matches,
     () => false,
@@ -44,7 +44,7 @@ function useDesktop() {
  * Menu lokalu z przyciskami „+”: dania trafiają na listę, z której potem zamawia się przez telefon.
  * Działy to kafelki ze zdjęciem kategorii — dotknięcie rozwija albo zwija dział.
  */
-export default function MenuLokalu({
+export default function VenueMenu({
   menu,
   dostawa,
   slug,
@@ -56,7 +56,7 @@ export default function MenuLokalu({
   spis,
 }: {
   menu: Menu;
-  dostawa: Dostawa | null;
+  dostawa: Delivery | null;
   slug: string;
   nazwa: string;
   telefon: string | null;
@@ -65,18 +65,18 @@ export default function MenuLokalu({
   karty?: boolean; // dania na kartach w siatce, ceny na pigułkach krojem etykiet (motyw lokalu)
   spis?: "wersaliki" | "tablica" | "srodek" | "kropki"; // jak spis w karcie lokalu, cena po prawej (motyw lokalu, patrz menuSpis)
 }) {
-  const l = useLista(slug);
+  const l = useOrderList(slug);
   // klucz pozycji → nazwa, wariant i cena: lista z linku „Zamawiamy razem” ma same klucze
-  const dania = useMemo(() => {
-    const m = new Map<string, Omit<PozycjaListy, "ilosc" | "kto">>();
+  const dishes = useMemo(() => {
+    const m = new Map<string, Omit<ListItem, "ilosc" | "kto">>();
     for (const p of menu.sekcje.flatMap((s) => s.pozycje)) {
       if (p.ceny.length <= 1) {
-        const klucz = kluczPozycji(p.id, null);
-        m.set(klucz, { klucz, nazwa: p.nazwa, wariant: null, gr: p.ceny[0]?.gr ?? null });
+        const key = itemKey(p.id, null);
+        m.set(key, { klucz: key, nazwa: p.nazwa, wariant: null, gr: p.ceny[0]?.gr ?? null });
       } else {
         for (const c of p.ceny) {
-          const klucz = kluczPozycji(p.id, c.wariant);
-          m.set(klucz, { klucz, nazwa: p.nazwa, wariant: c.wariant, gr: c.gr });
+          const key = itemKey(p.id, c.wariant);
+          m.set(key, { klucz: key, nazwa: p.nazwa, wariant: c.wariant, gr: c.gr });
         }
       }
     }
@@ -86,23 +86,23 @@ export default function MenuLokalu({
   const desktop = useDesktop();
   // Działy, które ktoś sam rozwinął (true) albo zwinął (false); reszta ma stan domyślny dla ekranu.
   const [wybor, setWybor] = useState<ReadonlyMap<string, boolean>>(() => new Map());
-  const fraza = bezPolskich(szukaj.trim());
-  const sekcje = fraza
+  const phrase = stripPolish(szukaj.trim());
+  const sections = phrase
     ? menu.sekcje
         .map((s) => ({
           ...s,
-          pozycje: s.pozycje.filter((p) => bezPolskich(`${p.nazwa} ${p.opis ?? ""} ${s.nazwa}`).includes(fraza)),
+          pozycje: s.pozycje.filter((p) => stripPolish(`${p.nazwa} ${p.opis ?? ""} ${s.nazwa}`).includes(phrase)),
         }))
         .filter((s) => s.pozycje.length)
     : menu.sekcje;
 
-  const przelacz = (dzial: string, otwarty: boolean) => setWybor((w) => new Map(w).set(dzial, !otwarty));
+  const toggle = (section: string, expanded: boolean) => setWybor((w) => new Map(w).set(section, !expanded));
 
   return (
     <section id="menu" aria-labelledby="menu-tytul" className="mt-8 scroll-mt-20">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
         <div>
-          {karty && <p className={`${ETYKIETA} text-[11px] tracking-[0.2em] text-akcent-tekst`}>Karta dań</p>}
+          {karty && <p className={`${LABEL} text-[11px] tracking-[0.2em] text-akcent-tekst`}>Karta dań</p>}
           <h2
             id="menu-tytul"
             className={`font-grotesk text-3xl tracking-tight lg:text-4xl ${karty ? "font-medium" : "font-bold"}`}
@@ -113,15 +113,15 @@ export default function MenuLokalu({
         {menu.sprawdzono &&
           (menu.bezCen ? (
             <p className="text-xs font-bold text-tekst-2">
-              Menu sprawdzone {dataPl(menu.sprawdzono)} · lokal nie podaje cen
+              Menu sprawdzone {formatDatePl(menu.sprawdzono)} · lokal nie podaje cen
             </p>
           ) : menu.stareCeny ? (
             <p className="rounded-full bg-krem px-2.5 py-1 text-xs font-extrabold text-akcent-tekst">
-              Ceny z {dataPl(menu.sprawdzono)} — mogą być nieaktualne
+              Ceny z {formatDatePl(menu.sprawdzono)} — mogą być nieaktualne
             </p>
           ) : (
             <p className="text-xs font-bold text-tekst-2">
-              {menu.zrodlo === "panel" ? "Ceny od lokalu, zmienione" : "Ceny sprawdzone"} {dataPl(menu.sprawdzono)}
+              {menu.zrodlo === "panel" ? "Ceny od lokalu, zmienione" : "Ceny sprawdzone"} {formatDatePl(menu.sprawdzono)}
             </p>
           ))}
       </div>
@@ -151,8 +151,8 @@ export default function MenuLokalu({
       )}
 
       <div className="mt-4 space-y-2.5">
-        {sekcje.map((s, i) => (
-          <Dzial
+        {sections.map((s, i) => (
+          <MenuSection
             key={s.nazwa}
             s={s}
             l={l}
@@ -161,14 +161,14 @@ export default function MenuLokalu({
             karty={karty}
             spis={spis}
             // przy szukaniu pokazujemy od razu wszystkie trafienia
-            stan={fraza ? true : wybor.get(s.nazwa)}
+            stan={phrase ? true : wybor.get(s.nazwa)}
             desktop={desktop}
-            przelacz={(otwarty) => przelacz(s.nazwa, otwarty)}
+            przelacz={(expanded) => toggle(s.nazwa, expanded)}
             pierwszy={i === 0}
           />
         ))}
       </div>
-      {fraza && !sekcje.length && (
+      {phrase && !sections.length && (
         <p className="mt-6 rounded-2xl border-2 border-dashed border-obrys-2 p-6 text-center font-semibold text-tekst-2">
           W menu nie ma „{szukaj}”.
         </p>
@@ -194,25 +194,25 @@ export default function MenuLokalu({
         </p>
       )}
 
-      <ListaZamowienia l={l} slug={slug} dania={dania} nazwa={nazwa} telefon={telefon} dostawa={dostawa} />
+      <OrderListDialog l={l} slug={slug} dania={dishes} nazwa={nazwa} telefon={telefon} dostawa={dostawa} />
     </section>
   );
 }
 
 /** Ile sztuk z działu jest już na liście (wszystkie warianty). */
-function ileZDzialu(s: SekcjaMenu, l: ListaLokalu) {
+function countInSection(s: MenuSectionData, l: VenueOrderList) {
   return s.pozycje.reduce(
-    (suma, p) =>
-      suma +
+    (sum, p) =>
+      sum +
       (p.ceny.length
-        ? p.ceny.reduce((razem, c) => razem + l.ilosc(kluczPozycji(p.id, c.wariant)), 0)
-        : l.ilosc(kluczPozycji(p.id, null))),
+        ? p.ceny.reduce((total, c) => total + l.ilosc(itemKey(p.id, c.wariant)), 0)
+        : l.ilosc(itemKey(p.id, null))),
     0,
   );
 }
 
 /** Dział menu: kafelek ze zdjęciem kategorii, a po rozwinięciu — lista dań (bez zdjęć). */
-function Dzial({
+function MenuSection({
   s,
   l,
   numerowane,
@@ -224,21 +224,21 @@ function Dzial({
   przelacz,
   pierwszy,
 }: {
-  s: SekcjaMenu;
-  l: ListaLokalu;
+  s: MenuSectionData;
+  l: VenueOrderList;
   numerowane: boolean;
   belki: boolean;
   karty: boolean;
   spis: "wersaliki" | "tablica" | "srodek" | "kropki" | undefined;
   stan: boolean | undefined; // undefined = domyślny dla ekranu
   desktop: boolean;
-  przelacz: (otwarty: boolean) => void;
+  przelacz: (expanded: boolean) => void;
   pierwszy: boolean;
 }) {
-  const otwarty = stan ?? desktop;
+  const expanded = stan ?? desktop;
   // Klasy dla: zwiniętego, rozwiniętego i stanu domyślnego (telefon zwinięty, od lg rozwinięty).
-  const klasy = (zwiniety: string, rozwiniety: string, domyslny: string) =>
-    stan === undefined ? domyslny : stan ? rozwiniety : zwiniety;
+  const classes = (collapsed: string, isExpanded: string, defaultValue: string) =>
+    stan === undefined ? defaultValue : stan ? isExpanded : collapsed;
   const ref = useRef<HTMLElement>(null);
   // Zdjęcie kafelka działu: pierwszy od razu, dalsze dopiero ok. 300 px przed ekranem — leniwe ładowanie przeglądarki
   // pobierało wszystkie naraz (Parkowa: 12 zdjęć przy wejściu). Do tego czasu ciemne tło kafelka.
@@ -246,50 +246,50 @@ function Dzial({
   useEffect(() => {
     const el = ref.current;
     if (zdjecie || !el) return;
-    const obserwator = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       ([wpis]) => {
         if (wpis.isIntersecting) {
           setZdjecie(true);
-          obserwator.disconnect();
+          observer.disconnect();
         }
       },
       { rootMargin: "300px 0px" },
     );
-    obserwator.observe(el);
-    return () => obserwator.disconnect();
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [zdjecie]);
-  const idTresci = `menu-${slugify(s.nazwa)}`;
-  const ceny = s.pozycje.flatMap((p) => p.ceny.map((c) => c.gr));
-  const od = ceny.length ? Math.min(...ceny) : null;
-  const naLiscie = ileZDzialu(s, l);
+  const contentId = `menu-${slugify(s.nazwa)}`;
+  const prices = s.pozycje.flatMap((p) => p.ceny.map((c) => c.gr));
+  const from = prices.length ? Math.min(...prices) : null;
+  const onList = countInSection(s, l);
 
-  const klik = () => {
+  const onToggle = () => {
     const el = ref.current;
     if (el) {
-      const gora = el.getBoundingClientRect().top;
+      const top = el.getBoundingClientRect().top;
       // Zwijany dział, w którym jesteśmy głęboko → wracamy do jego kafelka, żeby nie zgubić miejsca.
       // Rozwijany kafelek nisko na ekranie → podjeżdża do góry, żeby było widać dania.
-      if ((otwarty && gora < 0) || (!otwarty && gora > window.innerHeight * 0.55)) {
-        window.scrollBy({ top: gora - 80, behavior: "smooth" });
+      if ((expanded && top < 0) || (!expanded && top > window.innerHeight * 0.55)) {
+        window.scrollBy({ top: top - 80, behavior: "smooth" });
       }
     }
-    przelacz(otwarty);
+    przelacz(expanded);
   };
 
   return (
     <section ref={ref} aria-label={s.nazwa} className="scroll-mt-20">
-      <h3 className={klasy("", "sticky top-16 z-20", "lg:sticky lg:top-16 lg:z-20")}>
+      <h3 className={classes("", "sticky top-16 z-20", "lg:sticky lg:top-16 lg:z-20")}>
         <button
           type="button"
-          onClick={klik}
-          aria-expanded={otwarty}
-          aria-controls={idTresci}
+          onClick={onToggle}
+          aria-expanded={expanded}
+          aria-controls={contentId}
           className={`relative flex w-full items-center gap-3 overflow-hidden text-left transition-[height] duration-300 active:scale-[0.99] ${
             belki
-              ? `bg-tekst text-tlo ${klasy("h-16", "h-14", "h-16 lg:h-14")}`
+              ? `bg-tekst text-tlo ${classes("h-16", "h-14", "h-16 lg:h-14")}`
               : karty
                 ? // jak pigułki działów na stronie lokalu: zwinięty biały z ramką, rozwinięty w kolorze akcentu
-                  `h-16 rounded-full border ${klasy(
+                  `h-16 rounded-full border ${classes(
                     "border-obrys bg-karta text-tekst",
                     "border-akcent bg-akcent text-na-akcencie",
                     "border-obrys bg-karta text-tekst lg:border-akcent lg:bg-akcent lg:text-na-akcencie",
@@ -299,7 +299,7 @@ function Dzial({
                     // tablica: ta sama kreda co tło strony, żeby przyklejony nagłówek nie był płaskim prostokątem
                     `bg-tlo ${spis === "tablica" ? "tlo-kreda h-20" : // kropki: przydymione szkło zamiast drugiego kawałka marmuru (inny wzór żyłek tworzył prostokąt)
                     spis === "kropki" ? "h-20 bg-tlo/80! backdrop-blur-sm" : spis === "srodek" ? "h-16" : "h-14"}`
-                  : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
+                  : `rounded-2xl shadow-sm ${classes("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
           {s.okladka && zdjecie && !belki && !karty && !spis && (
@@ -340,33 +340,33 @@ function Dzial({
             >
               {s.nazwa}
             </span>
-            {spis === "tablica" && <Trikolor className="mb-1 w-40 max-w-[45%]" />}
+            {spis === "tablica" && <Tricolor className="mb-1 w-40 max-w-[45%]" />}
             <span
               className={
                 karty
-                  ? `${ETYKIETA} block text-[11px] tracking-[0.12em] opacity-70`
+                  ? `${LABEL} block text-[11px] tracking-[0.12em] opacity-70`
                   : `block text-xs font-bold ${spis ? "text-tekst-2" : belki ? "text-tlo/70" : s.okladka ? "text-white/75" : "text-tekst-2"}`
               }
             >
-              {s.pozycje.length} {odmiana(s.pozycje.length, ["pozycja", "pozycje", "pozycji"])}
-              {od !== null && ` · od ${zl(od)}`}
+              {s.pozycje.length} {plural(s.pozycje.length, ["pozycja", "pozycje", "pozycji"])}
+              {from !== null && ` · od ${formatPln(from)}`}
             </span>
           </span>
-          {naLiscie > 0 && (
+          {onList > 0 && (
             <span className="relative shrink-0 animate-wjazd rounded-full bg-akcent px-2.5 py-1 text-xs font-black text-na-akcencie [animation-duration:0.3s]">
-              {naLiscie} na liście
+              {onList} na liście
             </span>
           )}
           <ChevronDown
             aria-hidden
-            className={`relative mr-4 size-6 shrink-0 transition-transform duration-300 ${klasy("", "rotate-180", "lg:rotate-180")}`}
+            className={`relative mr-4 size-6 shrink-0 transition-transform duration-300 ${classes("", "rotate-180", "lg:rotate-180")}`}
           />
         </button>
       </h3>
       {/* zwinięta treść jest niewidoczna (visibility), więc nie łapie fokusu; visibility przełącza się po animacji */}
       <div
-        id={idTresci}
-        className={`grid transition-[grid-template-rows,visibility] duration-300 ease-out ${klasy(
+        id={contentId}
+        className={`grid transition-[grid-template-rows,visibility] duration-300 ease-out ${classes(
           "invisible grid-rows-[0fr]",
           "grid-rows-[1fr]",
           "grid-rows-[0fr] max-lg:invisible lg:grid-rows-[1fr]",
@@ -378,19 +378,19 @@ function Dzial({
           {karty ? (
             <ul className="grid gap-3 pt-3 pb-3 sm:grid-cols-2 lg:grid-cols-3">
               {s.pozycje.map((p) => (
-                <KartaDania key={p.id} p={p} l={l} />
+                <DishCard key={p.id} p={p} l={l} />
               ))}
             </ul>
           ) : spis ? (
             <ul className="pb-3 lg:grid lg:grid-cols-2 lg:gap-x-12">
               {s.pozycje.map((p) => (
-                <PozycjaSpisu key={p.id} p={p} l={l} styl={spis} />
+                <ListStyleItem key={p.id} p={p} l={l} styl={spis} />
               ))}
             </ul>
           ) : (
             <ul className="pb-2 lg:grid lg:grid-cols-2 lg:gap-x-10">
               {s.pozycje.map((p, i) => (
-                <WierszMenu key={p.id} p={p} l={l} numer={numerowane ? i + 1 : null} belki={belki} />
+                <MenuRow key={p.id} p={p} l={l} numer={numerowane ? i + 1 : null} belki={belki} />
               ))}
             </ul>
           )}
@@ -400,31 +400,31 @@ function Dzial({
   );
 }
 
-function WierszMenu({
+function MenuRow({
   p,
   l,
   numer,
   belki,
 }: {
-  p: PozycjaMenu;
-  l: ListaLokalu;
+  p: MenuItem;
+  l: VenueOrderList;
   numer: number | null;
   belki: boolean;
 }) {
-  const jednaCena = p.ceny.length <= 1;
-  const cena = p.ceny[0] ?? null;
-  const dodaj = (wariant: string | null, gr: number | null) =>
-    l.dodaj({ klucz: kluczPozycji(p.id, wariant), nazwa: p.nazwa, wariant, gr });
-  const naLiscie = p.ceny.length
-    ? p.ceny.some((c) => l.ilosc(kluczPozycji(p.id, c.wariant)) > 0)
-    : l.ilosc(kluczPozycji(p.id, null)) > 0;
-  const cenaTekst = cena ? zl(cena.gr) : <span className="font-bold text-tekst-2">cena w lokalu</span>;
+  const singlePrice = p.ceny.length <= 1;
+  const price = p.ceny[0] ?? null;
+  const add = (variant: string | null, gr: number | null) =>
+    l.dodaj({ klucz: itemKey(p.id, variant), nazwa: p.nazwa, wariant: variant, gr });
+  const onList = p.ceny.length
+    ? p.ceny.some((c) => l.ilosc(itemKey(p.id, c.wariant)) > 0)
+    : l.ilosc(itemKey(p.id, null)) > 0;
+  const priceText = price ? formatPln(price.gr) : <span className="font-bold text-tekst-2">cena w lokalu</span>;
 
   return (
     // linia na <li>, podświetlenie na środku — zaokrąglone tło nie zagina linii
     <li className="border-b border-obrys">
       <div
-        className={`-mx-3 flex items-start gap-3 rounded-2xl px-3 py-3.5 transition-colors duration-300 ${naLiscie ? "bg-akcent/[0.08]" : ""}`}
+        className={`-mx-3 flex items-start gap-3 rounded-2xl px-3 py-3.5 transition-colors duration-300 ${onList ? "bg-akcent/[0.08]" : ""}`}
       >
         {numer !== null && !belki && (
           <span className="w-6 shrink-0 pt-0.5 text-right text-sm font-bold text-tekst-2 tabular-nums">{numer}.</span>
@@ -437,18 +437,18 @@ function WierszMenu({
                 {numer !== null && `${numer}. `}
                 {p.nazwa}
               </span>
-              {jednaCena && (
+              {singlePrice && (
                 <span className="bg-akcent px-1.5 py-px text-sm leading-snug font-bold text-na-akcencie">
-                  {cenaTekst}
+                  {priceText}
                 </span>
               )}
             </h4>
-          ) : numer !== null && jednaCena ? (
+          ) : numer !== null && singlePrice ? (
             // jak w karcie lokalu: nazwa ······ cena
             <h4 className="flex items-baseline gap-2">
               <span className="font-grotesk text-lg leading-snug font-bold">{p.nazwa}</span>
               <span aria-hidden className="mb-1 min-w-4 flex-1 border-b border-dotted border-obrys-2" />
-              <span className="shrink-0 font-black">{cenaTekst}</span>
+              <span className="shrink-0 font-black">{priceText}</span>
             </h4>
           ) : (
             <h4 className="leading-snug font-extrabold">{p.nazwa}</h4>
@@ -456,7 +456,7 @@ function WierszMenu({
           {p.cechy.length > 0 && (
             <p className="mt-1 flex flex-wrap gap-1">
               {p.cechy.map((c) => {
-                const { nazwa, ikona: Ikona, kolor } = CECHY[c];
+                const { nazwa, ikona: Ikona, kolor } = FEATURES[c];
                 return (
                   <span
                     key={c}
@@ -469,18 +469,18 @@ function WierszMenu({
             </p>
           )}
           {p.opis && <p className="mt-1 text-sm leading-snug text-tekst-2">{p.opis}</p>}
-          {jednaCena ? (
-            numer === null && !belki && <p className="mt-1.5 font-black">{cenaTekst}</p>
+          {singlePrice ? (
+            numer === null && !belki && <p className="mt-1.5 font-black">{priceText}</p>
           ) : (
-            <Warianty p={p} l={l} className="mt-2" />
+            <Variants p={p} l={l} className="mt-2" />
           )}
         </div>
-        {jednaCena && (
-          <Licznik
-            ile={l.ilosc(kluczPozycji(p.id, null))}
+        {singlePrice && (
+          <Counter
+            ile={l.ilosc(itemKey(p.id, null))}
             nazwa={p.nazwa}
-            dodaj={() => dodaj(null, cena?.gr ?? null)}
-            zmien={(o) => l.zmienIlosc(kluczPozycji(p.id, null), o)}
+            dodaj={() => add(null, price?.gr ?? null)}
+            zmien={(o) => l.zmienIlosc(itemKey(p.id, null), o)}
           />
         )}
       </div>
@@ -489,26 +489,26 @@ function WierszMenu({
 }
 
 /** Przyciski wariantów dania („32 cm 38 zł +”) — każdy dodaje swój wariant do listy. */
-function Warianty({ p, l, className = "" }: { p: PozycjaMenu; l: ListaLokalu; className?: string }) {
+function Variants({ p, l, className = "" }: { p: MenuItem; l: VenueOrderList; className?: string }) {
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`}>
       {p.ceny.map((c) => {
-        const ile = l.ilosc(kluczPozycji(p.id, c.wariant));
+        const count = l.ilosc(itemKey(p.id, c.wariant));
         return (
           <button
             key={c.wariant}
             type="button"
-            onClick={() => l.dodaj({ klucz: kluczPozycji(p.id, c.wariant), nazwa: p.nazwa, wariant: c.wariant, gr: c.gr })}
-            aria-label={`Dodaj do listy: ${p.nazwa}, ${c.wariant}, ${zl(c.gr)}`}
+            onClick={() => l.dodaj({ klucz: itemKey(p.id, c.wariant), nazwa: p.nazwa, wariant: c.wariant, gr: c.gr })}
+            aria-label={`Dodaj do listy: ${p.nazwa}, ${c.wariant}, ${formatPln(c.gr)}`}
             className={`inline-flex h-9 items-center gap-1.5 rounded-full border-[1.5px] pr-1 pl-3 text-sm font-extrabold transition active:scale-95 ${
-              ile ? "border-tekst bg-tekst text-tlo" : "border-obrys-2 bg-karta hover:border-tekst"
+              count ? "border-tekst bg-tekst text-tlo" : "border-obrys-2 bg-karta hover:border-tekst"
             }`}
           >
-            <span className={ile ? "opacity-70" : "text-tekst-2"}>{c.wariant}</span> {zl(c.gr)}
+            <span className={count ? "opacity-70" : "text-tekst-2"}>{c.wariant}</span> {formatPln(c.gr)}
             <span
-              className={`flex size-7 items-center justify-center rounded-full ${ile ? "bg-akcent text-na-akcencie" : "bg-krem"}`}
+              className={`flex size-7 items-center justify-center rounded-full ${count ? "bg-akcent text-na-akcencie" : "bg-krem"}`}
             >
-              {ile ? <span className="text-xs font-black">{ile}</span> : <Plus className="size-4" aria-hidden />}
+              {count ? <span className="text-xs font-black">{count}</span> : <Plus className="size-4" aria-hidden />}
             </span>
           </button>
         );
@@ -518,18 +518,18 @@ function Warianty({ p, l, className = "" }: { p: PozycjaMenu; l: ListaLokalu; cl
 }
 
 /** Danie na karcie (motyw lokalu z `menuKarty`): nazwa wersalikami, skład, cena na pigułce i „+” w rogu. */
-function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
-  const jednaCena = p.ceny.length <= 1;
-  const cena = p.ceny[0] ?? null;
-  const klucz = kluczPozycji(p.id, null);
-  const naLiscie = p.ceny.length
-    ? p.ceny.some((c) => l.ilosc(kluczPozycji(p.id, c.wariant)) > 0)
-    : l.ilosc(klucz) > 0;
+function DishCard({ p, l }: { p: MenuItem; l: VenueOrderList }) {
+  const singlePrice = p.ceny.length <= 1;
+  const price = p.ceny[0] ?? null;
+  const key = itemKey(p.id, null);
+  const onList = p.ceny.length
+    ? p.ceny.some((c) => l.ilosc(itemKey(p.id, c.wariant)) > 0)
+    : l.ilosc(key) > 0;
 
   return (
     <li
       className={`flex flex-col rounded-[20px] border bg-karta p-4 transition-colors duration-300 ${
-        naLiscie ? "border-akcent ring-1 ring-akcent" : "border-obrys"
+        onList ? "border-akcent ring-1 ring-akcent" : "border-obrys"
       }`}
     >
       {p.cechy.length > 0 && (
@@ -538,31 +538,31 @@ function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
             <span
               key={c}
               // „Polecane” jak „Danie dnia” u lokalu: pełna pigułka; reszta obrysowana
-              className={`${ETYKIETA} rounded-full px-2 py-0.5 text-[10.5px] tracking-[0.12em] ${
+              className={`${LABEL} rounded-full px-2 py-0.5 text-[10.5px] tracking-[0.12em] ${
                 c === "polecane" ? "bg-akcent-tekst text-krem" : "border border-obrys-2 text-tekst-2"
               }`}
             >
-              {CECHY[c].nazwa}
+              {FEATURES[c].nazwa}
             </span>
           ))}
         </p>
       )}
       <h4 className="font-grotesk text-lg leading-tight font-medium uppercase">{p.nazwa}</h4>
       {p.opis && <p className="mt-1.5 text-[13.5px] leading-snug text-tekst-2">{p.opis}</p>}
-      {jednaCena ? (
+      {singlePrice ? (
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
           <span className="rounded-full bg-krem px-2.5 py-1 font-[family-name:var(--etykiety-lokalu)] text-[13px] font-medium text-akcent">
-            {cena ? zl(cena.gr) : "cena w lokalu"}
+            {price ? formatPln(price.gr) : "cena w lokalu"}
           </span>
-          <Licznik
-            ile={l.ilosc(klucz)}
+          <Counter
+            ile={l.ilosc(key)}
             nazwa={p.nazwa}
-            dodaj={() => l.dodaj({ klucz, nazwa: p.nazwa, wariant: null, gr: cena?.gr ?? null })}
-            zmien={(o) => l.zmienIlosc(klucz, o)}
+            dodaj={() => l.dodaj({ klucz: key, nazwa: p.nazwa, wariant: null, gr: price?.gr ?? null })}
+            zmien={(o) => l.zmienIlosc(key, o)}
           />
         </div>
       ) : (
-        <Warianty p={p} l={l} className="mt-auto pt-3" />
+        <Variants p={p} l={l} className="mt-auto pt-3" />
       )}
     </li>
   );
@@ -570,32 +570,32 @@ function KartaDania({ p, l }: { p: PozycjaMenu; l: ListaLokalu }) {
 
 /** Danie w karcie-spisie (motyw lokalu z `menuSpis`), cena po prawej. wersaliki: nazwa rozstrzelonymi wersalikami,
  *  cechy ikonkami, skład rozdzielony „|”; tablica: zwykła nazwa, „(vege)” na zielono, cena podkreślona. */
-function PozycjaSpisu({
+function ListStyleItem({
   p,
   l,
   styl,
 }: {
-  p: PozycjaMenu;
-  l: ListaLokalu;
+  p: MenuItem;
+  l: VenueOrderList;
   styl: "wersaliki" | "tablica" | "srodek" | "kropki";
 }) {
-  const tablica = styl === "tablica";
-  const kropki = styl === "kropki";
-  const jednaCena = p.ceny.length <= 1;
-  const cena = p.ceny[0] ?? null;
-  const klucz = kluczPozycji(p.id, null);
-  const naLiscie = p.ceny.length
-    ? p.ceny.some((c) => l.ilosc(kluczPozycji(p.id, c.wariant)) > 0)
-    : l.ilosc(klucz) > 0;
+  const chalkboard = styl === "tablica";
+  const dots = styl === "kropki";
+  const singlePrice = p.ceny.length <= 1;
+  const price = p.ceny[0] ?? null;
+  const key = itemKey(p.id, null);
+  const onList = p.ceny.length
+    ? p.ceny.some((c) => l.ilosc(itemKey(p.id, c.wariant)) > 0)
+    : l.ilosc(key) > 0;
 
   if (styl === "srodek") {
     // jak karta na stronie lokalu: wszystko na środku, składniki krojem etykiet po „•”, pod nimi cena i „+”
     return (
-      <li className={`border-b border-obrys px-2 py-4 text-center transition-colors duration-300 ${naLiscie ? "bg-krem" : ""}`}>
+      <li className={`border-b border-obrys px-2 py-4 text-center transition-colors duration-300 ${onList ? "bg-krem" : ""}`}>
         <h4 className="font-grotesk text-[15px] leading-snug tracking-[0.02em]">
           {p.nazwa}
           {p.cechy.map((c) => {
-            const { nazwa, ikona: Ikona } = CECHY[c];
+            const { nazwa, ikona: Ikona } = FEATURES[c];
             return (
               <Ikona
                 key={c}
@@ -610,18 +610,18 @@ function PozycjaSpisu({
             {p.opis.split(/,\s*/).join(" • ")}
           </p>
         )}
-        {jednaCena ? (
+        {singlePrice ? (
           <div className="mt-2 flex items-center justify-center gap-3">
-            <span className="font-bold">{cena ? zl(cena.gr) : "cena w lokalu"}</span>
-            <Licznik
-              ile={l.ilosc(klucz)}
+            <span className="font-bold">{price ? formatPln(price.gr) : "cena w lokalu"}</span>
+            <Counter
+              ile={l.ilosc(key)}
               nazwa={p.nazwa}
-              dodaj={() => l.dodaj({ klucz, nazwa: p.nazwa, wariant: null, gr: cena?.gr ?? null })}
-              zmien={(o) => l.zmienIlosc(klucz, o)}
+              dodaj={() => l.dodaj({ klucz: key, nazwa: p.nazwa, wariant: null, gr: price?.gr ?? null })}
+              zmien={(o) => l.zmienIlosc(key, o)}
             />
           </div>
         ) : (
-          <Warianty p={p} l={l} className="mt-2 justify-center" />
+          <Variants p={p} l={l} className="mt-2 justify-center" />
         )}
       </li>
     );
@@ -630,25 +630,25 @@ function PozycjaSpisu({
   return (
     <li className="border-b border-obrys">
       <div
-        className={`-mx-3 flex items-start gap-3 px-3 py-3.5 transition-colors duration-300 ${naLiscie ? "bg-krem" : ""}`}
+        className={`-mx-3 flex items-start gap-3 px-3 py-3.5 transition-colors duration-300 ${onList ? "bg-krem" : ""}`}
       >
         <div className="min-w-0 flex-1">
           <h4 className="flex items-baseline gap-2">
             <span
               className={`font-grotesk leading-snug font-bold ${
-                tablica
+                chalkboard
                   ? "text-[17px] font-semibold"
-                  : kropki
+                  : dots
                     ? "text-[14px] font-semibold tracking-[0.06em] uppercase"
                     : "text-[15px] tracking-[0.14em] uppercase"
               }`}
             >
               {p.nazwa}
-              {tablica && p.cechy.includes("wege") && (
+              {chalkboard && p.cechy.includes("wege") && (
                 <span className="ml-1.5 text-[13px] font-normal text-otwarte">(vege)</span>
               )}
-              {p.cechy.filter((c) => !tablica || c !== "wege").map((c) => {
-                const { nazwa, ikona: Ikona } = CECHY[c];
+              {p.cechy.filter((c) => !chalkboard || c !== "wege").map((c) => {
+                const { nazwa, ikona: Ikona } = FEATURES[c];
                 return (
                   <Ikona
                     key={c}
@@ -659,24 +659,24 @@ function PozycjaSpisu({
               })}
             </span>
             {/* kropki: nazwa ······ cena, jak w karcie lokalu */}
-            {kropki && jednaCena && <span aria-hidden className="mb-1 min-w-4 flex-1 border-b-2 border-dotted border-tekst-2/60" />}
-            {jednaCena && (
+            {dots && singlePrice && <span aria-hidden className="mb-1 min-w-4 flex-1 border-b-2 border-dotted border-tekst-2/60" />}
+            {singlePrice && (
               <span
-                className={`shrink-0 font-grotesk font-bold ${kropki ? "font-semibold" : "ml-auto pl-2"} ${tablica ? "border-b-2 border-tekst" : ""}`}
+                className={`shrink-0 font-grotesk font-bold ${dots ? "font-semibold" : "ml-auto pl-2"} ${chalkboard ? "border-b-2 border-tekst" : ""}`}
               >
-                {cena ? zl(cena.gr) : "w lokalu"}
+                {price ? formatPln(price.gr) : "w lokalu"}
               </span>
             )}
           </h4>
-          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{tablica || kropki ? p.opis : p.opis.split(/,\s*/).join(" | ")}</p>}
-          {!jednaCena && <Warianty p={p} l={l} className="mt-2" />}
+          {p.opis && <p className="mt-1 text-[13px] leading-snug text-tekst-2">{chalkboard || dots ? p.opis : p.opis.split(/,\s*/).join(" | ")}</p>}
+          {!singlePrice && <Variants p={p} l={l} className="mt-2" />}
         </div>
-        {jednaCena && (
-          <Licznik
-            ile={l.ilosc(klucz)}
+        {singlePrice && (
+          <Counter
+            ile={l.ilosc(key)}
             nazwa={p.nazwa}
-            dodaj={() => l.dodaj({ klucz, nazwa: p.nazwa, wariant: null, gr: cena?.gr ?? null })}
-            zmien={(o) => l.zmienIlosc(klucz, o)}
+            dodaj={() => l.dodaj({ klucz: key, nazwa: p.nazwa, wariant: null, gr: price?.gr ?? null })}
+            zmien={(o) => l.zmienIlosc(key, o)}
           />
         )}
       </div>

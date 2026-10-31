@@ -2,34 +2,34 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  BanerFrazy,
-  CenyDan,
-  DaneDlaGoogle,
-  Kolejnosc,
-  ListaNazw,
-  Pigulki,
-  Pytania,
-  Sekcja,
-  SiatkaLokali,
+  PhraseBanner,
+  DishPrices,
+  StructuredData,
+  Order,
+  NameList,
+  Pills,
+  Faq,
+  Section,
+  VenueGrid,
   ileLokali,
-  type Okruszek,
-  type Pytanie,
+  type Breadcrumb,
+  type Question,
 } from "@/components/StronaFrazy";
-import { pobierzLokale, type Lokal } from "@/lib/lokale";
-import { pobierzMenu, type Menu } from "@/lib/menu";
-import { jestLokali, odmiana } from "@/lib/nazwy";
+import { getVenues, type Venue } from "@/lib/lokale";
+import { getMenu, type Menu } from "@/lib/menu";
+import { venuesFound, plural } from "@/lib/nazwy";
 import {
-  daniaKategorii,
-  kategorieZeStrona,
-  lokaleKategorii,
-  obszaryZDowozem,
-  obszaryZeStrona,
-  otwarteWNiedziele,
-  tytulStrony,
-  znajdzStrone,
-  zDowozem,
-  type KategoriaSeo,
-  type Obszar,
+  categoryDishes,
+  categoriesWithPage,
+  categoryVenues,
+  areasWithDelivery,
+  areasWithPage,
+  openOnSunday,
+  pageTitle,
+  findPage,
+  withDelivery,
+  type SeoCategory,
+  type Area,
 } from "@/lib/seo";
 
 // Strona „Pizza w Kraśniku” — pod wyszukiwanie „pizza Kraśnik”: lista lokali z kategorii i odpowiedzi na pytania.
@@ -38,156 +38,156 @@ import {
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
-  const lokale = await pobierzLokale();
-  const strony = obszaryZeStrona(lokale).flatMap((o) =>
-    kategorieZeStrona(lokale, o).map((k) => ({ obszar: o.slug, kategoria: k.slug })),
+  const venues = await getVenues();
+  const pages = areasWithPage(venues).flatMap((o) =>
+    categoriesWithPage(venues, o).map((k) => ({ obszar: o.slug, kategoria: k.slug })),
   );
   // Cache Components wymaga co najmniej jednego parametru; „brak” → 404.
-  return strony.length ? strony : [{ obszar: "brak", kategoria: "brak" }];
+  return pages.length ? pages : [{ obszar: "brak", kategoria: "brak" }];
 }
 
-async function wczytaj(params: PageProps<"/[obszar]/[kategoria]">["params"]) {
+async function load(params: PageProps<"/[obszar]/[kategoria]">["params"]) {
   const { obszar: o, kategoria: k } = await params;
-  const lokale = await pobierzLokale();
-  const strona = znajdzStrone(lokale, o, k);
-  if (!strona?.kategoria) return null;
-  return { lokale, obszar: strona.obszar, kategoria: strona.kategoria, dania: await daniaKategorii(strona.kategoria) };
+  const venues = await getVenues();
+  const page = findPage(venues, o, k);
+  if (!page?.kategoria) return null;
+  return { lokale: venues, obszar: page.obszar, kategoria: page.kategoria, dania: await categoryDishes(page.kategoria) };
 }
 
 export async function generateMetadata({ params }: PageProps<"/[obszar]/[kategoria]">): Promise<Metadata> {
-  const dane = await wczytaj(params);
-  if (!dane) return {};
-  const { lokale, obszar, kategoria, dania } = dane;
-  const { w } = lokaleKategorii(lokale, obszar, kategoria);
-  const nazwy = w.slice(0, 3).map((l) => l.nazwa);
-  const zCenami = dania.some((d) => w.some((l) => l.id === d.lokalId));
-  const ile = kategoria.liczba ? `${w.length} ${odmiana(w.length, kategoria.liczba)}` : ileLokali(w.length);
+  const date = await load(params);
+  if (!date) return {};
+  const { lokale, obszar, kategoria, dania } = date;
+  const { w } = categoryVenues(lokale, obszar, kategoria);
+  const names = w.slice(0, 3).map((l) => l.nazwa);
+  const withPrices = dania.some((d) => w.some((l) => l.id === d.lokalId));
+  const count = kategoria.liczba ? `${w.length} ${plural(w.length, kategoria.liczba)}` : ileLokali(w.length);
   // „dowóz” w tytule, gdy któryś lokal dowozi — ludzie szukają „pizza Kraśnik dowóz”
-  const dowoz = kategoria.dowoz && w.some((l) => l.dostawa);
-  const co = [zCenami ? "ceny" : "godziny", dowoz ? "dowóz" : zCenami ? "godziny" : "telefony"];
+  const delivers = kategoria.dowoz && w.some((l) => l.dostawa);
+  const what = [withPrices ? "ceny" : "godziny", delivers ? "dowóz" : withPrices ? "godziny" : "telefony"];
   return {
-    title: tytulStrony(`${kategoria.fraza} ${obszar.nazwa} — ${ile}, ${co.join(", ")}`),
-    description: `${kategoria.nazwa} ${obszar.w}: ${nazwy.join(", ")}${w.length > 3 ? " i inne" : ""}. Sprawdź, co jest teraz otwarte, zadzwoń i zamów albo podjedź.`,
+    title: pageTitle(`${kategoria.fraza} ${obszar.nazwa} — ${count}, ${what.join(", ")}`),
+    description: `${kategoria.nazwa} ${obszar.w}: ${names.join(", ")}${w.length > 3 ? " i inne" : ""}. Sprawdź, co jest teraz otwarte, zadzwoń i zamów albo podjedź.`,
     alternates: { canonical: `/${obszar.slug}/${kategoria.slug}` },
   };
 }
 
-export default async function StronaKategorii({ params }: PageProps<"/[obszar]/[kategoria]">) {
-  const dane = await wczytaj(params);
-  if (!dane) notFound();
-  const { lokale, obszar, kategoria, dania } = dane;
-  const { w, okolica } = lokaleKategorii(lokale, obszar, kategoria);
-  const tytul = `${kategoria.nazwa} ${obszar.w}`;
-  const zDaniami = [...w, ...okolica].filter((l) => dania.some((d) => d.lokalId === l.id));
+export default async function CategoryPage({ params }: PageProps<"/[obszar]/[kategoria]">) {
+  const date = await load(params);
+  if (!date) notFound();
+  const { lokale, obszar, kategoria, dania } = date;
+  const { w, okolica } = categoryVenues(lokale, obszar, kategoria);
+  const title = `${kategoria.nazwa} ${obszar.w}`;
+  const withDishes = [...w, ...okolica].filter((l) => dania.some((d) => d.lokalId === l.id));
   const menu = new Map<number, Menu>();
-  for (const [i, m] of (await Promise.all(zDaniami.map((l) => pobierzMenu(l.id)))).entries()) {
-    if (m) menu.set(zDaniami[i].id, m);
+  for (const [i, m] of (await Promise.all(withDishes.map((l) => getMenu(l.id)))).entries()) {
+    if (m) menu.set(withDishes[i].id, m);
   }
-  const okruszki: Okruszek[] = [
+  const breadcrumbs: Breadcrumb[] = [
     { nazwa: "szamanie.pl", adres: "/" },
     { nazwa: obszar.nazwa, adres: `/${obszar.slug}` },
     { nazwa: kategoria.nazwa, adres: `/${obszar.slug}/${kategoria.slug}` },
   ];
-  const inneKategorie = kategorieZeStrona(lokale, obszar).filter((k) => k.slug !== kategoria.slug);
-  const maDowoz = obszaryZDowozem(lokale).some((o) => o.slug === obszar.slug);
-  const taSamaGdzieIndziej = obszaryZeStrona(lokale).filter(
-    (o) => o.slug !== obszar.slug && kategorieZeStrona(lokale, o).some((k) => k.slug === kategoria.slug),
+  const otherCategories = categoriesWithPage(lokale, obszar).filter((k) => k.slug !== kategoria.slug);
+  const hasDelivery = areasWithDelivery(lokale).some((o) => o.slug === obszar.slug);
+  const sameElsewhere = areasWithPage(lokale).filter(
+    (o) => o.slug !== obszar.slug && categoriesWithPage(lokale, o).some((k) => k.slug === kategoria.slug),
   );
 
   return (
     <>
-      <DaneDlaGoogle okruszki={okruszki} lokale={w} />
-      <BanerFrazy okruszki={okruszki} tytul={tytul} zdjecie={kategoria.zdjecie}>
+      <StructuredData okruszki={breadcrumbs} lokale={w} />
+      <PhraseBanner okruszki={breadcrumbs} tytul={title} zdjecie={kategoria.zdjecie}>
         <p>
           {kategoria.opis} {ileLokali(w.length)} {obszar.w} — z godzinami otwarcia, telefonem i dojazdem.
         </p>
-      </BanerFrazy>
+      </PhraseBanner>
 
       <div className="mx-auto max-w-6xl px-5">
-        <Sekcja id="lokale" tytul={`${tytul}: ${ileLokali(w.length)}`}>
-          <SiatkaLokali lokale={w} />
-          <Kolejnosc />
-        </Sekcja>
+        <Section id="lokale" tytul={`${title}: ${ileLokali(w.length)}`}>
+          <VenueGrid lokale={w} />
+          <Order />
+        </Section>
 
         {okolica.length > 0 && (
-          <Sekcja id="okolica" tytul="W okolicy">
-            <SiatkaLokali lokale={okolica} />
-          </Sekcja>
+          <Section id="okolica" tytul="W okolicy">
+            <VenueGrid lokale={okolica} />
+          </Section>
         )}
 
         {kategoria.menu && (
-          <CenyDan
+          <DishPrices
             tytul={`${kategoria.menu.ileKosztuje} ${obszar.w}?`}
             w={obszar.w}
-            lokale={zDaniami}
+            lokale={withDishes}
             dania={dania}
             menu={menu}
           />
         )}
 
-        <Pytania tytul="Pytania i odpowiedzi" pytania={pytania(obszar, kategoria, w, maDowoz)} />
+        <Faq tytul="Pytania i odpowiedzi" pytania={questions(obszar, kategoria, w, hasDelivery)} />
 
-        <Sekcja id="wiecej" tytul={`Więcej ${obszar.w}`}>
-          <Pigulki
+        <Section id="wiecej" tytul={`Więcej ${obszar.w}`}>
+          <Pills
             linki={[
               { nazwa: `Wszystkie lokale ${obszar.w}`, adres: `/${obszar.slug}` },
-              ...(maDowoz ? [{ nazwa: `Dowóz ${obszar.w}`, adres: `/${obszar.slug}/dowoz` }] : []),
-              ...inneKategorie.map((k) => ({ nazwa: k.nazwa, adres: `/${obszar.slug}/${k.slug}` })),
-              ...taSamaGdzieIndziej.map((o) => ({
+              ...(hasDelivery ? [{ nazwa: `Dowóz ${obszar.w}`, adres: `/${obszar.slug}/dowoz` }] : []),
+              ...otherCategories.map((k) => ({ nazwa: k.nazwa, adres: `/${obszar.slug}/${k.slug}` })),
+              ...sameElsewhere.map((o) => ({
                 nazwa: `${kategoria.nazwa} ${o.w}`,
                 adres: `/${o.slug}/${kategoria.slug}`,
               })),
             ]}
           />
-        </Sekcja>
+        </Section>
       </div>
     </>
   );
 }
 
-function pytania(
-  obszar: Obszar,
-  kategoria: KategoriaSeo,
-  lokale: Lokal[],
-  maDowoz: boolean, // czy obszar ma stronę /<obszar>/dowoz
-): Pytanie[] {
-  const tytul = `${kategoria.nazwa} ${obszar.w}`;
-  const wynik: Pytanie[] = [
+function questions(
+  area: Area,
+  category: SeoCategory,
+  venues: Venue[],
+  hasDelivery: boolean, // czy obszar ma stronę /<obszar>/dowoz
+): Question[] {
+  const title = `${category.nazwa} ${area.w}`;
+  const result: Question[] = [
     {
-      pytanie: `${kategoria.gdzie} ${obszar.w}?`,
+      pytanie: `${category.gdzie} ${area.w}?`,
       odpowiedz: (
         <>
-          Na szamanie.pl {jestLokali(lokale.length)}: <ListaNazw lokale={lokale} />. Przy każdym są godziny
+          Na szamanie.pl {venuesFound(venues.length)}: <NameList lokale={venues} />. Przy każdym są godziny
           otwarcia, telefon i przycisk „Prowadź”, który od razu otwiera nawigację.
         </>
       ),
     },
   ];
 
-  const { dowoz, naWynos } = zDowozem(lokale);
-  if (kategoria.dowoz && (dowoz.length || naWynos.length)) {
-    wynik.push({
-      pytanie: `${tytul} z dowozem — kto dowozi?`,
+  const { dowoz, naWynos } = withDelivery(venues);
+  if (category.dowoz && (dowoz.length || naWynos.length)) {
+    result.push({
+      pytanie: `${title} z dowozem — kto dowozi?`,
       odpowiedz: (
         <>
           {dowoz.length > 0 && (
             <>
-              Dowóz oznaczyły: <ListaNazw lokale={dowoz} />.{" "}
+              Dowóz oznaczyły: <NameList lokale={dowoz} />.{" "}
             </>
           )}
           {naWynos.length > 0 && (
             <>
-              Na wynos: <ListaNazw lokale={naWynos} />.{" "}
+              Na wynos: <NameList lokale={naWynos} />.{" "}
             </>
           )}
-          {maDowoz ? (
+          {hasDelivery ? (
             <>
               Kto dowiezie do Twojej miejscowości i za ile:{" "}
               <Link
-                href={`/${obszar.slug}/dowoz`}
+                href={`/${area.slug}/dowoz`}
                 className="font-extrabold text-akcent-tekst underline-offset-2 hover:underline"
               >
-                jedzenie z dowozem {obszar.w}
+                jedzenie z dowozem {area.w}
               </Link>
               .
             </>
@@ -199,19 +199,19 @@ function pytania(
     });
   }
 
-  const niedziela = otwarteWNiedziele(lokale);
-  if (niedziela.length) {
-    const godziny = new Map(niedziela.map(([l, g]) => [l.id, g]));
-    wynik.push({
-      pytanie: `${tytul} w niedzielę — co jest otwarte?`,
+  const sunday = openOnSunday(venues);
+  if (sunday.length) {
+    const hours = new Map(sunday.map(([l, g]) => [l.id, g]));
+    result.push({
+      pytanie: `${title} w niedzielę — co jest otwarte?`,
       odpowiedz: (
         <>
           Według podanych godzin w niedzielę otwarte są:{" "}
-          <ListaNazw lokale={niedziela.map(([l]) => l)} dopisek={(l) => godziny.get(l.id)!} />. W święta godziny mogą
+          <NameList lokale={sunday.map(([l]) => l)} dopisek={(l) => hours.get(l.id)!} />. W święta godziny mogą
           być inne — przed wyjazdem warto zadzwonić.
         </>
       ),
     });
   }
-  return wynik;
+  return result;
 }

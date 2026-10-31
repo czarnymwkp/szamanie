@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { opisStatusu, parsujGodziny, statusOtwarcia } from "@/lib/godziny";
-import { useTeraz } from "./useTeraz";
+import { statusDescription, parseHours, openingStatus } from "@/lib/godziny";
+import { useNow } from "./useTeraz";
 
-export default function StatusOtwarcia({
+export default function OpeningStatus({
   godziny,
   className = "",
   ciemne = false,
@@ -13,30 +13,30 @@ export default function StatusOtwarcia({
   className?: string;
   ciemne?: boolean; // jaśniejsze kolory na ciemnym tle
 }) {
-  const teraz = useTeraz();
-  const tydzien = useMemo(() => parsujGodziny(godziny), [godziny]);
-  if (!tydzien) return null;
+  const now = useNow();
+  const week = useMemo(() => parseHours(godziny), [godziny]);
+  if (!week) return null;
   // Zanim przeglądarka poda godzinę, trzymamy miejsce, żeby lista nie skakała.
-  if (!teraz) return <p className={`invisible ${className}`} aria-hidden>Otwarte</p>;
+  if (!now) return <p className={`invisible ${className}`} aria-hidden>Otwarte</p>;
 
-  const status = statusOtwarcia(tydzien, teraz);
-  const kolor = status.otwarte
+  const status = openingStatus(week, now);
+  const color = status.otwarte
     ? ciemne
       ? "text-[#4ade80]"
       : "text-otwarte"
     : ciemne
       ? "text-[#fca5a5]"
       : "text-zamkniete";
-  const kropka = ciemne ? "bg-[#4ade80]" : "bg-otwarte";
+  const dot = ciemne ? "bg-[#4ade80]" : "bg-otwarte";
   return (
-    <p className={`flex items-center gap-2 font-extrabold ${kolor} ${className}`}>
+    <p className={`flex items-center gap-2 font-extrabold ${color} ${className}`}>
       {status.otwarte && (
         <span className="relative flex size-2.5 shrink-0" aria-hidden>
-          <span className={`absolute inline-flex size-full animate-puls rounded-full ${kropka}`} />
-          <span className={`relative inline-flex size-2.5 rounded-full ${kropka}`} />
+          <span className={`absolute inline-flex size-full animate-puls rounded-full ${dot}`} />
+          <span className={`relative inline-flex size-2.5 rounded-full ${dot}`} />
         </span>
       )}
-      {opisStatusu(status, teraz)}
+      {statusDescription(status, now)}
     </p>
   );
 }

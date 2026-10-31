@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { karta, komunikatBledu } from "@/components/panel/style";
-import { bezpiecznyCel, logowanieWlaczone, pobierzKonto } from "@/lib/panel/konta";
-import FormularzLogowania from "./FormularzLogowania";
+import { card, errorMessage } from "@/components/panel/style";
+import { safeTarget, loginEnabled, getAccount } from "@/lib/panel/konta";
+import LoginForm from "./FormularzLogowania";
 
 export const metadata: Metadata = { title: "Logowanie" };
 
 // strona zależy od konta i adresu — czeka na serwer (jak cały panel)
 export const instant = false;
 
-const BLEDY: Record<string, string> = {
+const ERRORS: Record<string, string> = {
   google: "Logowanie przez Google się nie udało. Spróbuj jeszcze raz albo zaloguj się kodem z e-maila.",
   "google-email": "Twoje konto Google nie ma potwierdzonego adresu e-mail. Zaloguj się kodem z e-maila.",
 };
 
-export default async function Logowanie({ searchParams }: PageProps<"/panel/logowanie">) {
+export default async function LoginPage({ searchParams }: PageProps<"/panel/logowanie">) {
   const { dalej, blad } = await searchParams;
-  const cel = bezpiecznyCel(dalej);
+  const target = safeTarget(dalej);
   // na razie bez logowania — wchodzi się linkiem od nas (strona /panel mówi, jak go dostać)
-  if (!logowanieWlaczone()) redirect("/panel");
-  if (await pobierzKonto()) redirect(cel);
+  if (!loginEnabled()) redirect("/panel");
+  if (await getAccount()) redirect(target);
   const google = !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
 
   return (
@@ -30,21 +30,21 @@ export default async function Logowanie({ searchParams }: PageProps<"/panel/logo
         Zmieniaj menu i ceny, godziny otwarcia i dodawaj promocje. Konto zakłada się samo przy pierwszym logowaniu.
       </p>
 
-      {typeof blad === "string" && BLEDY[blad] && (
-        <p role="alert" className={`mt-5 ${komunikatBledu}`}>
-          {BLEDY[blad]}
+      {typeof blad === "string" && ERRORS[blad] && (
+        <p role="alert" className={`mt-5 ${errorMessage}`}>
+          {ERRORS[blad]}
         </p>
       )}
 
-      <div className={`mt-6 ${karta}`}>
+      <div className={`mt-6 ${card}`}>
         {google && (
           <>
             {/* zwykły link, nie <Link>: to przekierowanie do Google, nie strona do pobrania z wyprzedzeniem */}
             <a
-              href={`/panel/logowanie/google?dalej=${encodeURIComponent(cel)}`}
+              href={`/panel/logowanie/google?dalej=${encodeURIComponent(target)}`}
               className="flex h-12 w-full items-center justify-center gap-3 rounded-full border-2 border-obrys-2 bg-white font-extrabold transition hover:border-tekst"
             >
-              <LogoGoogle />
+              <GoogleLogo />
               Zaloguj przez Google
             </a>
             <div className="my-5 flex items-center gap-3 text-xs font-bold tracking-wide text-tekst-2 uppercase">
@@ -52,7 +52,7 @@ export default async function Logowanie({ searchParams }: PageProps<"/panel/logo
             </div>
           </>
         )}
-        <FormularzLogowania dalej={cel} />
+        <LoginForm dalej={target} />
       </div>
 
       <p className="mt-5 text-center text-xs leading-relaxed text-tekst-2">
@@ -67,7 +67,7 @@ export default async function Logowanie({ searchParams }: PageProps<"/panel/logo
 }
 
 // Znak „G” w kolorach Google — wymagany na przycisku logowania przez Google.
-function LogoGoogle() {
+function GoogleLogo() {
   return (
     <svg viewBox="0 0 48 48" className="size-5" aria-hidden>
       <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />

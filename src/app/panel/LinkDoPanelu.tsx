@@ -2,20 +2,20 @@
 
 import { Check, Copy, Link2, MessageSquare, Share2 } from "lucide-react";
 import { useState, useTransition } from "react";
-import { pole, przyciskMaly } from "@/components/panel/style";
+import { field, smallButton } from "@/components/panel/style";
 
-const tresc = (adres: string, nazwa: string) =>
-  `Link do panelu lokalu ${nazwa} na szamanie.pl: ${adres} — otwórz go, żeby zmienić menu, ceny i godziny. Nie przekazuj go nikomu.`;
+const content = (address: string, name: string) =>
+  `Link do panelu lokalu ${name} na szamanie.pl: ${address} — otwórz go, żeby zmienić menu, ceny i godziny. Nie przekazuj go nikomu.`;
 
 /** Gotowy link do panelu: do skopiowania, wysłania SMS-em albo udostępnienia (WhatsApp, Messenger). */
-export function PokazLink({ sciezka, telefon, nazwa }: { sciezka: string; telefon: string | null; nazwa: string }) {
+export function ShowLink({ sciezka, telefon, nazwa }: { sciezka: string; telefon: string | null; nazwa: string }) {
   const [skopiowano, setSkopiowano] = useState(false);
-  const adres = `${window.location.origin}${sciezka}`;
-  const numer = telefon?.replace(/[^\d+]/g, "");
+  const address = `${window.location.origin}${sciezka}`;
+  const number = telefon?.replace(/[^\d+]/g, "");
 
-  async function kopiuj() {
+  async function copy() {
     try {
-      await navigator.clipboard.writeText(adres);
+      await navigator.clipboard.writeText(address);
       setSkopiowano(true);
     } catch {
       // bez HTTPS (np. podgląd po adresie IP) schowek jest niedostępny — tekst do zaznaczenia jest w polu obok
@@ -26,27 +26,27 @@ export function PokazLink({ sciezka, telefon, nazwa }: { sciezka: string; telefo
     <div className="w-full space-y-2 rounded-xl bg-krem p-3">
       <input
         readOnly
-        value={adres}
+        value={address}
         aria-label="Link do panelu"
         onFocus={(e) => e.currentTarget.select()}
-        className={`${pole} py-2 text-sm`}
+        className={`${field} py-2 text-sm`}
       />
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={kopiuj} className={`${przyciskMaly} bg-white`}>
+        <button type="button" onClick={copy} className={`${smallButton} bg-white`}>
           {skopiowano ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
           {skopiowano ? "Skopiowano" : "Kopiuj"}
         </button>
-        {numer && (
+        {number && (
           // „?&body=” działa i na Androidzie, i na iPhonie
-          <a href={`sms:${numer}?&body=${encodeURIComponent(tresc(adres, nazwa))}`} className={`${przyciskMaly} bg-white`}>
+          <a href={`sms:${number}?&body=${encodeURIComponent(content(address, nazwa))}`} className={`${smallButton} bg-white`}>
             <MessageSquare className="size-4" aria-hidden /> SMS na {telefon}
           </a>
         )}
         {"share" in navigator && (
           <button
             type="button"
-            onClick={() => navigator.share({ text: tresc(adres, nazwa) }).catch(() => {})}
-            className={`${przyciskMaly} bg-white`}
+            onClick={() => navigator.share({ text: content(address, nazwa) }).catch(() => {})}
+            className={`${smallButton} bg-white`}
           >
             <Share2 className="size-4" aria-hidden /> Udostępnij
           </button>
@@ -58,7 +58,7 @@ export function PokazLink({ sciezka, telefon, nazwa }: { sciezka: string; telefo
 }
 
 /** Przycisk admina: nowy link do panelu dla konta (stary przestaje działać). */
-export default function LinkDoPanelu({
+export default function PanelLink({
   utworz,
   telefon,
   nazwa,
@@ -72,14 +72,14 @@ export default function LinkDoPanelu({
   const [sciezka, setSciezka] = useState<string | null>(null);
   const [trwa, startTransition] = useTransition();
 
-  if (sciezka) return <PokazLink sciezka={sciezka} telefon={telefon} nazwa={nazwa} />;
+  if (sciezka) return <ShowLink sciezka={sciezka} telefon={telefon} nazwa={nazwa} />;
   return (
     <button
       type="button"
       disabled={trwa}
       onClick={() => startTransition(async () => setSciezka(await utworz()))}
       title={maLink ? "Poprzedni link przestanie działać" : undefined}
-      className={`${przyciskMaly} bg-akcent text-na-akcencie`}
+      className={`${smallButton} bg-akcent text-na-akcencie`}
     >
       <Link2 className="size-4" aria-hidden /> {maLink ? "Nowy link do panelu" : "Link do panelu"}
     </button>

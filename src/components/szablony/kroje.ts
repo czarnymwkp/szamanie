@@ -17,7 +17,7 @@ import {
   Rubik_Dirt,
   Sanchez,
 } from "next/font/google";
-import type { KrojLokalu } from "@/lib/motywyStron";
+import type { VenueFont } from "@/lib/motywyStron";
 
 // Kroje motywów lokali (lib/motywyStron.ts). Bez preload: pobierają się tylko na stronach lokali, które ich używają.
 const playfair = Playfair_Display({
@@ -111,7 +111,7 @@ const poppins = Poppins({
 });
 const rubikDirt = Rubik_Dirt({ variable: "--font-rubik-dirt", subsets: ["latin", "latin-ext"], weight: "400", preload: false });
 
-export const KROJE: Record<KrojLokalu, { variable: string; zmienna: string }> = {
+export const FONTS: Record<VenueFont, { variable: string; zmienna: string }> = {
   playfair: { variable: playfair.variable, zmienna: "var(--font-playfair)" },
   karla: { variable: karla.variable, zmienna: "var(--font-karla)" },
   rokkitt: { variable: rokkitt.variable, zmienna: "var(--font-rokkitt)" },

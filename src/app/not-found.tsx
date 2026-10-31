@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import Naglowek from "@/components/serwis/Naglowek";
-import Stopka from "@/components/serwis/Stopka";
+import Header from "@/components/serwis/Naglowek";
+import Footer from "@/components/serwis/Stopka";
 
-export default function NieZnaleziono() {
+export default function NotFound() {
   return (
     <>
-      <Naglowek />
+      <Header />
       <main id="tresc" className="mx-auto flex max-w-md flex-1 flex-col items-center px-5 py-20 text-center">
         <Image src="/znak.png" alt="" width={120} height={120} className="animate-unoszenie" />
         <h1 className="mt-6 text-3xl font-black">Tu nic nie ma</h1>
@@ -18,7 +18,7 @@ export default function NieZnaleziono() {
           Wróć do listy lokali
         </Link>
       </main>
-      <Stopka />
+      <Footer />
     </>
   );
 }

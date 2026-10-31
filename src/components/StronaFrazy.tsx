@@ -2,33 +2,33 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ChevronRight, Phone } from "lucide-react";
-import { dataPl, zl } from "@/lib/ceny";
+import { formatDatePl, formatPln } from "@/lib/ceny";
 import { SITE_URL } from "@/lib/konfiguracja";
-import type { Lokal } from "@/lib/lokale";
-import type { Danie, Dostawa, Menu, Strefa } from "@/lib/menu";
-import { ileLokali, linkTelefonu } from "@/lib/nazwy";
-import type { KategoriaSeo, Obszar } from "@/lib/seo";
-import { ZDJECIA_KATEGORII, type KluczZdjecia } from "@/lib/zdjeciaKategorii";
-import KartaLokalu from "./KartaLokalu";
+import type { Venue } from "@/lib/lokale";
+import type { Dish, Delivery, Menu, Zone } from "@/lib/menu";
+import { venueCount, phoneUrl } from "@/lib/nazwy";
+import type { SeoCategory, Area } from "@/lib/seo";
+import { CATEGORY_PHOTOS, type PhotoKey } from "@/lib/zdjeciaKategorii";
+import VenueCard from "./KartaLokalu";
 
 // Wspólne kawałki stron fraz (/krasnik, /krasnik/pizza): baner, listy lokali, pytania i dane dla Google.
 
-export { ileLokali };
+export { venueCount as ileLokali };
 
-export type Okruszek = { nazwa: string; adres: string };
+export type Breadcrumb = { nazwa: string; adres: string };
 
-export function BanerFrazy({
+export function PhraseBanner({
   okruszki,
   tytul,
   children,
   zdjecie,
 }: {
-  okruszki: Okruszek[];
+  okruszki: Breadcrumb[];
   tytul: string;
   children: ReactNode;
-  zdjecie?: KluczZdjecia;
+  zdjecie?: PhotoKey;
 }) {
-  const z = zdjecie && ZDJECIA_KATEGORII[zdjecie];
+  const z = zdjecie && CATEGORY_PHOTOS[zdjecie];
   return (
     <section className="relative overflow-hidden rounded-b-[2.25rem] bg-akcent">
       <Image
@@ -74,18 +74,18 @@ export function BanerFrazy({
   );
 }
 
-export function SiatkaLokali({ lokale }: { lokale: Lokal[] }) {
+export function VenueGrid({ lokale }: { lokale: Venue[] }) {
   return (
     <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {lokale.map((l) => (
-        <KartaLokalu key={l.id} lokal={l} />
+        <VenueCard key={l.id} lokal={l} />
       ))}
     </ul>
   );
 }
 
 /** Informacja o kolejności — przy płatnym wyróżnieniu wymagana prawem. */
-export function Kolejnosc() {
+export function Order() {
   return (
     <p className="mt-4 text-xs font-semibold text-tekst-2">
       Kolejność: najpierw lokale z wykupionym wyróżnieniem (oznaczone „Promowane”), potem alfabetycznie.
@@ -93,7 +93,7 @@ export function Kolejnosc() {
   );
 }
 
-export function Sekcja({ id, tytul, children }: { id: string; tytul: string; children: ReactNode }) {
+export function Section({ id, tytul, children }: { id: string; tytul: string; children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="pt-10">
       <h2 id={id} className="mb-4 text-2xl font-black lg:text-3xl">
@@ -104,8 +104,8 @@ export function Sekcja({ id, tytul, children }: { id: string; tytul: string; chi
   );
 }
 
-export function KafelekKategorii({ k, o, ile }: { k: KategoriaSeo; o: Obszar; ile: number }) {
-  const z = ZDJECIA_KATEGORII[k.zdjecie];
+export function CategoryTile({ k, o, ile }: { k: SeoCategory; o: Area; ile: number }) {
+  const z = CATEGORY_PHOTOS[k.zdjecie];
   return (
     <li className="group pojawianie relative h-36 overflow-hidden rounded-[1.15rem] bg-tekst shadow-[0_6px_16px_rgba(0,0,0,0.08)] transition duration-300 hover:-translate-y-1 has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-akcent/50">
       {z && (
@@ -128,14 +128,14 @@ export function KafelekKategorii({ k, o, ile }: { k: KategoriaSeo; o: Obszar; il
             {k.nazwa}
           </Link>
         </h3>
-        <p className="text-sm font-bold text-white/85">{ileLokali(ile)}</p>
+        <p className="text-sm font-bold text-white/85">{venueCount(ile)}</p>
       </div>
     </li>
   );
 }
 
 /** Linki do lokali po przecinku: „Parkowa, Roma i U Górala”. */
-export function ListaNazw({ lokale, dopisek }: { lokale: Lokal[]; dopisek?: (l: Lokal) => string }) {
+export function NameList({ lokale, dopisek }: { lokale: Venue[]; dopisek?: (l: Venue) => string }) {
   return lokale.map((l, i) => (
     <span key={l.id}>
       {i > 0 && (i === lokale.length - 1 ? " i " : ", ")}
@@ -147,10 +147,10 @@ export function ListaNazw({ lokale, dopisek }: { lokale: Lokal[]; dopisek?: (l: 
   ));
 }
 
-const najnizsza = (d: Danie) => Math.min(...d.ceny.map((c) => c.gr));
+const lowest = (d: Dish) => Math.min(...d.ceny.map((c) => c.gr));
 
 /** „Ile kosztuje pizza w Kraśniku?” — dania z menu lokali z cenami, po kilka na lokal. */
-export function CenyDan({
+export function DishPrices({
   tytul,
   w,
   lokale,
@@ -159,30 +159,30 @@ export function CenyDan({
 }: {
   tytul: string;
   w: string; // „w Kraśniku”
-  lokale: Lokal[];
-  dania: Danie[];
+  lokale: Venue[];
+  dania: Dish[];
   menu: Map<number, Menu>;
 }) {
   // tylko lokale z tej strony — kebab z menu Nadwiślanki (Annopol) nie trafia do cen „w Kraśniku”
-  const zCena = dania.filter((d) => d.ceny.length && lokale.some((l) => l.id === d.lokalId));
-  const lokaleZDaniami = lokale.filter((l) => zCena.some((d) => d.lokalId === l.id));
-  if (!lokaleZDaniami.length) return null;
-  const poCenie = [...zCena].sort((a, b) => najnizsza(a) - najnizsza(b));
-  const [najtansze, najdrozsze] = [poCenie[0], poCenie[poCenie.length - 1]];
-  const nazwaLokalu = (id: number) => lokale.find((l) => l.id === id)!.nazwa;
+  const withPrice = dania.filter((d) => d.ceny.length && lokale.some((l) => l.id === d.lokalId));
+  const venuesWithDishes = lokale.filter((l) => withPrice.some((d) => d.lokalId === l.id));
+  if (!venuesWithDishes.length) return null;
+  const byPrice = [...withPrice].sort((a, b) => lowest(a) - lowest(b));
+  const [najtansze, najdrozsze] = [byPrice[0], byPrice[byPrice.length - 1]];
+  const venueName = (id: number) => lokale.find((l) => l.id === id)!.nazwa;
 
   return (
-    <Sekcja id="ceny" tytul={tytul}>
+    <Section id="ceny" tytul={tytul}>
       <p className="max-w-3xl leading-relaxed font-semibold text-tekst-2">
-        Ceny z menu {lokaleZDaniami.length === 1 ? "jednego lokalu" : `${lokaleZDaniami.length} lokali`} {w}: od{" "}
-        <strong className="text-tekst">{zl(najnizsza(najtansze))}</strong> do{" "}
-        <strong className="text-tekst">{zl(najnizsza(najdrozsze))}</strong>. Najtaniej: {najtansze.nazwa} w{" "}
-        {nazwaLokalu(najtansze.lokalId)}.
+        Ceny z menu {venuesWithDishes.length === 1 ? "jednego lokalu" : `${venuesWithDishes.length} lokali`} {w}: od{" "}
+        <strong className="text-tekst">{formatPln(lowest(najtansze))}</strong> do{" "}
+        <strong className="text-tekst">{formatPln(lowest(najdrozsze))}</strong>. Najtaniej: {najtansze.nazwa} w{" "}
+        {venueName(najtansze.lokalId)}.
       </p>
       {/* grid-cols-1 = minmax(0, 1fr) — bez tego ucięte opisy dań rozpychają kolumnę na telefonie */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {lokaleZDaniami.map((l) => {
-          const daniaLokalu = zCena.filter((d) => d.lokalId === l.id);
+        {venuesWithDishes.map((l) => {
+          const venueDishes = withPrice.filter((d) => d.lokalId === l.id);
           const m = menu.get(l.id);
           return (
             <section key={l.id} aria-label={l.nazwa} className="pojawianie rounded-2xl bg-white p-5 shadow-sm">
@@ -192,10 +192,10 @@ export function CenyDan({
                 </Link>
               </h3>
               {m?.sprawdzono && (
-                <p className="text-xs font-bold text-tekst-2">Ceny z menu sprawdzone {dataPl(m.sprawdzono)}</p>
+                <p className="text-xs font-bold text-tekst-2">Ceny z menu sprawdzone {formatDatePl(m.sprawdzono)}</p>
               )}
               <ul className="mt-3 divide-y divide-obrys">
-                {daniaLokalu.slice(0, 6).map((d) => (
+                {venueDishes.slice(0, 6).map((d) => (
                   <li key={d.id} className="flex items-baseline justify-between gap-4 py-2">
                     <div className="min-w-0">
                       <p className="font-extrabold">{d.nazwa}</p>
@@ -205,7 +205,7 @@ export function CenyDan({
                       {d.ceny.map((c) => (
                         <span key={`${c.wariant}-${c.gr}`} className="block">
                           {c.wariant && <span className="font-bold text-tekst-2">{c.wariant} </span>}
-                          {zl(c.gr)}
+                          {formatPln(c.gr)}
                         </span>
                       ))}
                     </p>
@@ -216,7 +216,7 @@ export function CenyDan({
                 href={`/lokal/${l.slug}`}
                 className="mt-3 inline-flex items-center gap-1 text-sm font-black text-akcent-tekst hover:underline"
               >
-                {daniaLokalu.length > 6 ? `Jeszcze ${daniaLokalu.length - 6} — całe menu` : "Całe menu"}
+                {venueDishes.length > 6 ? `Jeszcze ${venueDishes.length - 6} — całe menu` : "Całe menu"}
                 {m && ` (${m.liczba} poz.)`}
                 <ChevronRight className="size-4" aria-hidden />
               </Link>
@@ -224,15 +224,15 @@ export function CenyDan({
           );
         })}
       </div>
-    </Sekcja>
+    </Section>
   );
 }
 
 /** Cena dostawy jak na stronie lokalu: „3 zł”, „gratis”, „zapytaj”. */
-export const cenaDostawy = (s: Strefa) => (s.cenaGr === null ? "zapytaj" : s.cenaGr ? zl(s.cenaGr) : "gratis");
+export const deliveryPrice = (s: Zone) => (s.cenaGr === null ? "zapytaj" : s.cenaGr ? formatPln(s.cenaGr) : "gratis");
 
 /** „Ile kosztuje dowóz?” — strefy dostawy lokali z ceną i minimalnym zamówieniem, po karcie na lokal. */
-export function CennikiDostawy({ cenniki }: { cenniki: { lokal: Lokal; dostawa: Dostawa }[] }) {
+export function DeliveryPricing({ cenniki }: { cenniki: { lokal: Venue; dostawa: Delivery }[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {cenniki.map(({ lokal: l, dostawa: d }) => (
@@ -254,13 +254,13 @@ export function CennikiDostawy({ cenniki }: { cenniki: { lokal: Lokal; dostawa: 
                   ) : (
                     "od lokalu"
                   )}
-                  , sprawdzony {dataPl(d.sprawdzono)}
+                  , sprawdzony {formatDatePl(d.sprawdzono)}
                 </p>
               )}
             </div>
             {l.telefon && (
               <a
-                href={linkTelefonu(l.telefon)}
+                href={phoneUrl(l.telefon)}
                 className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-tekst px-4 text-sm font-black text-white transition active:scale-95"
               >
                 <Phone className="size-4" aria-hidden />
@@ -274,9 +274,9 @@ export function CennikiDostawy({ cenniki }: { cenniki: { lokal: Lokal; dostawa: 
               <li key={s.nazwa} className="flex items-baseline justify-between gap-4 py-2">
                 <p className="min-w-0 font-extrabold">{s.nazwa}</p>
                 <p className="shrink-0 text-right text-sm font-black whitespace-nowrap">
-                  {cenaDostawy(s)}
+                  {deliveryPrice(s)}
                   {s.minGr ? (
-                    <span className="block text-xs font-bold text-tekst-2">zamówienie od {zl(s.minGr)}</span>
+                    <span className="block text-xs font-bold text-tekst-2">zamówienie od {formatPln(s.minGr)}</span>
                   ) : null}
                 </p>
               </li>
@@ -295,12 +295,12 @@ export function CennikiDostawy({ cenniki }: { cenniki: { lokal: Lokal; dostawa: 
   );
 }
 
-export type Pytanie = { pytanie: string; odpowiedz: ReactNode };
+export type Question = { pytanie: string; odpowiedz: ReactNode };
 
-export function Pytania({ pytania, tytul }: { pytania: Pytanie[]; tytul: string }) {
+export function Faq({ pytania, tytul }: { pytania: Question[]; tytul: string }) {
   if (!pytania.length) return null;
   return (
-    <Sekcja id="pytania" tytul={tytul}>
+    <Section id="pytania" tytul={tytul}>
       <div className="grid gap-4 lg:grid-cols-2">
         {pytania.map((p) => (
           <div key={p.pytanie} className="pojawianie rounded-2xl bg-white p-5 shadow-sm">
@@ -309,11 +309,11 @@ export function Pytania({ pytania, tytul }: { pytania: Pytanie[]; tytul: string 
           </div>
         ))}
       </div>
-    </Sekcja>
+    </Section>
   );
 }
 
-export function Pigulki({ linki }: { linki: { nazwa: string; adres: string }[] }) {
+export function Pills({ linki }: { linki: { nazwa: string; adres: string }[] }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {linki.map((l) => (
@@ -331,8 +331,8 @@ export function Pigulki({ linki }: { linki: { nazwa: string; adres: string }[] }
 }
 
 /** Dane strukturalne dla Google: ścieżka okruszków i lista lokali (strona zbiorcza → strony lokali). */
-export function DaneDlaGoogle({ okruszki, lokale }: { okruszki: Okruszek[]; lokale: Lokal[] }) {
-  const dane = [
+export function StructuredData({ okruszki, lokale }: { okruszki: Breadcrumb[]; lokale: Venue[] }) {
+  const date = [
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -355,6 +355,6 @@ export function DaneDlaGoogle({ okruszki, lokale }: { okruszki: Okruszek[]; loka
     },
   ];
   return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dane).replace(/</g, "\\u003c") }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(date).replace(/</g, "\\u003c") }} />
   );
 }

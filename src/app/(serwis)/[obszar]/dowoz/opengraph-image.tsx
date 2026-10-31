@@ -1,19 +1,19 @@
-import { pobierzLokale } from "@/lib/lokale";
-import { ROZMIAR, obrazekUdostepnien } from "@/lib/obrazekUdostepnien";
-import { lokaleZDowozem, obszaryZDowozem } from "@/lib/seo";
+import { getVenues } from "@/lib/lokale";
+import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { venuesWithDelivery, areasWithDelivery } from "@/lib/seo";
 
 export const alt = "Jedzenie z dowozem — kto dowozi i za ile, na szamanie.pl";
-export const size = ROZMIAR;
+export const size = SIZE;
 export const contentType = "image/png";
 
-export default async function Obrazek({ params }: { params: Promise<{ obszar: string }> }) {
+export default async function Image({ params }: { params: Promise<{ obszar: string }> }) {
   const { obszar: slug } = await params;
-  const lokale = await pobierzLokale();
-  const obszar = obszaryZDowozem(lokale).find((o) => o.slug === slug);
-  if (!obszar) return new Response(null, { status: 404 });
-  const { w } = lokaleZDowozem(lokale, obszar);
-  return obrazekUdostepnien({
-    tytul: `Jedzenie z dowozem ${obszar.w}`,
+  const venues = await getVenues();
+  const area = areasWithDelivery(venues).find((o) => o.slug === slug);
+  if (!area) return new Response(null, { status: 404 });
+  const { w } = venuesWithDelivery(venues, area);
+  return shareImage({
+    tytul: `Jedzenie z dowozem ${area.w}`,
     podtytul: `Kto dowozi i za ile: ${w
       .slice(0, 3)
       .map((l) => l.nazwa)

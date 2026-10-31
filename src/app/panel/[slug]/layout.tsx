@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { wymagajLokalu } from "@/lib/panel/konta";
-import Zakladki from "./Zakladki";
+import { requireVenue } from "@/lib/panel/konta";
+import Tabs from "./Zakladki";
 
 // jak cały panel: zależy od konta, więc czeka na serwer (bez tego Next ostrzega o odczycie adresu przy prerenderze)
 export const instant = false;
 
-export default async function UkladLokalu({ children, params }: LayoutProps<"/panel/[slug]">) {
+export default async function VenueLayout({ children, params }: LayoutProps<"/panel/[slug]">) {
   const { slug } = await params;
-  const { lokal } = await wymagajLokalu(slug);
+  const { lokal } = await requireVenue(slug);
   return (
     <div>
       <Link href="/panel" className="inline-flex items-center gap-1.5 text-sm font-bold text-tekst-2 hover:text-tekst">
@@ -25,7 +25,7 @@ export default async function UkladLokalu({ children, params }: LayoutProps<"/pa
           Zobacz stronę lokalu <ExternalLink className="size-4" aria-hidden />
         </a>
       </div>
-      <Zakladki slug={lokal.slug} />
+      <Tabs slug={lokal.slug} />
       <div className="mt-6">{children}</div>
     </div>
   );

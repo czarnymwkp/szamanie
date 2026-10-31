@@ -1,7 +1,7 @@
-import type { Lokal } from "./lokale";
-import type { KluczIkony } from "./motyw";
+import type { Venue } from "./lokale";
+import type { IconKey } from "./motyw";
 
-export const TYPY: Record<string, string> = {
+export const TYPES: Record<string, string> = {
   restaurant: "Restauracja",
   fast_food: "Fast food",
   cafe: "Kawiarnia",
@@ -11,7 +11,7 @@ export const TYPY: Record<string, string> = {
   food_court: "Strefa gastronomiczna",
 };
 
-const KUCHNIE: Record<string, string> = {
+const CUISINES: Record<string, string> = {
   pizza: "Pizza",
   italian_pizza: "Pizza",
   kebab: "Kebab",
@@ -56,37 +56,37 @@ const KUCHNIE: Record<string, string> = {
 };
 
 /** Kuchnie odgadnięte z nazwy, gdy w OSM brak tagu cuisine — „Pizzeria Parkowa” → pizza. */
-export function kuchnieZNazwy(nazwa: string): string[] {
-  const n = nazwa.toLowerCase();
-  const wynik: string[] = [];
-  if (/pizz/.test(n)) wynik.push("pizza");
-  if (/kebab|kebap|d[öo]ner|shawarma|szawarma/.test(n)) wynik.push("kebab");
-  if (/burger/.test(n)) wynik.push("burger");
-  if (/sushi/.test(n)) wynik.push("sushi");
-  if (/pierog|pierożk/.test(n)) wynik.push("dumplings");
-  if (/zapiek/.test(n)) wynik.push("zapiekanka");
-  return wynik;
+export function cuisinesFromName(name: string): string[] {
+  const n = name.toLowerCase();
+  const result: string[] = [];
+  if (/pizz/.test(n)) result.push("pizza");
+  if (/kebab|kebap|d[öo]ner|shawarma|szawarma/.test(n)) result.push("kebab");
+  if (/burger/.test(n)) result.push("burger");
+  if (/sushi/.test(n)) result.push("sushi");
+  if (/pierog|pierożk/.test(n)) result.push("dumplings");
+  if (/zapiek/.test(n)) result.push("zapiekanka");
+  return result;
 }
 
-export function nazwaKuchni(kuchnia: string) {
-  return KUCHNIE[kuchnia] ?? (kuchnia.charAt(0).toUpperCase() + kuchnia.slice(1)).replace(/_/g, " ");
+export function cuisineName(cuisine: string) {
+  return CUISINES[cuisine] ?? (cuisine.charAt(0).toUpperCase() + cuisine.slice(1)).replace(/_/g, " ");
 }
 
 /** „Restauracja · Pizza · Włoska” */
-export function opisLokalu(lokal: Lokal) {
-  return [...new Set([TYPY[lokal.typ] ?? lokal.typ, ...lokal.kuchnie.map(nazwaKuchni)])].join(" · ");
+export function venueDescription(venue: Venue) {
+  return [...new Set([TYPES[venue.typ] ?? venue.typ, ...venue.kuchnie.map(cuisineName)])].join(" · ");
 }
 
-export function pelnyAdres(lokal: Lokal) {
-  const { adres, miejscowosc } = lokal;
+export function fullAddress(venue: Venue) {
+  const { adres, miejscowosc } = venue;
   if (!adres) return miejscowosc ?? "";
   if (!miejscowosc || adres.startsWith(miejscowosc)) return adres;
   return `${adres}, ${miejscowosc}`;
 }
 
-const AZJATYCKIE = ["chinese", "asian", "vietnamese", "thai", "japanese", "sushi", "indian"];
+const ASIAN_CUISINES = ["chinese", "asian", "vietnamese", "thai", "japanese", "sushi", "indian"];
 
-export const KATEGORIE: { id: string; nazwa: string; ikona: KluczIkony; pasuje: (l: Lokal) => boolean }[] = [
+export const CATEGORIES: { id: string; nazwa: string; ikona: IconKey; pasuje: (l: Venue) => boolean }[] = [
   { id: "wszystko", nazwa: "Wszystko", ikona: "wszystko", pasuje: () => true },
   { id: "pizza", nazwa: "Pizza", ikona: "pizza", pasuje: (l) => l.kuchnie.some((k) => k.includes("pizza")) },
   { id: "kebab", nazwa: "Kebab", ikona: "kebab", pasuje: (l) => l.kuchnie.includes("kebab") },
@@ -105,12 +105,12 @@ export const KATEGORIE: { id: string; nazwa: string; ikona: KluczIkony; pasuje: 
     ikona: "lody",
     pasuje: (l) => l.typ === "ice_cream" || l.kuchnie.includes("ice_cream"),
   },
-  { id: "azjatycka", nazwa: "Azjatycka", ikona: "zupa", pasuje: (l) => l.kuchnie.some((k) => AZJATYCKIE.includes(k)) },
+  { id: "azjatycka", nazwa: "Azjatycka", ikona: "zupa", pasuje: (l) => l.kuchnie.some((k) => ASIAN_CUISINES.includes(k)) },
   { id: "puby", nazwa: "Puby i bary", ikona: "piwo", pasuje: (l) => l.typ === "pub" || l.typ === "bar" },
 ];
 
 /** odmiana(5, ["lokal", "lokale", "lokali"]) → "lokali" */
-export function odmiana(n: number, [jeden, kilka, wiele]: [string, string, string]) {
+export function plural(n: number, [jeden, kilka, wiele]: [string, string, string]) {
   if (n === 1) return jeden;
   const d = n % 10;
   const s = n % 100;
@@ -118,15 +118,15 @@ export function odmiana(n: number, [jeden, kilka, wiele]: [string, string, strin
 }
 
 /** ileLokali(3) → "3 lokale" */
-export const ileLokali = (n: number) => `${n} ${odmiana(n, ["lokal", "lokale", "lokali"])}`;
+export const venueCount = (n: number) => `${n} ${plural(n, ["lokal", "lokale", "lokali"])}`;
 
 /** jestLokali(3) → "są 3 lokale", jestLokali(10) → "jest 10 lokali" */
-export const jestLokali = (n: number) => `${odmiana(n, ["jest", "są", "jest"])} ${ileLokali(n)}`;
+export const venuesFound = (n: number) => `${plural(n, ["jest", "są", "jest"])} ${venueCount(n)}`;
 
-export const linkTelefonu = (telefon: string) => `tel:${telefon.replace(/[^\d+]/g, "")}`;
-export const linkWww = (www: string) => (/^https?:\/\//.test(www) ? www : `https://${www}`);
-export const linkFacebooka = (fb: string) => (/^https?:\/\//.test(fb) ? fb : `https://www.facebook.com/${fb}`);
-export const linkInstagrama = (ig: string) =>
+export const phoneUrl = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
+export const websiteUrl = (www: string) => (/^https?:\/\//.test(www) ? www : `https://${www}`);
+export const facebookUrl = (fb: string) => (/^https?:\/\//.test(fb) ? fb : `https://www.facebook.com/${fb}`);
+export const instagramUrl = (ig: string) =>
   /^https?:\/\//.test(ig) ? ig : `https://www.instagram.com/${ig.replace(/^@/, "")}`;
-export const linkNawigacji = (l: Pick<Lokal, "lat" | "lon">) =>
+export const directionsUrl = (l: Pick<Venue, "lat" | "lon">) =>
   `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lon}`;

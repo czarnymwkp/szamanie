@@ -2,30 +2,30 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 
 // Stałe losowanie (to samo na serwerze i w przeglądarce), żeby świetliki nie skakały po wczytaniu strony.
-function losowe(ziarno: number) {
-  let s = ziarno;
+function seededRandom(seed: number) {
+  let s = seed;
   return () => {
     s = (s * 16807) % 2147483647;
     return s / 2147483647;
   };
 }
 
-const los = losowe(7);
-const SWIETLIKI = Array.from({ length: 26 }, () => ({
-  left: `${(los() * 100).toFixed(1)}%`,
-  top: `${(6 + los() * 88).toFixed(1)}%`,
-  "--r": `${(2.5 + los() * 3.5).toFixed(1)}px`,
-  "--t": `${(5 + los() * 6).toFixed(1)}s`,
-  "--d": `${(-los() * 10).toFixed(1)}s`,
-  "--dx": `${((los() - 0.5) * 60).toFixed(0)}px`,
-  "--dy": `${((los() - 0.5) * 50).toFixed(0)}px`,
+const rand = seededRandom(7);
+const FIREFLIES = Array.from({ length: 26 }, () => ({
+  left: `${(rand() * 100).toFixed(1)}%`,
+  top: `${(6 + rand() * 88).toFixed(1)}%`,
+  "--r": `${(2.5 + rand() * 3.5).toFixed(1)}px`,
+  "--t": `${(5 + rand() * 6).toFixed(1)}s`,
+  "--d": `${(-rand() * 10).toFixed(1)}s`,
+  "--dx": `${((rand() - 0.5) * 60).toFixed(0)}px`,
+  "--dy": `${((rand() - 0.5) * 50).toFixed(0)}px`,
 })) as CSSProperties[];
 
 /**
  * Baner motywu lokalu jak na stronie lokalu: noc, świetliki, znak lokalu, a pod nim nazwa (to jest <h1> strony)
  * i linijka z adresem. Nagłówek w kroju motywu (--naglowek-lokalu).
  */
-export default function BanerSwietliki({
+export default function FireflyBanner({
   znak,
   nazwa,
   podpis,
@@ -44,8 +44,8 @@ export default function BanerSwietliki({
           "radial-gradient(ellipse 70% 60% at 50% 115%, rgba(34,197,94,0.18), transparent 70%), radial-gradient(ellipse 50% 40% at 50% 30%, rgba(255,255,255,0.07), transparent 70%), #0a0a0a",
       }}
     >
-      {SWIETLIKI.map((styl, i) => (
-        <span key={i} aria-hidden className="swietlik" style={styl} />
+      {FIREFLIES.map((style, i) => (
+        <span key={i} aria-hidden className="swietlik" style={style} />
       ))}
       <div className="relative flex flex-col items-center">
         <Image

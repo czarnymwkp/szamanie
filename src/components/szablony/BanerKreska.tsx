@@ -3,7 +3,7 @@
  * pod nią nazwa (<h1> strony, krój --naglowek-lokalu). Nazwa „Kwadrat - Miejsce Spotkań” dzieli się na dużą część
  * przed myślnikiem i mniejszy dopisek po nim. Bez logo lokalu (tylko za jego zgodą).
  */
-export default function BanerKreska({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
+export default function RuleBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   const [glowna, ...reszta] = nazwa.split(/\s+[-–—]\s+/);
   return (
     <div className="bg-tlo pt-20 pb-6 sm:pt-24">

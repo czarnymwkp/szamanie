@@ -2,7 +2,7 @@
 
 import { Printer } from "lucide-react";
 
-export default function Drukuj({ tekst }: { tekst: string }) {
+export default function PrintButton({ tekst }: { tekst: string }) {
   return (
     <button
       type="button"

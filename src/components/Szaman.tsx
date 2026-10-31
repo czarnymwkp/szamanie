@@ -2,15 +2,15 @@ import { useId } from "react";
 import "./Szaman.css";
 
 // Czteroramienna iskierka (czary szamana).
-const iskra = (x: number, y: number, r: number) =>
+const spark = (x: number, y: number, r: number) =>
   `M${x} ${y - r}Q${x} ${y} ${x + r} ${y}Q${x} ${y} ${x} ${y + r}Q${x} ${y} ${x - r} ${y}Q${x} ${y} ${x} ${y - r}Z`;
 
-const ISKRY = [
-  { d: iskra(54, 122, 9), kolor: "#ffd75e", opoznienie: "0s" },
-  { d: iskra(44, 160, 6), kolor: "#f5ebe1", opoznienie: "0.15s" },
-  { d: iskra(108, 112, 5), kolor: "#ffd75e", opoznienie: "0.3s" },
-  { d: iskra(214, 22, 8), kolor: "#ffd75e", opoznienie: "0.1s" },
-  { d: iskra(226, 52, 5), kolor: "#f5ebe1", opoznienie: "0.25s" },
+const SPARKS = [
+  { d: spark(54, 122, 9), kolor: "#ffd75e", opoznienie: "0s" },
+  { d: spark(44, 160, 6), kolor: "#f5ebe1", opoznienie: "0.15s" },
+  { d: spark(108, 112, 5), kolor: "#ffd75e", opoznienie: "0.3s" },
+  { d: spark(214, 22, 8), kolor: "#ffd75e", opoznienie: "0.1s" },
+  { d: spark(226, 52, 5), kolor: "#f5ebe1", opoznienie: "0.25s" },
 ];
 
 /**
@@ -18,23 +18,23 @@ const ISKRY = [
  * i zaprasza do wyszukiwania. SVG + CSS, pętla 10 s; bez animacji przy „ogranicz ruch”.
  * `dymek` — chmurka „A Ty co szamiesz?” po lewej stronie postaci (tam, gdzie na komputerze jest wyszukiwarka).
  */
-export default function Szaman({ className = "", dymek = false }: { className?: string; dymek?: boolean }) {
+export default function Mascot({ className = "", dymek = false }: { className?: string; dymek?: boolean }) {
   const id = useId();
-  const maska = `ugryzienia-${id}`;
-  const cialo = `cialo-${id}`;
+  const maskId = `ugryzienia-${id}`;
+  const body = `cialo-${id}`;
 
   return (
     <div aria-hidden className={className}>
       <svg viewBox="0 0 240 240" className="sz-szaman">
         <defs>
           {/* Ugryzienia: czarne koła w masce „zjadają” prawą stronę burgera, jedno po drugim. */}
-          <mask id={maska} maskUnits="userSpaceOnUse" x="30" y="100" width="100" height="90">
+          <mask id={maskId} maskUnits="userSpaceOnUse" x="30" y="100" width="100" height="90">
             <rect x="30" y="100" width="100" height="90" fill="#fff" />
             <circle className="sz-ugryz1" cx="105" cy="138" r="9" />
             <circle className="sz-ugryz2" cx="106" cy="152" r="9" />
             <circle className="sz-ugryz3" cx="100" cy="145" r="10" />
           </mask>
-          <clipPath id={cialo}>
+          <clipPath id={body}>
             <path d="M62 240C62 196 92 170 135 168C178 170 208 196 208 240Z" />
           </clipPath>
         </defs>
@@ -55,7 +55,7 @@ export default function Szaman({ className = "", dymek = false }: { className?: 
           {/* Płaszcz z kremowym zygzakiem i naszyjnik z kłem */}
           <path d="M62 240C62 196 92 170 135 168C178 170 208 196 208 240Z" fill="#ff6400" />
           <path
-            clipPath={`url(#${cialo})`}
+            clipPath={`url(#${body})`}
             d="M60 222l9-9 9 9 9-9 9 9 9-9 9 9 9-9 9 9 9-9 9 9 9-9 9 9 9-9 9 9 9-9 9 9"
             stroke="#f5ebe1"
             strokeWidth="5"
@@ -131,7 +131,7 @@ export default function Szaman({ className = "", dymek = false }: { className?: 
           <g className="sz-reka">
             <path d="M108 188L86 170" stroke="#e65a00" strokeWidth="18" strokeLinecap="round" />
             <g className="sz-burger">
-              <g mask={`url(#${maska})`}>
+              <g mask={`url(#${maskId})`}>
                 <path d="M57 145C57 127 103 127 103 145Z" fill="#f2a33a" />
                 <path d="M64 137q6-6 14-7" stroke="#ffd08a" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                 <g fill="#fff3d6">
@@ -150,7 +150,7 @@ export default function Szaman({ className = "", dymek = false }: { className?: 
             <circle cx="93" cy="161" r="4" fill="#f2c299" />
           </g>
 
-          {ISKRY.map((i) => (
+          {SPARKS.map((i) => (
             <path key={i.d} className="sz-iskra" d={i.d} fill={i.kolor} style={{ animationDelay: i.opoznienie }} />
           ))}
         </g>

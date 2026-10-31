@@ -1,110 +1,110 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { KartaSali } from "@/components/Przyjecia";
+import { HallCard } from "@/components/Przyjecia";
 import {
-  BanerFrazy,
-  DaneDlaGoogle,
-  Kolejnosc,
-  ListaNazw,
-  Pigulki,
-  Pytania,
-  Sekcja,
-  type Okruszek,
-  type Pytanie,
+  PhraseBanner,
+  StructuredData,
+  Order,
+  NameList,
+  Pills,
+  Faq,
+  Section,
+  type Breadcrumb,
+  type Question,
 } from "@/components/StronaFrazy";
-import { pobierzLokale, type Lokal } from "@/lib/lokale";
-import { odmiana } from "@/lib/nazwy";
-import { saleZListy, type Przyjecia, type RodzajPrzyjecia } from "@/lib/przyjecia";
+import { getVenues, type Venue } from "@/lib/lokale";
+import { plural } from "@/lib/nazwy";
+import { hallsFromList, type Events, type EventKind } from "@/lib/przyjecia";
 
 // Strona pod wyszukiwania „sala weselna Kraśnik”, „komunia Kraśnik”, „chrzciny Kraśnik” — sale z całego powiatu,
 // bo na wesele jedzie się dalej niż na pizzę.
 
-const OKRUSZKI: Okruszek[] = [
+const BREADCRUMBS: Breadcrumb[] = [
   { nazwa: "szamanie.pl", adres: "/" },
   { nazwa: "Sale weselne", adres: "/sale-weselne" },
 ];
 
-const ileSal = (n: number) => `${n} ${odmiana(n, ["sala", "sale", "sal"])}`;
+const hallCount = (n: number) => `${n} ${plural(n, ["sala", "sale", "sal"])}`;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const sale = saleZListy(await pobierzLokale());
+  const halls = hallsFromList(await getVenues());
   // w opisie największe sale z pojemnością — to najczęstsze pytanie przy wyborze
-  const nazwy = sale
+  const names = halls
     .filter((s) => s.przyjecia.doOsob)
     .sort((x, y) => y.przyjecia.doOsob! - x.przyjecia.doOsob!)
     .slice(0, 2)
     .map(({ lokal, przyjecia }) => `${lokal.nazwa} (do ${przyjecia.doOsob} osób)`);
   return {
     title: "Sale weselne Kraśnik — wesela, komunie, chrzciny",
-    description: `${ileSal(sale.length)} na wesela, komunie i chrzciny w Kraśniku i okolicy, m.in. ${nazwy.join(", ")}. Pojemność, noclegi i telefon.`,
+    description: `${hallCount(halls.length)} na wesela, komunie i chrzciny w Kraśniku i okolicy, m.in. ${names.join(", ")}. Pojemność, noclegi i telefon.`,
     alternates: { canonical: "/sale-weselne" },
   };
 }
 
-export default async function SaleWeselne() {
-  const sale = saleZListy(await pobierzLokale());
+export default async function WeddingHalls() {
+  const halls = hallsFromList(await getVenues());
   return (
     <>
-      <DaneDlaGoogle okruszki={OKRUSZKI} lokale={sale.map((s) => s.lokal)} />
-      <BanerFrazy okruszki={OKRUSZKI} tytul="Sale na wesela i przyjęcia w Kraśniku i okolicy" zdjecie="restauracja">
+      <StructuredData okruszki={BREADCRUMBS} lokale={halls.map((s) => s.lokal)} />
+      <PhraseBanner okruszki={BREADCRUMBS} tytul="Sale na wesela i przyjęcia w Kraśniku i okolicy" zdjecie="restauracja">
         <p>
-          {ileSal(sale.length)} w Kraśniku i powiecie kraśnickim na wesele, komunię, chrzciny albo urodziny — ile osób
+          {hallCount(halls.length)} w Kraśniku i powiecie kraśnickim na wesele, komunię, chrzciny albo urodziny — ile osób
           mieszczą, czy mają noclegi i telefon, żeby od razu zapytać o wolny termin.
         </p>
-      </BanerFrazy>
+      </PhraseBanner>
 
       <div className="mx-auto max-w-6xl px-5">
-        <Sekcja id="sale" tytul={`Sale na przyjęcia: ${ileSal(sale.length)}`}>
+        <Section id="sale" tytul={`Sale na przyjęcia: ${hallCount(halls.length)}`}>
           <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {sale.map(({ lokal, przyjecia }) => (
-              <KartaSali key={lokal.id} lokal={lokal} przyjecia={przyjecia} />
+            {halls.map(({ lokal, przyjecia }) => (
+              <HallCard key={lokal.id} lokal={lokal} przyjecia={przyjecia} />
             ))}
           </ul>
-          <Kolejnosc />
-        </Sekcja>
+          <Order />
+        </Section>
 
-        <Pytania tytul="Pytania i odpowiedzi" pytania={pytania(sale)} />
+        <Faq tytul="Pytania i odpowiedzi" pytania={questions(halls)} />
 
-        <Sekcja id="wiecej" tytul="Więcej">
-          <Pigulki
+        <Section id="wiecej" tytul="Więcej">
+          <Pills
             linki={[
               { nazwa: "Gdzie zjeść w Kraśniku", adres: "/krasnik" },
               { nazwa: "Restauracje w Kraśniku", adres: "/krasnik/restauracje" },
               { nazwa: "Prowadzisz salę? Dodaj ją", adres: "/dla-lokali" },
             ]}
           />
-        </Sekcja>
+        </Section>
       </div>
     </>
   );
 }
 
-function pytania(sale: { lokal: Lokal; przyjecia: Przyjecia }[]): Pytanie[] {
-  const z = (rodzaj: RodzajPrzyjecia) => sale.filter((s) => s.przyjecia.rodzaje.includes(rodzaj)).map((s) => s.lokal);
-  const pojemnosc = (l: Lokal) => {
-    const n = sale.find((s) => s.lokal.id === l.id)?.przyjecia.doOsob;
+function questions(halls: { lokal: Venue; przyjecia: Events }[]): Question[] {
+  const z = (kind: EventKind) => halls.filter((s) => s.przyjecia.rodzaje.includes(kind)).map((s) => s.lokal);
+  const capacity = (l: Venue) => {
+    const n = halls.find((s) => s.lokal.id === l.id)?.przyjecia.doOsob;
     return n ? `do ${n} osób` : "";
   };
-  const wynik: Pytanie[] = [];
-  const wesela = z("wesela");
-  if (wesela.length) {
-    wynik.push({
+  const result: Question[] = [];
+  const weddings = z("wesela");
+  if (weddings.length) {
+    result.push({
       pytanie: "Gdzie zrobić wesele w Kraśniku i okolicy?",
       odpowiedz: (
         <>
-          Wesela organizują: <ListaNazw lokale={wesela} dopisek={pojemnosc} />. Terminy na sezon rezerwuje się zwykle
+          Wesela organizują: <NameList lokale={weddings} dopisek={capacity} />. Terminy na sezon rezerwuje się zwykle
           z dużym wyprzedzeniem, więc najlepiej od razu zadzwonić i zapytać o wolną datę.
         </>
       ),
     });
   }
-  const rodzinne = sale.filter((s) => s.przyjecia.rodzaje.some((r) => r === "komunie" || r === "chrzciny"));
-  if (rodzinne.length) {
-    wynik.push({
+  const family = halls.filter((s) => s.przyjecia.rodzaje.some((r) => r === "komunie" || r === "chrzciny"));
+  if (family.length) {
+    result.push({
       pytanie: "Gdzie zorganizować komunię albo chrzciny?",
       odpowiedz: (
         <>
-          Komunie i chrzciny robią: <ListaNazw lokale={rodzinne.map((s) => s.lokal)} />. Przy mniejszym przyjęciu
+          Komunie i chrzciny robią: <NameList lokale={family.map((s) => s.lokal)} />. Przy mniejszym przyjęciu
           zapytaj też{" "}
           <Link href="/krasnik/restauracje" className="font-extrabold text-akcent-tekst underline-offset-2 hover:underline">
             restauracje w Kraśniku
@@ -114,27 +114,27 @@ function pytania(sale: { lokal: Lokal; przyjecia: Przyjecia }[]): Pytanie[] {
       ),
     });
   }
-  const noclegi = sale.filter((s) => s.przyjecia.noclegi).map((s) => s.lokal);
-  if (noclegi.length) {
-    wynik.push({
+  const lodging = halls.filter((s) => s.przyjecia.noclegi).map((s) => s.lokal);
+  if (lodging.length) {
+    result.push({
       pytanie: "Która sala ma noclegi dla gości?",
       odpowiedz: (
         <>
-          Pokoje dla gości weselnych mają: <ListaNazw lokale={noclegi} />.
+          Pokoje dla gości weselnych mają: <NameList lokale={lodging} />.
         </>
       ),
     });
   }
-  const firmowe = z("firmowe");
-  if (firmowe.length) {
-    wynik.push({
+  const corporate = z("firmowe");
+  if (corporate.length) {
+    result.push({
       pytanie: "Gdzie zrobić imprezę firmową albo konferencję?",
       odpowiedz: (
         <>
-          Imprezy firmowe i spotkania organizują: <ListaNazw lokale={firmowe} />.
+          Imprezy firmowe i spotkania organizują: <NameList lokale={corporate} />.
         </>
       ),
     });
   }
-  return wynik;
+  return result;
 }

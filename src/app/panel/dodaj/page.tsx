@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { CONTACT_EMAIL } from "@/lib/konfiguracja";
-import { lokaleDoWyboru } from "@/lib/panel/konta";
-import ListaLokali from "./ListaLokali";
+import { selectableVenues } from "@/lib/panel/konta";
+import VenueList from "./ListaLokali";
 
 export const metadata: Metadata = { title: "Dodaj swój lokal" };
 
 // lista z bazy w chwili żądania — czeka na serwer (jak cały panel)
 export const instant = false;
 
-export default async function Dodaj() {
+export default async function AddVenuePage() {
   await connection();
-  const lokale = lokaleDoWyboru();
+  const venues = selectableVenues();
 
   return (
     <div className="space-y-6">
@@ -19,7 +19,7 @@ export default async function Dodaj() {
         <h1 className="font-grotesk text-3xl font-bold tracking-tight">Znajdź swój lokal</h1>
         <p className="mt-1 text-tekst-2">Wybierz lokal z listy i poproś o dostęp do jego strony.</p>
       </div>
-      <ListaLokali lokale={lokale} />
+      <VenueList lokale={venues} />
       <p className="text-sm text-tekst-2">
         Nie ma Twojego lokalu?{" "}
         {CONTACT_EMAIL ? (

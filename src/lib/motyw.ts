@@ -1,7 +1,7 @@
-import type { Lokal } from "./lokale";
-import { ZDJECIA_KATEGORII, type KluczZdjecia, type ZdjecieKategorii } from "./zdjeciaKategorii";
+import type { Venue } from "./lokale";
+import { CATEGORY_PHOTOS, type PhotoKey, type CategoryPhoto } from "./zdjeciaKategorii";
 
-export type KluczIkony =
+export type IconKey =
   | "wszystko"
   | "pizza"
   | "burger"
@@ -13,23 +13,23 @@ export type KluczIkony =
   | "wino"
   | "sztucce";
 
-const AZJATYCKIE = ["chinese", "asian", "vietnamese", "thai", "japanese", "sushi", "indian"];
+const ASIAN_CUISINES = ["chinese", "asian", "vietnamese", "thai", "japanese", "sushi", "indian"];
 
-type Motyw = { kolor: string; ikona: KluczIkony; zdjecie?: ZdjecieKategorii };
+type Theme = { kolor: string; ikona: IconKey; zdjecie?: CategoryPhoto };
 
-function motyw(kolor: string, ikona: KluczIkony, zdjecie: KluczZdjecia): Motyw {
-  return { kolor, ikona, zdjecie: ZDJECIA_KATEGORII[zdjecie] };
+function theme(color: string, icon: IconKey, photo: PhotoKey): Theme {
+  return { kolor: color, ikona: icon, zdjecie: CATEGORY_PHOTOS[photo] };
 }
 
-function motywKuchni(k: string): Motyw | null {
-  if (k.includes("pizza")) return motyw("#c9341a", "pizza", "pizza");
-  if (k === "burger") return motyw("#b45309", "burger", "burger");
-  if (k === "kebab") return motyw("#c2410c", "kebab", "kebab");
-  if (AZJATYCKIE.includes(k)) return motyw("#9f1d1d", "zupa", "azjatycka");
-  if (k === "greek") return motyw("#2f5d8a", "sztucce", "grecka");
-  if (k === "italian") return motyw("#8f2d1f", "sztucce", "wloska");
-  if (k === "polish" || k === "regional" || k === "dumplings") return motyw("#8a5a12", "zupa", "polska");
-  if (k === "steak_house" || k === "international") return motyw("#3b322c", "sztucce", "restauracja");
+function cuisineTheme(k: string): Theme | null {
+  if (k.includes("pizza")) return theme("#c9341a", "pizza", "pizza");
+  if (k === "burger") return theme("#b45309", "burger", "burger");
+  if (k === "kebab") return theme("#c2410c", "kebab", "kebab");
+  if (ASIAN_CUISINES.includes(k)) return theme("#9f1d1d", "zupa", "azjatycka");
+  if (k === "greek") return theme("#2f5d8a", "sztucce", "grecka");
+  if (k === "italian") return theme("#8f2d1f", "sztucce", "wloska");
+  if (k === "polish" || k === "regional" || k === "dumplings") return theme("#8a5a12", "zupa", "polska");
+  if (k === "steak_house" || k === "international") return theme("#3b322c", "sztucce", "restauracja");
   return null;
 }
 
@@ -39,23 +39,23 @@ function motywKuchni(k: string): Motyw | null {
  * Decyduje pierwsza rozpoznana kuchnia: najpierw idą te z danych lokalu, potem dopisane z nazwy i menu
  * (`pobierzLokale`), więc włoska restauracja z pizzą w karcie nie dostaje banera pizzerii.
  */
-export function motywLokalu(l: Pick<Lokal, "typ" | "kuchnie">): Motyw {
+export function venueTheme(l: Pick<Venue, "typ" | "kuchnie">): Theme {
   for (const k of l.kuchnie) {
-    const m = motywKuchni(k);
+    const m = cuisineTheme(k);
     if (m) return m;
   }
   switch (l.typ) {
     case "cafe":
-      return motyw("#6b4226", "kawa", "kawa");
+      return theme("#6b4226", "kawa", "kawa");
     case "ice_cream":
-      return motyw("#b8325f", "lody", "lody");
+      return theme("#b8325f", "lody", "lody");
     case "pub":
-      return motyw("#9a5b06", "piwo", "piwo");
+      return theme("#9a5b06", "piwo", "piwo");
     case "bar":
-      return motyw("#7c2d12", "wino", "bar");
+      return theme("#7c2d12", "wino", "bar");
     case "fast_food":
-      return motyw("#c2410c", "kebab", "fastfood");
+      return theme("#c2410c", "kebab", "fastfood");
     default:
-      return motyw("#3b322c", "sztucce", "restauracja");
+      return theme("#3b322c", "sztucce", "restauracja");
   }
 }

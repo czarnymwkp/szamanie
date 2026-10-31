@@ -2,34 +2,34 @@ import { decodeIdToken } from "arctic";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
-import { CIASTECZKA_GOOGLE, klientGoogle, opcjeCiasteczka } from "@/lib/panel/google";
-import { bezpiecznyCel, kontoZewnetrzne, logowanieWlaczone, zalogujKonto } from "@/lib/panel/konta";
+import { GOOGLE_COOKIES, googleClient, cookieOptions } from "@/lib/panel/google";
+import { safeTarget, externalAccount, loginEnabled, loginAccount } from "@/lib/panel/konta";
 
-type Dane = { iss?: string; aud?: string; sub?: string; email?: string; email_verified?: boolean; name?: string };
+type Data = { iss?: string; aud?: string; sub?: string; email?: string; email_verified?: boolean; name?: string };
 
 // Powrót z Google. Token ID przychodzi prosto z serwera Google (HTTPS, z naszym sekretem), więc wystarczy sprawdzić,
 // że jest wystawiony przez Google dla naszego klienta (OpenID Connect Core 3.1.3.7).
-export async function GET(zadanie: NextRequest) {
-  const parametry = zadanie.nextUrl.searchParams;
-  const sloik = await cookies();
-  const [stan, weryfikator, dalej] = CIASTECZKA_GOOGLE.map((n) => sloik.get(n)?.value);
-  for (const n of CIASTECZKA_GOOGLE) sloik.set(n, "", { ...opcjeCiasteczka, maxAge: 0 });
+export async function GET(task: NextRequest) {
+  const params = task.nextUrl.searchParams;
+  const jar = await cookies();
+  const [stan, weryfikator, dalej] = GOOGLE_COOKIES.map((n) => jar.get(n)?.value);
+  for (const n of GOOGLE_COOKIES) jar.set(n, "", { ...cookieOptions, maxAge: 0 });
 
-  const google = logowanieWlaczone() ? klientGoogle(zadanie) : null;
-  const kod = parametry.get("code");
-  if (!google || !kod || !stan || !weryfikator || parametry.get("state") !== stan) redirect("/panel/logowanie?blad=google");
+  const google = loginEnabled() ? googleClient(task) : null;
+  const code = params.get("code");
+  if (!google || !code || !stan || !weryfikator || params.get("state") !== stan) redirect("/panel/logowanie?blad=google");
 
-  let dane: Dane | null = null;
+  let date: Data | null = null;
   try {
-    const tokeny = await google.validateAuthorizationCode(kod, weryfikator);
-    dane = decodeIdToken(tokeny.idToken()) as Dane;
-  } catch (blad) {
-    console.error("[panel] logowanie Google:", blad);
+    const tokens = await google.validateAuthorizationCode(code, weryfikator);
+    date = decodeIdToken(tokens.idToken()) as Data;
+  } catch (error) {
+    console.error("[panel] logowanie Google:", error);
   }
-  const wystawca = dane?.iss === "https://accounts.google.com" || dane?.iss === "accounts.google.com";
-  if (!dane?.sub || !wystawca || dane.aud !== process.env.GOOGLE_CLIENT_ID) redirect("/panel/logowanie?blad=google");
-  if (!dane.email || dane.email_verified !== true) redirect("/panel/logowanie?blad=google-email");
+  const issuer = date?.iss === "https://accounts.google.com" || date?.iss === "accounts.google.com";
+  if (!date?.sub || !issuer || date.aud !== process.env.GOOGLE_CLIENT_ID) redirect("/panel/logowanie?blad=google");
+  if (!date.email || date.email_verified !== true) redirect("/panel/logowanie?blad=google-email");
 
-  await zalogujKonto(kontoZewnetrzne("google", dane.sub, dane.email, dane.name ?? null));
-  redirect(bezpiecznyCel(dalej));
+  await loginAccount(externalAccount("google", date.sub, date.email, date.name ?? null));
+  redirect(safeTarget(dalej));
 }

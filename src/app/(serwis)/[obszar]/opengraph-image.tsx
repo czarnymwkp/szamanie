@@ -1,22 +1,22 @@
-import { pobierzLokale } from "@/lib/lokale";
-import { ileLokali } from "@/lib/nazwy";
-import { ROZMIAR, obrazekUdostepnien } from "@/lib/obrazekUdostepnien";
-import { kategorieZeStrona, lokaleObszaru, znajdzStrone } from "@/lib/seo";
+import { getVenues } from "@/lib/lokale";
+import { venueCount } from "@/lib/nazwy";
+import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { categoriesWithPage, areaVenues, findPage } from "@/lib/seo";
 
 export const alt = "Gdzie zjeść — lokale z godzinami, telefonem i dojazdem na szamanie.pl";
-export const size = ROZMIAR;
+export const size = SIZE;
 export const contentType = "image/png";
 
-export default async function Obrazek({ params }: { params: Promise<{ obszar: string }> }) {
+export default async function Image({ params }: { params: Promise<{ obszar: string }> }) {
   const { obszar: slug } = await params;
-  const lokale = await pobierzLokale();
-  const strona = znajdzStrone(lokale, slug);
-  if (!strona) return new Response(null, { status: 404 });
-  const { obszar } = strona;
-  const kategorie = kategorieZeStrona(lokale, obszar).map((k) => k.nazwa.toLowerCase());
-  return obrazekUdostepnien({
+  const venues = await getVenues();
+  const page = findPage(venues, slug);
+  if (!page) return new Response(null, { status: 404 });
+  const { obszar } = page;
+  const categories = categoriesWithPage(venues, obszar).map((k) => k.nazwa.toLowerCase());
+  return shareImage({
     tytul: `Gdzie zjeść ${obszar.w}?`,
-    podtytul: `${ileLokali(lokaleObszaru(lokale, obszar).w.length)}${kategorie.length ? `: ${kategorie.slice(0, 4).join(", ")} i więcej` : ""}.`,
+    podtytul: `${venueCount(areaVenues(venues, obszar).w.length)}${categories.length ? `: ${categories.slice(0, 4).join(", ")} i więcej` : ""}.`,
     zdjecie: "/zdjecia/kategorie/restauracja.jpg",
     dopisek: "Godziny · telefon · dojazd",
   });

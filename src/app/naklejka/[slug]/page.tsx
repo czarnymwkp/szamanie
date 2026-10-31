@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { renderSVG } from "uqr";
-import Drukuj from "@/components/Drukuj";
-import KopiujKod from "@/components/KopiujKod";
+import PrintButton from "@/components/Drukuj";
+import CopyCode from "@/components/KopiujKod";
 import { SITE_URL } from "@/lib/konfiguracja";
-import { pobierzLokal, pobierzLokale } from "@/lib/lokale";
+import { getVenue, getVenues } from "@/lib/lokale";
 
 // Naklejka do druku z kodem QR do strony lokalu i odznaka na stronę www lokalu (link do nas — ważny dla Google).
 // Bez nagłówka i stopki serwisu, żeby wydruk był czysty; nie do indeksowania (robots.ts: Disallow /naklejka).
@@ -18,25 +18,25 @@ export const metadata: Metadata = {
 };
 
 export async function generateStaticParams() {
-  const lokale = await pobierzLokale();
-  return lokale.length ? lokale.map((l) => ({ slug: l.slug })) : [{ slug: "brak" }];
+  const venues = await getVenues();
+  return venues.length ? venues.map((l) => ({ slug: l.slug })) : [{ slug: "brak" }];
 }
 
-export default async function Naklejka({ params }: PageProps<"/naklejka/[slug]">) {
+export default async function Sticker({ params }: PageProps<"/naklejka/[slug]">) {
   const { slug } = await params;
-  const lokal = await pobierzLokal(slug);
-  if (!lokal) notFound();
-  const adres = `${SITE_URL}/lokal/${lokal.slug}`;
-  const kodOdznaki = `<a href="${adres}" title="${lokal.nazwa} — menu, godziny i telefon na szamanie.pl"><img src="${SITE_URL}/odznaka.svg" alt="Znajdziesz nas na szamanie.pl" width="200" height="64"></a>`;
+  const venue = await getVenue(slug);
+  if (!venue) notFound();
+  const address = `${SITE_URL}/lokal/${venue.slug}`;
+  const badgeCode = `<a href="${address}" title="${venue.nazwa} — menu, godziny i telefon na szamanie.pl"><img src="${SITE_URL}/odznaka.svg" alt="Znajdziesz nas na szamanie.pl" width="200" height="64"></a>`;
 
   return (
     <main id="tresc" className="mx-auto w-full max-w-3xl px-5 py-8 print:p-0">
       <div className="mb-6 print:hidden">
-        <h1 className="text-2xl font-black">Naklejka dla: {lokal.nazwa}</h1>
+        <h1 className="text-2xl font-black">Naklejka dla: {venue.nazwa}</h1>
         <p className="mt-1 font-semibold text-tekst-2">
           Wydrukuj i powieś na drzwiach, przy kasie albo w karcie menu. Kod QR otwiera stronę lokalu na szamanie.pl.
         </p>
-        <Drukuj tekst="Drukuj naklejkę" />
+        <PrintButton tekst="Drukuj naklejkę" />
       </div>
 
       <section
@@ -48,11 +48,11 @@ export default async function Naklejka({ params }: PageProps<"/naklejka/[slug]">
           <Image src="/logo-jasne-tlo.png" alt="szamanie.pl" width={1793} height={388} className="mx-auto mt-2 w-4/5 rounded-lg bg-tlo px-2 py-1" />
         </div>
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-4">
-          <p className="text-2xl leading-tight font-black text-balance">{lokal.nazwa}</p>
+          <p className="text-2xl leading-tight font-black text-balance">{venue.nazwa}</p>
           <div
             className="mt-3 w-3/5 [&_svg]:h-auto [&_svg]:w-full"
             // SVG z biblioteki uqr — same kwadraty kodu
-            dangerouslySetInnerHTML={{ __html: renderSVG(adres, { border: 1 }) }}
+            dangerouslySetInnerHTML={{ __html: renderSVG(address, { border: 1 }) }}
           />
           <p className="mt-3 text-base leading-snug font-extrabold">Zeskanuj aparatem w telefonie:</p>
           <p className="text-sm font-semibold text-tekst-2">menu, godziny, telefon i lista do zamówienia</p>
@@ -71,7 +71,7 @@ export default async function Naklejka({ params }: PageProps<"/naklejka/[slug]">
           <img src="/odznaka.svg" alt="Znajdziesz nas na szamanie.pl" width={200} height={64} />
         </div>
         <div className="mt-3">
-          <KopiujKod kod={kodOdznaki} etykieta="Kod odznaki do wklejenia" />
+          <CopyCode kod={badgeCode} etykieta="Kod odznaki do wklejenia" />
         </div>
       </section>
     </main>

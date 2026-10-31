@@ -3,7 +3,7 @@
  * nazwa wersalikami (<h1> strony, krój --naglowek-lokalu), adres i na dole pasek w czarno-białą szachownicę.
  * Szachownica to wzór z CSS, nie grafika lokalu.
  */
-export default function BanerKrata({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
+export default function CheckerBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (
     <div className="relative overflow-hidden bg-krem pt-20 sm:pt-24">
       <div className="mx-auto max-w-5xl px-5 pb-8">

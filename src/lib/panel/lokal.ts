@@ -1,21 +1,21 @@
 import "server-only";
 import { db } from "../db";
-import type { CechaDania } from "../menu";
-import { bezPolskich } from "../slug.mjs";
+import type { DishFeature } from "../menu";
+import { stripPolish } from "../slug.mjs";
 
 // Odczyt i zapis danych lokalu z panelu właściciela. Dane lokalu idą do tabeli poprawki (jak `npm run popraw`),
 // więc import z OSM ich nie nadpisuje; menu i promocje mają własne tabele. Uprawnienia sprawdza wywołujący.
 
 // ——— Dane lokalu ———
 
-export const POLA_TEKSTOWE = ["nazwa", "telefon", "email", "www", "facebook", "instagram", "opis", "godziny"] as const;
-export const POLA_TAK_NIE = ["dostawa", "na_wynos", "zwierzeta", "wozek", "wege", "wegan"] as const;
+export const TEXT_FIELDS = ["nazwa", "telefon", "email", "www", "facebook", "instagram", "opis", "godziny"] as const;
+export const YES_NO_FIELDS = ["dostawa", "na_wynos", "zwierzeta", "wozek", "wege", "wegan"] as const;
 
-type PoleTekstowe = (typeof POLA_TEKSTOWE)[number];
-type PoleTakNie = (typeof POLA_TAK_NIE)[number];
-export type DaneLokalu = Record<PoleTekstowe, string | null> & Record<PoleTakNie, boolean>;
+type TextField = (typeof TEXT_FIELDS)[number];
+type YesNoField = (typeof YES_NO_FIELDS)[number];
+export type VenueData = Record<TextField, string | null> & Record<YesNoField, boolean>;
 
-export const DLUGOSCI: Record<PoleTekstowe, number> = {
+export const LENGTHS: Record<TextField, number> = {
   nazwa: 80,
   telefon: 40,
   email: 120,
@@ -26,239 +26,239 @@ export const DLUGOSCI: Record<PoleTekstowe, number> = {
   godziny: 300,
 };
 
-type Wiersz = Record<PoleTekstowe, string | null> & { dostawa: number; na_wynos: number; cechy: string };
+type Row = Record<TextField, string | null> & { dostawa: number; na_wynos: number; cechy: string };
 
-function poprawkiLokalu(lokalId: number) {
-  const wynik: Record<string, unknown> = {};
-  for (const p of db.prepare("SELECT pole, wartosc FROM poprawki WHERE lokal_id = ?").all(lokalId) as {
+function venueOverrides(venueId: number) {
+  const result: Record<string, unknown> = {};
+  for (const p of db.prepare("SELECT pole, wartosc FROM poprawki WHERE lokal_id = ?").all(venueId) as {
     pole: string;
     wartosc: string;
   }[]) {
-    wynik[p.pole] = JSON.parse(p.wartosc);
+    result[p.pole] = JSON.parse(p.wartosc);
   }
-  return wynik;
+  return result;
 }
 
 /** Aktualne dane lokalu tak, jak widzi je strona: z bazy (OSM) z nałożonymi poprawkami. */
-export function daneLokalu(lokalId: number): DaneLokalu {
+export function venueData(venueId: number): VenueData {
   const w = db
     .prepare(
       `SELECT nazwa, telefon, email, www, facebook, instagram, opis, godziny, dostawa, na_wynos, cechy
        FROM lokale WHERE id = ?`,
     )
-    .get(lokalId) as Wiersz;
-  const cechy = JSON.parse(w.cechy) as Record<string, unknown>;
-  const p = poprawkiLokalu(lokalId);
-  const dane = {} as DaneLokalu;
-  for (const pole of POLA_TEKSTOWE) dane[pole] = (pole in p ? p[pole] : w[pole]) as string | null;
-  dane.dostawa = "dostawa" in p ? !!p.dostawa : w.dostawa === 1;
-  dane.na_wynos = "na_wynos" in p ? !!p.na_wynos : w.na_wynos === 1;
-  for (const pole of ["zwierzeta", "wozek", "wege", "wegan"] as const) {
-    dane[pole] = pole in p ? !!p[pole] : !!cechy[pole];
+    .get(venueId) as Row;
+  const features = JSON.parse(w.cechy) as Record<string, unknown>;
+  const p = venueOverrides(venueId);
+  const date = {} as VenueData;
+  for (const field of TEXT_FIELDS) date[field] = (field in p ? p[field] : w[field]) as string | null;
+  date.dostawa = "dostawa" in p ? !!p.dostawa : w.dostawa === 1;
+  date.na_wynos = "na_wynos" in p ? !!p.na_wynos : w.na_wynos === 1;
+  for (const field of ["zwierzeta", "wozek", "wege", "wegan"] as const) {
+    date[field] = field in p ? !!p[field] : !!features[field];
   }
-  return dane;
+  return date;
 }
 
 /** Zapisuje jako poprawki tylko pola, które się zmieniły. Pusty tekst = usunięcie (np. nieaktualnej strony www). */
-export function zapiszDaneLokalu(lokalId: number, nowe: DaneLokalu, autor: string) {
-  const obecne = daneLokalu(lokalId);
-  const zapisz = db.prepare(
+export function saveVenueDetails(venueId: number, newOnes: VenueData, author: string) {
+  const currentOnes = venueData(venueId);
+  const save = db.prepare(
     `INSERT INTO poprawki (lokal_id, pole, wartosc, autor) VALUES (?, ?, ?, ?)
      ON CONFLICT(lokal_id, pole) DO UPDATE SET wartosc = excluded.wartosc, autor = excluded.autor,
        utworzono = datetime('now')`,
   );
-  let zmian = 0;
+  let changes = 0;
   db.exec("BEGIN");
   try {
-    for (const pole of [...POLA_TEKSTOWE, ...POLA_TAK_NIE]) {
-      if (nowe[pole] === obecne[pole]) continue;
-      zapisz.run(lokalId, pole, JSON.stringify(nowe[pole]), autor);
-      zmian++;
+    for (const field of [...TEXT_FIELDS, ...YES_NO_FIELDS]) {
+      if (newOnes[field] === currentOnes[field]) continue;
+      save.run(venueId, field, JSON.stringify(newOnes[field]), author);
+      changes++;
     }
     db.exec("COMMIT");
-  } catch (blad) {
+  } catch (error) {
     db.exec("ROLLBACK");
-    throw blad;
+    throw error;
   }
-  return zmian;
+  return changes;
 }
 
 // ——— Menu ———
 
-export const CECHY_DAN: CechaDania[] = ["wege", "ostre", "polecane", "sezonowe"];
+export const DISH_FEATURES: DishFeature[] = ["wege", "ostre", "polecane", "sezonowe"];
 
 /** Menu w postaci dla edytora: ceny jako tekst („27,50”), żeby pole formularza pokazywało to, co wpisał lokal. */
-export type CenaEdycja = { wariant: string; cena: string };
-export type DanieEdycja = { id: number | null; nazwa: string; opis: string; ceny: CenaEdycja[]; cechy: CechaDania[] };
-export type SekcjaEdycja = { nazwa: string; opis: string; dania: DanieEdycja[] };
+export type PriceDraft = { wariant: string; cena: string };
+export type DishDraft = { id: number | null; nazwa: string; opis: string; ceny: PriceDraft[]; cechy: DishFeature[] };
+export type SectionDraft = { nazwa: string; opis: string; dania: DishDraft[] };
 
-const naTekst = (gr: number) => (gr % 100 ? (gr / 100).toFixed(2).replace(".", ",") : String(gr / 100));
+const toText = (gr: number) => (gr % 100 ? (gr / 100).toFixed(2).replace(".", ",") : String(gr / 100));
 
-export function menuDoEdycji(lokalId: number): SekcjaEdycja[] {
-  const sekcje = (
-    db.prepare("SELECT nazwa, opis FROM menu_sekcje WHERE lokal_id = ? ORDER BY kolejnosc").all(lokalId) as {
+export function menuDraft(venueId: number): SectionDraft[] {
+  const sections = (
+    db.prepare("SELECT nazwa, opis FROM menu_sekcje WHERE lokal_id = ? ORDER BY kolejnosc").all(venueId) as {
       nazwa: string;
       opis: string | null;
     }[]
-  ).map((s): SekcjaEdycja => ({ nazwa: s.nazwa, opis: s.opis ?? "", dania: [] }));
-  const poNazwie = new Map(sekcje.map((s) => [s.nazwa, s]));
+  ).map((s): SectionDraft => ({ nazwa: s.nazwa, opis: s.opis ?? "", dania: [] }));
+  const byName = new Map(sections.map((s) => [s.nazwa, s]));
   for (const d of db
     .prepare("SELECT id, sekcja, nazwa, opis, ceny, cechy FROM menu WHERE lokal_id = ? ORDER BY kolejnosc")
-    .all(lokalId) as { id: number; sekcja: string; nazwa: string; opis: string | null; ceny: string; cechy: string }[]) {
-    let sekcja = poNazwie.get(d.sekcja);
-    if (!sekcja) {
-      sekcja = { nazwa: d.sekcja, opis: "", dania: [] };
-      sekcje.push(sekcja);
-      poNazwie.set(d.sekcja, sekcja);
+    .all(venueId) as { id: number; sekcja: string; nazwa: string; opis: string | null; ceny: string; cechy: string }[]) {
+    let section = byName.get(d.sekcja);
+    if (!section) {
+      section = { nazwa: d.sekcja, opis: "", dania: [] };
+      sections.push(section);
+      byName.set(d.sekcja, section);
     }
-    sekcja.dania.push({
+    section.dania.push({
       id: d.id,
       nazwa: d.nazwa,
       opis: d.opis ?? "",
       ceny: (JSON.parse(d.ceny) as { wariant: string | null; gr: number }[]).map((c) => ({
         wariant: c.wariant ?? "",
-        cena: naTekst(c.gr),
+        cena: toText(c.gr),
       })),
       cechy: JSON.parse(d.cechy),
     });
   }
-  return sekcje;
+  return sections;
 }
 
 /** „29,90” albo „29.90 zł” → 2990 groszy; null, gdy to nie jest cena. */
-export function grosze(tekst: string): number | null {
-  const t = tekst.replace(/zł/gi, "").replace(/\s/g, "").replace(",", ".");
+export function toGrosze(text: string): number | null {
+  const t = text.replace(/zł/gi, "").replace(/\s/g, "").replace(",", ".");
   if (!/^\d{1,5}(\.\d{1,2})?$/.test(t)) return null;
   return Math.round(Number(t) * 100);
 }
 
-export const LIMITY_MENU = { sekcji: 60, dan: 600, cen: 6, nazwa: 120, opis: 500, sekcja: 80, wariant: 40 };
+export const MENU_LIMITS = { sekcji: 60, dan: 600, cen: 6, nazwa: 120, opis: 500, sekcja: 80, wariant: 40 };
 
-type Cena = { wariant: string | null; gr: number };
-type DanieDoZapisu = { id: number | null; nazwa: string; opis: string | null; ceny: Cena[]; cechy: CechaDania[] };
-type SekcjaDoZapisu = { nazwa: string; opis: string | null; dania: DanieDoZapisu[] };
+type Price = { wariant: string | null; gr: number };
+type DishToSave = { id: number | null; nazwa: string; opis: string | null; ceny: Price[]; cechy: DishFeature[] };
+type SectionToSave = { nazwa: string; opis: string | null; dania: DishToSave[] };
 
-const tekst = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+const textValue = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 /** Sprawdza menu z edytora (dane z przeglądarki — nie ufamy im) i zamienia ceny na grosze. */
-export function sprawdzMenu(dane: unknown): { menu: SekcjaDoZapisu[] } | { blad: string } {
-  if (!Array.isArray(dane)) return { blad: "Nieprawidłowe dane menu." };
-  if (dane.length > LIMITY_MENU.sekcji) return { blad: `Najwyżej ${LIMITY_MENU.sekcji} działów.` };
-  const nazwySekcji = new Set<string>();
-  const menu: SekcjaDoZapisu[] = [];
-  let dan = 0;
-  for (const s of dane as Record<string, unknown>[]) {
-    const nazwa = tekst(s?.nazwa, LIMITY_MENU.sekcja);
-    if (!nazwa) return { blad: "Każdy dział musi mieć nazwę." };
-    const klucz = nazwa.toLowerCase();
-    if (nazwySekcji.has(klucz)) return { blad: `Dwa działy nazywają się „${nazwa}”. Zmień nazwę jednego z nich.` };
-    nazwySekcji.add(klucz);
+export function validateMenu(date: unknown): { menu: SectionToSave[] } | { blad: string } {
+  if (!Array.isArray(date)) return { blad: "Nieprawidłowe dane menu." };
+  if (date.length > MENU_LIMITS.sekcji) return { blad: `Najwyżej ${MENU_LIMITS.sekcji} działów.` };
+  const sectionNames = new Set<string>();
+  const menu: SectionToSave[] = [];
+  let dishCount = 0;
+  for (const s of date as Record<string, unknown>[]) {
+    const name = textValue(s?.nazwa, MENU_LIMITS.sekcja);
+    if (!name) return { blad: "Każdy dział musi mieć nazwę." };
+    const key = name.toLowerCase();
+    if (sectionNames.has(key)) return { blad: `Dwa działy nazywają się „${name}”. Zmień nazwę jednego z nich.` };
+    sectionNames.add(key);
     if (!Array.isArray(s.dania)) return { blad: "Nieprawidłowe dane menu." };
-    const dania: DanieDoZapisu[] = [];
+    const dishes: DishToSave[] = [];
     for (const d of s.dania as Record<string, unknown>[]) {
-      const nazwaDania = tekst(d?.nazwa, LIMITY_MENU.nazwa);
-      if (!nazwaDania) return { blad: `W dziale „${nazwa}” jest danie bez nazwy.` };
-      if (!Array.isArray(d.ceny) || d.ceny.length > LIMITY_MENU.cen) return { blad: `„${nazwaDania}”: za dużo cen.` };
-      const ceny: Cena[] = [];
+      const dishName = textValue(d?.nazwa, MENU_LIMITS.nazwa);
+      if (!dishName) return { blad: `W dziale „${name}” jest danie bez nazwy.` };
+      if (!Array.isArray(d.ceny) || d.ceny.length > MENU_LIMITS.cen) return { blad: `„${dishName}”: za dużo cen.` };
+      const prices: Price[] = [];
       for (const c of d.ceny as Record<string, unknown>[]) {
-        const cena = tekst(c?.cena, 20);
-        const wariant = tekst(c?.wariant, LIMITY_MENU.wariant) || null;
-        if (!cena && !wariant) continue;
-        const gr = grosze(cena);
-        if (gr === null) return { blad: `„${nazwaDania}”: cena „${cena}” nie wygląda na kwotę (np. 27 albo 27,50).` };
-        ceny.push({ wariant, gr });
+        const price = textValue(c?.cena, 20);
+        const variant = textValue(c?.wariant, MENU_LIMITS.wariant) || null;
+        if (!price && !variant) continue;
+        const gr = toGrosze(price);
+        if (gr === null) return { blad: `„${dishName}”: cena „${price}” nie wygląda na kwotę (np. 27 albo 27,50).` };
+        prices.push({ wariant: variant, gr });
       }
-      if (ceny.length > 1 && ceny.some((c) => !c.wariant)) {
-        return { blad: `„${nazwaDania}”: przy kilku cenach podaj wariant każdej (np. 32 cm, 45 cm).` };
+      if (prices.length > 1 && prices.some((c) => !c.wariant)) {
+        return { blad: `„${dishName}”: przy kilku cenach podaj wariant każdej (np. 32 cm, 45 cm).` };
       }
-      const cechy = Array.isArray(d.cechy) ? CECHY_DAN.filter((c) => (d.cechy as unknown[]).includes(c)) : [];
+      const features = Array.isArray(d.cechy) ? DISH_FEATURES.filter((c) => (d.cechy as unknown[]).includes(c)) : [];
       const id = typeof d.id === "number" && Number.isInteger(d.id) ? d.id : null;
-      dania.push({ id, nazwa: nazwaDania, opis: tekst(d.opis, LIMITY_MENU.opis) || null, ceny, cechy });
-      if (++dan > LIMITY_MENU.dan) return { blad: `Najwyżej ${LIMITY_MENU.dan} dań.` };
+      dishes.push({ id, nazwa: dishName, opis: textValue(d.opis, MENU_LIMITS.opis) || null, ceny: prices, cechy: features });
+      if (++dishCount > MENU_LIMITS.dan) return { blad: `Najwyżej ${MENU_LIMITS.dan} dań.` };
     }
-    menu.push({ nazwa, opis: tekst(s.opis, 200) || null, dania });
+    menu.push({ nazwa: name, opis: textValue(s.opis, 200) || null, dania: dishes });
   }
   return { menu };
 }
 
 /** Tak jak scripts/menu.mjs: same słowa bez polskich znaków — wyszukiwarka dopasowuje początki słów. */
-const doSzukania = (...czesci: (string | null)[]) =>
-  bezPolskich(czesci.filter(Boolean).join(" ")).replace(/[^a-z0-9]+/g, " ").trim();
+const searchText = (...parts: (string | null)[]) =>
+  stripPolish(parts.filter(Boolean).join(" ")).replace(/[^a-z0-9]+/g, " ").trim();
 
 /**
  * Zapisuje całe menu lokalu. Dania z id zostają tymi samymi wierszami (lista zamówienia klienta ich nie gubi),
  * nowe dostają wiersze, usunięte znikają. Każda zmiana ceny trafia do historii cen.
  */
-export function zapiszMenuLokalu(lokalId: number, menu: SekcjaDoZapisu[]) {
-  const stare = new Map(
+export function saveVenueMenu(venueId: number, menu: SectionToSave[]) {
+  const old = new Map(
     (
-      db.prepare("SELECT id, nazwa, ceny FROM menu WHERE lokal_id = ?").all(lokalId) as {
+      db.prepare("SELECT id, nazwa, ceny FROM menu WHERE lokal_id = ?").all(venueId) as {
         id: number;
         nazwa: string;
         ceny: string;
       }[]
     ).map((d) => [d.id, { ...d }]),
   );
-  const { menu_sprawdzono: sprawdzono } = db.prepare("SELECT menu_sprawdzono FROM lokale WHERE id = ?").get(lokalId) as {
+  const { menu_sprawdzono: sprawdzono } = db.prepare("SELECT menu_sprawdzono FROM lokale WHERE id = ?").get(venueId) as {
     menu_sprawdzono: string | null;
   };
-  const maHistorie = db.prepare("SELECT 1 FROM historia_cen WHERE lokal_id = ? AND nazwa = ? LIMIT 1");
-  const historia = db.prepare("INSERT INTO historia_cen (lokal_id, sekcja, nazwa, ceny, od) VALUES (?, ?, ?, ?, ?)");
-  const zmien = db.prepare(
+  const hasHistory = db.prepare("SELECT 1 FROM historia_cen WHERE lokal_id = ? AND nazwa = ? LIMIT 1");
+  const history = db.prepare("INSERT INTO historia_cen (lokal_id, sekcja, nazwa, ceny, od) VALUES (?, ?, ?, ?, ?)");
+  const change = db.prepare(
     `UPDATE menu SET sekcja = ?, nazwa = ?, opis = ?, ceny = ?, cechy = ?, kolejnosc = ?, szukaj = ?
      WHERE id = ? AND lokal_id = ?`,
   );
-  const dodaj = db.prepare(
+  const add = db.prepare(
     `INSERT INTO menu (lokal_id, sekcja, nazwa, opis, ceny, cechy, kolejnosc, szukaj) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   );
-  const teraz = new Date().toISOString();
+  const now = new Date().toISOString();
 
   db.exec("BEGIN");
   try {
-    db.prepare("DELETE FROM menu_sekcje WHERE lokal_id = ?").run(lokalId);
-    const zostaja = new Set<number>();
-    let kolejnosc = 0;
+    db.prepare("DELETE FROM menu_sekcje WHERE lokal_id = ?").run(venueId);
+    const kept = new Set<number>();
+    let order = 0;
     menu.forEach((s, i) => {
       db.prepare("INSERT INTO menu_sekcje (lokal_id, nazwa, opis, kolejnosc) VALUES (?, ?, ?, ?)").run(
-        lokalId,
+        venueId,
         s.nazwa,
         s.opis,
         i,
       );
       for (const d of s.dania) {
-        const ceny = JSON.stringify(d.ceny);
-        const pola = [s.nazwa, d.nazwa, d.opis, ceny, JSON.stringify(d.cechy), kolejnosc++, doSzukania(d.nazwa, d.opis, s.nazwa)] as const;
-        const stary = d.id !== null ? stare.get(d.id) : undefined;
-        if (stary && !zostaja.has(stary.id)) {
-          zmien.run(...pola, stary.id, lokalId);
-          zostaja.add(stary.id);
+        const prices = JSON.stringify(d.ceny);
+        const fields = [s.nazwa, d.nazwa, d.opis, prices, JSON.stringify(d.cechy), order++, searchText(d.nazwa, d.opis, s.nazwa)] as const;
+        const oldOne = d.id !== null ? old.get(d.id) : undefined;
+        if (oldOne && !kept.has(oldOne.id)) {
+          change.run(...fields, oldOne.id, venueId);
+          kept.add(oldOne.id);
         } else {
-          dodaj.run(lokalId, ...pola);
+          add.run(venueId, ...fields);
         }
-        if (stary?.ceny === ceny) continue;
+        if (oldOne?.ceny === prices) continue;
         // pierwsza zmiana ceny dania: zapisujemy też cenę sprzed zmiany, od kiedy menu było sprawdzone
-        if (stary && !maHistorie.get(lokalId, stary.nazwa)) {
-          historia.run(lokalId, s.nazwa, stary.nazwa, stary.ceny, sprawdzono ?? teraz.slice(0, 10));
+        if (oldOne && !hasHistory.get(venueId, oldOne.nazwa)) {
+          history.run(venueId, s.nazwa, oldOne.nazwa, oldOne.ceny, sprawdzono ?? now.slice(0, 10));
         }
-        historia.run(lokalId, s.nazwa, d.nazwa, ceny, teraz);
+        history.run(venueId, s.nazwa, d.nazwa, prices, now);
       }
     });
-    for (const id of stare.keys()) {
-      if (!zostaja.has(id)) db.prepare("DELETE FROM menu WHERE id = ? AND lokal_id = ?").run(id, lokalId);
+    for (const id of old.keys()) {
+      if (!kept.has(id)) db.prepare("DELETE FROM menu WHERE id = ? AND lokal_id = ?").run(id, venueId);
     }
     db.prepare("UPDATE lokale SET menu_zrodlo = 'panel', menu_sprawdzono = date('now', 'localtime') WHERE id = ?").run(
-      lokalId,
+      venueId,
     );
     db.exec("COMMIT");
-  } catch (blad) {
+  } catch (error) {
     db.exec("ROLLBACK");
-    throw blad;
+    throw error;
   }
 }
 
 // ——— Promocje ———
 
-export type PromocjaEdycja = {
+export type PromotionDraft = {
   id: number;
   tytul: string;
   opis: string | null;
@@ -273,7 +273,7 @@ export type PromocjaEdycja = {
   aktywna: boolean;
 };
 
-type WierszPromocji = Omit<PromocjaEdycja, "cenaGr" | "odDnia" | "doDnia" | "dni" | "odGodz" | "doGodz" | "aktywna"> & {
+type PromotionRow = Omit<PromotionDraft, "cenaGr" | "odDnia" | "doDnia" | "dni" | "odGodz" | "doGodz" | "aktywna"> & {
   cena_gr: number | null;
   od_dnia: string | null;
   do_dnia: string | null;
@@ -283,14 +283,14 @@ type WierszPromocji = Omit<PromocjaEdycja, "cenaGr" | "odDnia" | "doDnia" | "dni
   aktywna: number;
 };
 
-export function promocjeDoEdycji(lokalId: number): PromocjaEdycja[] {
+export function promotionsDraft(venueId: number): PromotionDraft[] {
   return (
     db
       .prepare(
         `SELECT id, tytul, opis, danie, wariant, cena_gr, od_dnia, do_dnia, dni, od_godz, do_godz, aktywna
          FROM promocje WHERE lokal_id = ? AND usunieto IS NULL ORDER BY kolejnosc, id`,
       )
-      .all(lokalId) as WierszPromocji[]
+      .all(venueId) as PromotionRow[]
   ).map((p) => ({
     id: p.id,
     tytul: p.tytul,
@@ -308,19 +308,19 @@ export function promocjeDoEdycji(lokalId: number): PromocjaEdycja[] {
 }
 
 /** Dania z cenami do wyboru w promocji: nazwa → warianty z ceną regularną. */
-export function cenyDan(lokalId: number) {
+export function dishPrices(venueId: number) {
   return (
-    db.prepare("SELECT nazwa, ceny FROM menu WHERE lokal_id = ? ORDER BY kolejnosc").all(lokalId) as {
+    db.prepare("SELECT nazwa, ceny FROM menu WHERE lokal_id = ? ORDER BY kolejnosc").all(venueId) as {
       nazwa: string;
       ceny: string;
     }[]
   )
-    .map((d) => ({ nazwa: d.nazwa, ceny: JSON.parse(d.ceny) as Cena[] }))
+    .map((d) => ({ nazwa: d.nazwa, ceny: JSON.parse(d.ceny) as Price[] }))
     .filter((d) => d.ceny.length);
 }
 
-export function zapiszPromocje(lokalId: number, p: Omit<PromocjaEdycja, "id"> & { id: number | null }) {
-  const pola = [
+export function savePromotion(venueId: number, p: Omit<PromotionDraft, "id"> & { id: number | null }) {
+  const fields = [
     p.tytul,
     p.opis,
     p.danie,
@@ -338,98 +338,98 @@ export function zapiszPromocje(lokalId: number, p: Omit<PromocjaEdycja, "id"> & 
       `INSERT INTO promocje (tytul, opis, danie, wariant, cena_gr, od_dnia, do_dnia, dni, od_godz, do_godz, aktywna,
          lokal_id, kolejnosc)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(kolejnosc), 0) + 1 FROM promocje WHERE lokal_id = ?))`,
-    ).run(...pola, lokalId, lokalId);
+    ).run(...fields, venueId, venueId);
   } else {
     db.prepare(
       `UPDATE promocje SET tytul = ?, opis = ?, danie = ?, wariant = ?, cena_gr = ?, od_dnia = ?, do_dnia = ?, dni = ?,
          od_godz = ?, do_godz = ?, aktywna = ?
        WHERE id = ? AND lokal_id = ? AND usunieto IS NULL`,
-    ).run(...pola, p.id, lokalId);
+    ).run(...fields, p.id, venueId);
   }
 }
 
 /** Usunięta promocja znika ze strony i panelu, ale zostaje w bazie — jej cena liczy się do najniższej z 30 dni. */
-export function usunPromocje(lokalId: number, id: number) {
-  db.prepare("UPDATE promocje SET usunieto = datetime('now'), aktywna = 0 WHERE id = ? AND lokal_id = ?").run(id, lokalId);
+export function deletePromotion(venueId: number, id: number) {
+  db.prepare("UPDATE promocje SET usunieto = datetime('now'), aktywna = 0 WHERE id = ? AND lokal_id = ?").run(id, venueId);
 }
 
 // ——— Dostawa ———
 
-export type StrefaEdycja = { nazwa: string; miejsca: string; cena: string; minimum: string };
+export type ZoneDraft = { nazwa: string; miejsca: string; cena: string; minimum: string };
 
-export function dostawaDoEdycji(lokalId: number) {
-  const strefy = (
+export function deliveryDraft(venueId: number) {
+  const zones = (
     db
       .prepare("SELECT nazwa, miejsca, cena_gr, min_gr FROM strefy_dostawy WHERE lokal_id = ? ORDER BY kolejnosc")
-      .all(lokalId) as { nazwa: string; miejsca: string; cena_gr: number | null; min_gr: number | null }[]
+      .all(venueId) as { nazwa: string; miejsca: string; cena_gr: number | null; min_gr: number | null }[]
   ).map(
-    (s): StrefaEdycja => ({
+    (s): ZoneDraft => ({
       nazwa: s.nazwa,
       miejsca: (JSON.parse(s.miejsca) as string[]).join(", "),
-      cena: s.cena_gr === null ? "" : naTekst(s.cena_gr),
-      minimum: s.min_gr === null ? "" : naTekst(s.min_gr),
+      cena: s.cena_gr === null ? "" : toText(s.cena_gr),
+      minimum: s.min_gr === null ? "" : toText(s.min_gr),
     }),
   );
-  const { dostawa_uwagi: uwagi } = db.prepare("SELECT dostawa_uwagi FROM lokale WHERE id = ?").get(lokalId) as {
+  const { dostawa_uwagi: uwagi } = db.prepare("SELECT dostawa_uwagi FROM lokale WHERE id = ?").get(venueId) as {
     dostawa_uwagi: string | null;
   };
-  return { strefy, uwagi: uwagi ?? "" };
+  return { strefy: zones, uwagi: uwagi ?? "" };
 }
 
-export function nazwyMiejscowosci() {
+export function townNames() {
   return (db.prepare("SELECT nazwa FROM miejscowosci ORDER BY nazwa").all() as { nazwa: string }[]).map((m) => m.nazwa);
 }
 
 /** Sprawdza strefy z formularza: miejscowości muszą być z naszej listy (po nich klient szuka „dowozi do mnie”). */
-export function sprawdzStrefy(dane: unknown): { strefy: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[] } | { blad: string } {
-  if (!Array.isArray(dane) || dane.length > 60) return { blad: "Nieprawidłowe strefy dostawy." };
-  const znane = new Map(nazwyMiejscowosci().map((n) => [n.toLowerCase(), n]));
-  const strefy = [];
-  for (const s of dane as Record<string, unknown>[]) {
-    const nazwa = tekst(s?.nazwa, 80);
-    const lista = tekst(s?.miejsca, 400)
+export function validateZones(date: unknown): { strefy: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[] } | { blad: string } {
+  if (!Array.isArray(date) || date.length > 60) return { blad: "Nieprawidłowe strefy dostawy." };
+  const knownOnes = new Map(townNames().map((n) => [n.toLowerCase(), n]));
+  const zones = [];
+  for (const s of date as Record<string, unknown>[]) {
+    const name = textValue(s?.nazwa, 80);
+    const list = textValue(s?.miejsca, 400)
       .split(",")
       .map((m) => m.trim())
       .filter(Boolean);
-    if (!nazwa && !lista.length) continue;
-    const miejsca: string[] = [];
-    for (const m of lista) {
-      const znana = znane.get(m.toLowerCase());
-      if (!znana) return { blad: `Nie znamy miejscowości „${m}”. Wybierz ją z podpowiedzi albo usuń.` };
-      miejsca.push(znana);
+    if (!name && !list.length) continue;
+    const places: string[] = [];
+    for (const m of list) {
+      const known = knownOnes.get(m.toLowerCase());
+      if (!known) return { blad: `Nie znamy miejscowości „${m}”. Wybierz ją z podpowiedzi albo usuń.` };
+      places.push(known);
     }
-    if (!miejsca.length && nazwa && znane.has(nazwa.toLowerCase())) miejsca.push(znane.get(nazwa.toLowerCase())!);
-    const cenaTekst = tekst(s.cena, 20);
-    const minTekst = tekst(s.minimum, 20);
-    const cena = cenaTekst ? grosze(cenaTekst) : null;
-    const min = minTekst ? grosze(minTekst) : null;
-    if ((cenaTekst && cena === null) || (minTekst && min === null)) {
-      return { blad: `Strefa „${nazwa || miejsca.join(", ")}”: kwoty wpisz jako liczby, np. 5 albo 4,50.` };
+    if (!places.length && name && knownOnes.has(name.toLowerCase())) places.push(knownOnes.get(name.toLowerCase())!);
+    const priceText = textValue(s.cena, 20);
+    const minText = textValue(s.minimum, 20);
+    const price = priceText ? toGrosze(priceText) : null;
+    const min = minText ? toGrosze(minText) : null;
+    if ((priceText && price === null) || (minText && min === null)) {
+      return { blad: `Strefa „${name || places.join(", ")}”: kwoty wpisz jako liczby, np. 5 albo 4,50.` };
     }
-    strefy.push({ nazwa: nazwa || miejsca.join(", "), miejsca, cena, min });
+    zones.push({ nazwa: name || places.join(", "), miejsca: places, cena: price, min });
   }
-  return { strefy };
+  return { strefy: zones };
 }
 
-export function zapiszDostawe(
-  lokalId: number,
-  strefy: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[],
-  uwagi: string | null,
+export function saveDelivery(
+  venueId: number,
+  zones: { nazwa: string; miejsca: string[]; cena: number | null; min: number | null }[],
+  notes: string | null,
 ) {
   db.exec("BEGIN");
   try {
-    db.prepare("DELETE FROM strefy_dostawy WHERE lokal_id = ?").run(lokalId);
-    const dodaj = db.prepare(
+    db.prepare("DELETE FROM strefy_dostawy WHERE lokal_id = ?").run(venueId);
+    const add = db.prepare(
       "INSERT INTO strefy_dostawy (lokal_id, nazwa, miejsca, cena_gr, min_gr, kolejnosc) VALUES (?, ?, ?, ?, ?, ?)",
     );
-    strefy.forEach((s, i) => dodaj.run(lokalId, s.nazwa, JSON.stringify(s.miejsca), s.cena, s.min, i));
+    zones.forEach((s, i) => add.run(venueId, s.nazwa, JSON.stringify(s.miejsca), s.cena, s.min, i));
     db.prepare(
       `UPDATE lokale SET dostawa_zrodlo = 'panel', dostawa_sprawdzono = date('now', 'localtime'), dostawa_uwagi = ?
        WHERE id = ?`,
-    ).run(uwagi, lokalId);
+    ).run(notes, venueId);
     db.exec("COMMIT");
-  } catch (blad) {
+  } catch (error) {
     db.exec("ROLLBACK");
-    throw blad;
+    throw error;
   }
 }

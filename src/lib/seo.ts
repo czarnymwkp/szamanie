@@ -2,15 +2,15 @@
 // Obszar = gmina (miasto Kraśnik osobno), kategoria = jedna z KATEGORIE. Strona powstaje dopiero, gdy ma
 // dość lokali — prawie pusta podstrona szkodzi w Google bardziej, niż pomaga.
 
-import { opisDnia, parsujGodziny } from "./godziny";
-import type { Lokal } from "./lokale";
-import { pobierzDostawe, pobierzMenu, szukajDan, type Danie } from "./menu";
-import { KATEGORIE } from "./nazwy";
-import { bezSamychSal } from "./przyjecia";
-import { bezPolskich } from "./slug.mjs";
-import type { KluczZdjecia } from "./zdjeciaKategorii";
+import { dayDescription, parseHours } from "./godziny";
+import type { Venue } from "./lokale";
+import { getDelivery, getMenu, searchDishes, type Dish } from "./menu";
+import { CATEGORIES } from "./nazwy";
+import { excludeHallsOnly } from "./przyjecia";
+import { stripPolish } from "./slug.mjs";
+import type { PhotoKey } from "./zdjeciaKategorii";
 
-export type Obszar = {
+export type Area = {
   slug: string;
   nazwa: string; // „Kraśnik”
   w: string; // „w Kraśniku”
@@ -19,7 +19,7 @@ export type Obszar = {
 };
 
 // Gminy powiatu kraśnickiego (nazwy gmin jak w scripts/import-osm.mjs).
-export const OBSZARY: Obszar[] = [
+export const AREAS: Area[] = [
   { slug: "krasnik", nazwa: "Kraśnik", w: "w Kraśniku", gminy: ["Kraśnik"], okolica: ["gm. Kraśnik"] },
   { slug: "annopol", nazwa: "Annopol", w: "w Annopolu", gminy: ["gm. Annopol"], okolica: [] },
   { slug: "dzierzkowice", nazwa: "Dzierzkowice", w: "w Dzierzkowicach", gminy: ["gm. Dzierzkowice"], okolica: [] },
@@ -31,7 +31,7 @@ export const OBSZARY: Obszar[] = [
   { slug: "zakrzowek", nazwa: "Zakrzówek", w: "w Zakrzówku", gminy: ["gm. Zakrzówek"], okolica: [] },
 ];
 
-export type KategoriaSeo = {
+export type SeoCategory = {
   id: string; // id z KATEGORIE albo własne, gdy kategoria ma swoje `pasuje`
   slug: string; // w adresie: /krasnik/<slug>
   nazwa: string; // nagłówek: „Pizza w Kraśniku”
@@ -39,16 +39,16 @@ export type KategoriaSeo = {
   // jak liczyć lokale w tytule („9 pizzerii”) — druga fraza, którą ludzie wpisują („pizzeria Kraśnik”)
   liczba?: [string, string, string];
   gdzie: string; // pytanie: „Gdzie zjeść pizzę” + „ w Kraśniku?”
-  zdjecie: KluczZdjecia;
+  zdjecie: PhotoKey;
   dowoz: boolean; // czy pytać o dowóz (przy kawie czy piwie nie ma to sensu)
   opis: string;
   menu?: { szukaj: string; ileKosztuje: string }; // dania z menu do sekcji z cenami: czego szukać, pytanie
-  pasuje?: (l: Lokal) => boolean; // kategoria tylko dla stron fraz, bez filtra na stronie głównej
+  pasuje?: (l: Venue) => boolean; // kategoria tylko dla stron fraz, bez filtra na stronie głównej
 };
 
-const POLSKIE = ["polish", "regional", "dumplings"];
+const POLISH_CHARS = ["polish", "regional", "dumplings"];
 
-export const KATEGORIE_SEO: KategoriaSeo[] = [
+export const SEO_CATEGORIES: SeoCategory[] = [
   {
     id: "pizza",
     slug: "pizza",
@@ -104,7 +104,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     zdjecie: "polska",
     dowoz: true,
     opis: "Domowe obiady, zupy, pierogi i kuchnia polska — na miejscu, na wynos albo z dowozem.",
-    pasuje: (l) => l.kuchnie.some((k) => POLSKIE.includes(k)),
+    pasuje: (l) => l.kuchnie.some((k) => POLISH_CHARS.includes(k)),
   },
   {
     id: "pierogi",
@@ -193,7 +193,7 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     zdjecie: "polska",
     dowoz: true,
     opis: "Lokale, które według podanych godzin są otwarte w niedzielę — na rodzinny obiad, pizzę albo kawę.",
-    pasuje: (l) => (parsujGodziny(l.godziny)?.[6].length ?? 0) > 0,
+    pasuje: (l) => (parseHours(l.godziny)?.[6].length ?? 0) > 0,
   },
   {
     id: "dopozna",
@@ -204,17 +204,17 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     zdjecie: "fastfood",
     dowoz: true,
     opis: "Lokale otwarte po 22:00 przynajmniej w niektóre dni — kiedy głód przychodzi wieczorem albo w nocy.",
-    pasuje: (l) => parsujGodziny(l.godziny)?.some((dzien) => dzien.some(([, koniec]) => koniec > 22 * 60)) ?? false,
+    pasuje: (l) => parseHours(l.godziny)?.some((day) => day.some(([, koniec]) => koniec > 22 * 60)) ?? false,
   },
 ];
 
-const DODATKI = /dodat|\bsos|\bdip/;
+const EXTRAS = /dodat|\bsos|\bdip/;
 
 /** Dania z menu z danej kategorii — do sekcji „Ile kosztuje pizza”. „Sos do pizzy” czy „Dodatek serowy” to nie pizza. */
-export async function daniaKategorii(k: KategoriaSeo): Promise<Danie[]> {
+export async function categoryDishes(k: SeoCategory): Promise<Dish[]> {
   if (!k.menu) return [];
-  const dania = await szukajDan(k.menu.szukaj);
-  return dania.filter((d) => !DODATKI.test(bezPolskich(`${d.sekcja} ${d.nazwa}`)));
+  const dishes = await searchDishes(k.menu.szukaj);
+  return dishes.filter((d) => !EXTRAS.test(stripPolish(`${d.sekcja} ${d.nazwa}`)));
 }
 
 /**
@@ -222,101 +222,101 @@ export async function daniaKategorii(k: KategoriaSeo): Promise<Danie[]> {
  * i punkt na mapie — takie strony obniżają ocenę całej domeny, więc mają noindex i nie ma ich w sitemap.
  * Odblokowują się same, gdy dane dojdą (npm run popraw, menu).
  */
-export async function doIndeksu(l: Lokal) {
-  return Boolean(l.telefon || l.godziny || l.www || l.facebook || (await pobierzMenu(l.id)));
+export async function toIndex(l: Venue) {
+  return Boolean(l.telefon || l.godziny || l.www || l.facebook || (await getMenu(l.id)));
 }
 
 /**
  * Tytuł strony w Google. Dłuższy niż ok. 50 znaków idzie bez „ | szamanie.pl”, żeby Google nie uciął końcówki
  * (ceny, dowóz), która przyciąga kliknięcie.
  */
-export const tytulStrony = (tytul: string) => (tytul.length > 50 ? { absolute: tytul } : tytul);
+export const pageTitle = (title: string) => (title.length > 50 ? { absolute: title } : title);
 
 /** Strona obszaru wymaga tylu lokali w obszarze, strona kategorii — tylu lokali z kategorii. */
-const MIN_W_OBSZARZE = 3;
-const MIN_W_KATEGORII = 2;
+const MIN_IN_AREA = 3;
+const MIN_IN_CATEGORY = 2;
 
-const pasuje = (k: KategoriaSeo) => k.pasuje ?? KATEGORIE.find((kat) => kat.id === k.id)!.pasuje;
+const matches = (k: SeoCategory) => k.pasuje ?? CATEGORIES.find((cat) => cat.id === k.id)!.pasuje;
 
-export function lokaleObszaru(wszystkie: Lokal[], o: Obszar) {
+export function areaVenues(all: Venue[], o: Area) {
   // sale tylko na przyjęcia mają swoją stronę /sale-weselne, a nie „gdzie zjeść”
-  const lokale = bezSamychSal(wszystkie);
+  const venues = excludeHallsOnly(all);
   return {
-    w: lokale.filter((l) => l.gmina && o.gminy.includes(l.gmina)),
-    okolica: lokale.filter((l) => l.gmina && o.okolica.includes(l.gmina)),
+    w: venues.filter((l) => l.gmina && o.gminy.includes(l.gmina)),
+    okolica: venues.filter((l) => l.gmina && o.okolica.includes(l.gmina)),
   };
 }
 
-export function lokaleKategorii(lokale: Lokal[], o: Obszar, k: KategoriaSeo) {
-  const { w, okolica } = lokaleObszaru(lokale, o);
-  return { w: w.filter(pasuje(k)), okolica: okolica.filter(pasuje(k)) };
+export function categoryVenues(venues: Venue[], o: Area, k: SeoCategory) {
+  const { w, okolica } = areaVenues(venues, o);
+  return { w: w.filter(matches(k)), okolica: okolica.filter(matches(k)) };
 }
 
 /** Obszary, które mają swoją stronę. */
-export function obszaryZeStrona(lokale: Lokal[]) {
-  return OBSZARY.filter((o) => lokaleObszaru(lokale, o).w.length >= MIN_W_OBSZARZE);
+export function areasWithPage(venues: Venue[]) {
+  return AREAS.filter((o) => areaVenues(venues, o).w.length >= MIN_IN_AREA);
 }
 
 /**
  * Kategorie, które mają stronę w danym obszarze (obszar musi mieć stronę). Bez kategorii z wszystkimi lokalami
  * obszaru — „Restauracje Annopol” z tymi samymi 3 lokalami co „Gdzie zjeść w Annopolu” to ta sama strona dwa razy.
  */
-export function kategorieZeStrona(lokale: Lokal[], o: Obszar) {
-  const wObszarze = lokaleObszaru(lokale, o).w.length;
-  if (wObszarze < MIN_W_OBSZARZE) return [];
-  return KATEGORIE_SEO.filter((k) => {
-    const n = lokaleKategorii(lokale, o, k).w.length;
-    return n >= MIN_W_KATEGORII && n < wObszarze;
+export function categoriesWithPage(venues: Venue[], o: Area) {
+  const inArea = areaVenues(venues, o).w.length;
+  if (inArea < MIN_IN_AREA) return [];
+  return SEO_CATEGORIES.filter((k) => {
+    const n = categoryVenues(venues, o, k).w.length;
+    return n >= MIN_IN_CATEGORY && n < inArea;
   });
 }
 
-export function znajdzStrone(lokale: Lokal[], obszarSlug: string, kategoriaSlug?: string) {
-  const obszar = obszaryZeStrona(lokale).find((o) => o.slug === obszarSlug);
-  if (!obszar) return null;
-  if (kategoriaSlug === undefined) return { obszar, kategoria: null };
-  const kategoria = kategorieZeStrona(lokale, obszar).find((k) => k.slug === kategoriaSlug);
-  return kategoria ? { obszar, kategoria } : null;
+export function findPage(venues: Venue[], areaSlug: string, categorySlug?: string) {
+  const area = areasWithPage(venues).find((o) => o.slug === areaSlug);
+  if (!area) return null;
+  if (categorySlug === undefined) return { obszar: area, kategoria: null };
+  const category = categoriesWithPage(venues, area).find((k) => k.slug === categorySlug);
+  return category ? { obszar: area, kategoria: category } : null;
 }
 
 /** Wszystkie strony fraz: [obszar] i [obszar, kategoria] — do mapy strony i linków. */
-export function wszystkieStrony(lokale: Lokal[]) {
-  return obszaryZeStrona(lokale).flatMap((o) => [
+export function allPages(venues: Venue[]) {
+  return areasWithPage(venues).flatMap((o) => [
     { obszar: o, kategoria: null },
-    ...kategorieZeStrona(lokale, o).map((k) => ({ obszar: o, kategoria: k })),
+    ...categoriesWithPage(venues, o).map((k) => ({ obszar: o, kategoria: k })),
   ]);
 }
 
 /** Lokale otwarte w niedzielę według podanych godzin, z godzinami: [lokal, „12:00–21:00”]. */
-export function otwarteWNiedziele(lokale: Lokal[]) {
-  return lokale.flatMap((l) => {
-    const dzien = parsujGodziny(l.godziny)?.[6]; // tydzień od poniedziałku
-    return dzien?.length ? [[l, opisDnia(dzien)] as const] : [];
+export function openOnSunday(venues: Venue[]) {
+  return venues.flatMap((l) => {
+    const day = parseHours(l.godziny)?.[6]; // tydzień od poniedziałku
+    return day?.length ? [[l, dayDescription(day)] as const] : [];
   });
 }
 
 /** Lokale, które oznaczyły dowóz albo jedzenie na wynos. */
-export function zDowozem(lokale: Lokal[]) {
-  return { dowoz: lokale.filter((l) => l.dostawa), naWynos: lokale.filter((l) => l.naWynos && !l.dostawa) };
+export function withDelivery(venues: Venue[]) {
+  return { dowoz: venues.filter((l) => l.dostawa), naWynos: venues.filter((l) => l.naWynos && !l.dostawa) };
 }
 
 /** Strona „Jedzenie z dowozem w Kraśniku” (/krasnik/dowoz) wymaga tylu lokali z dowozem w obszarze. */
-const MIN_Z_DOWOZEM = 2;
+const MIN_WITH_DELIVERY = 2;
 
-export function lokaleZDowozem(lokale: Lokal[], o: Obszar) {
-  const { w, okolica } = lokaleObszaru(lokale, o);
+export function venuesWithDelivery(venues: Venue[], o: Area) {
+  const { w, okolica } = areaVenues(venues, o);
   return { w: w.filter((l) => l.dostawa), okolica: okolica.filter((l) => l.dostawa) };
 }
 
 /** Obszary, które mają stronę z dowozem (obszar musi mieć swoją stronę). */
-export function obszaryZDowozem(lokale: Lokal[]) {
-  return obszaryZeStrona(lokale).filter((o) => lokaleZDowozem(lokale, o).w.length >= MIN_Z_DOWOZEM);
+export function areasWithDelivery(venues: Venue[]) {
+  return areasWithPage(venues).filter((o) => venuesWithDelivery(venues, o).w.length >= MIN_WITH_DELIVERY);
 }
 
 /** Strefy dostawy lokali, które je podały — w kolejności lokali. */
-export async function cennikiDostawy(lokale: Lokal[]) {
-  const dostawy = await Promise.all(lokale.map((l) => pobierzDostawe(l.id)));
-  return lokale.flatMap((lokal, i) => {
-    const dostawa = dostawy[i];
-    return dostawa ? [{ lokal, dostawa }] : [];
+export async function deliveryPricing(venues: Venue[]) {
+  const deliveries = await Promise.all(venues.map((l) => getDelivery(l.id)));
+  return venues.flatMap((venue, i) => {
+    const delivery = deliveries[i];
+    return delivery ? [{ lokal: venue, dostawa: delivery }] : [];
   });
 }

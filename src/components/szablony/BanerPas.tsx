@@ -3,7 +3,7 @@
  * (<h1> strony, krój --naglowek-lokalu), krótka kreska i `haslo` w kolorze `obrys-2`, pod spodem adres.
  * Bez logo lokalu (tylko za jego zgodą).
  */
-export default function BanerPas({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
+export default function StripBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (
     <div className="bg-akcent px-5 pt-20 pb-10 text-center text-na-akcencie sm:pt-24">
       <h1 className="animate-wjazd font-[family-name:var(--ozdobny-lokalu,var(--naglowek-lokalu))] text-4xl font-semibold tracking-[0.25em] uppercase sm:text-6xl">

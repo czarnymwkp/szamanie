@@ -1,9 +1,9 @@
-import { pobierzLokale } from "@/lib/lokale";
-import StopkaM from "../mobilne/StopkaM";
-import { linkiStopki } from "../mobilne/linki";
+import { getVenues } from "@/lib/lokale";
+import FooterContent from "../mobilne/StopkaM";
+import { footerLinks } from "../mobilne/linki";
 
-export default async function Stopka() {
+export default async function Footer() {
   // Linki do stron fraz (/krasnik/pizza…) z każdej podstrony — Google trafia po nich do wszystkich.
-  const lokale = await pobierzLokale();
-  return <StopkaM linki={linkiStopki(lokale)} szaman="szkic" />;
+  const venues = await getVenues();
+  return <FooterContent linki={footerLinks(venues)} szaman="szkic" />;
 }

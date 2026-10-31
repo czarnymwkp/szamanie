@@ -5,7 +5,7 @@ import { Hamburger, Pizza } from "lucide-react";
  * pod nią kreska w kolorze akcentu, hasło i adres. Nazwa to <h1> strony, w kroju motywu (--naglowek-lokalu).
  * Szkice w tle to ikony, nie grafiki z karty lokalu (te tylko za jego zgodą).
  */
-export default function BanerBelka({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
+export default function BarBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (
     <div className="relative overflow-hidden bg-tlo pt-20 pb-2 sm:pt-24">
       <Hamburger

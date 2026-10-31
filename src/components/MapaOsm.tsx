@@ -7,24 +7,24 @@ import { useEffect, useRef, useState } from "react";
  * ładuje ramkę z dużym zapasem (ok. 1250–2500 px), a to ok. 470 KB skryptów i kafelków, które spowalniały wejście na
  * stronę lokalu.
  */
-export default function MapaOsm({ title, src, className }: { title: string; src: string; className?: string }) {
-  const ramka = useRef<HTMLIFrameElement>(null);
+export default function OsmMap({ title, src, className }: { title: string; src: string; className?: string }) {
+  const frame = useRef<HTMLIFrameElement>(null);
   const [blisko, setBlisko] = useState(false);
 
   useEffect(() => {
-    const el = ramka.current;
+    const el = frame.current;
     if (!el) return;
-    const obserwator = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       ([wpis]) => {
         if (!wpis.isIntersecting) return;
         setBlisko(true);
-        obserwator.disconnect();
+        observer.disconnect();
       },
       { rootMargin: "300px" },
     );
-    obserwator.observe(el);
-    return () => obserwator.disconnect();
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  return <iframe ref={ramka} title={title} src={blisko ? src : undefined} loading="lazy" className={className} />;
+  return <iframe ref={frame} title={title} src={blisko ? src : undefined} loading="lazy" className={className} />;
 }

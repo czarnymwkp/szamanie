@@ -1,10 +1,10 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "./db";
-import { kuchnieZNazwy } from "./nazwy";
-import { kluczDania, type KluczDania } from "./zdjeciaDan";
-import { daniaNaZdjecie, przydzielZdjecia, type ZdjecieLokalu } from "./zdjeciaLokali";
+import { cuisinesFromName } from "./nazwy";
+import { dishKey, type DishKey } from "./zdjeciaDan";
+import { dishesForPhoto, assignPhotos, type VenuePhoto } from "./zdjeciaLokali";
 
-export type Lokal = {
+export type Venue = {
   id: number;
   slug: string;
   nazwa: string;
@@ -24,18 +24,18 @@ export type Lokal = {
   email: string | null;
   instagram: string | null;
   menuUrl: string | null;
-  cechy: Cechy;
+  cechy: Features;
   opis: string | null;
   szablon: string; // wygląd podstrony lokalu (src/components/szablony)
   // płatne pakiety aktywne dzisiaj
   promowany: boolean;
   galeria: boolean;
   promocja: string | null; // tytuł pierwszej trwającej promocji (z panelu lokalu) — na karcie na liście
-  zdjecie?: ZdjecieLokalu | null; // zdjęcie poglądowe na kartę, każdy lokal inne (lib/zdjeciaLokali.ts)
+  zdjecie?: VenuePhoto | null; // zdjęcie poglądowe na kartę, każdy lokal inne (lib/zdjeciaLokali.ts)
 };
 
 /** Udogodnienia z OSM (scripts/import-osm.mjs → cechy), poprawek (npm run popraw) i menu (dania wege). */
-export type Cechy = {
+export type Features = {
   ogrodek?: boolean;
   wozek?: "yes" | "limited";
   zwierzeta?: boolean; // można wejść z psem
@@ -47,9 +47,9 @@ export type Cechy = {
   tylkoNaWynos?: boolean;
 };
 
-export type Miejscowosc = { nazwa: string; typ: string; lat: number; lon: number };
+export type Town = { nazwa: string; typ: string; lat: number; lon: number };
 
-type Wiersz = Omit<Lokal, "kuchnie" | "dostawa" | "naWynos" | "promowany" | "galeria" | "menuUrl" | "cechy"> & {
+type Row = Omit<Venue, "kuchnie" | "dostawa" | "naWynos" | "promowany" | "galeria" | "menuUrl" | "cechy"> & {
   kuchnie: string;
   dostawa: number;
   na_wynos: number;
@@ -60,16 +60,16 @@ type Wiersz = Omit<Lokal, "kuchnie" | "dostawa" | "naWynos" | "promowany" | "gal
 };
 
 // Udogodnienia, które da się ustawić poprawką: `npm run popraw -- <slug> zwierzeta tak` („nie” usuwa).
-const CECHY_Z_POPRAWEK = ["zwierzeta", "wozek", "wege", "wegan"] as const;
+const FEATURES_FROM_OVERRIDES = ["zwierzeta", "wozek", "wege", "wegan"] as const;
 // Tyle dań wege w menu (bez napojów i dodatków) wystarcza, żeby lokal dostał „Opcje wegetariańskie”.
-const DAN_WEGE = 3;
+const VEG_DISHES = 3;
 
-function cechyLokalu(cechy: string, poprawki: Record<string, unknown>, wegeZMenu: boolean): Cechy {
-  const c = JSON.parse(cechy) as Cechy;
-  if (wegeZMenu) c.wege = true;
-  for (const k of CECHY_Z_POPRAWEK) {
-    if (!(k in poprawki)) continue;
-    if (!poprawki[k]) delete c[k];
+function venueFeatures(features: string, overrides: Record<string, unknown>, vegFromMenu: boolean): Features {
+  const c = JSON.parse(features) as Features;
+  if (vegFromMenu) c.wege = true;
+  for (const k of FEATURES_FROM_OVERRIDES) {
+    if (!(k in overrides)) continue;
+    if (!overrides[k]) delete c[k];
     else if (k === "wozek") c.wozek = "yes";
     else c[k] = true;
   }
@@ -77,7 +77,7 @@ function cechyLokalu(cechy: string, poprawki: Record<string, unknown>, wegeZMenu
 }
 
 // Data lokalna w formacie RRRR-MM-DD, tak jak w tabeli pakiety.
-function dzisiaj() {
+function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -86,49 +86,49 @@ function dzisiaj() {
  * Wszystkie widoczne lokale: najpierw promowane (pakiet „top”), potem alfabetycznie.
  * Wynik jest w cache i odświeża się co minutę, więc zmiany w bazie widać po chwili.
  */
-export async function pobierzLokale(): Promise<Lokal[]> {
+export async function getVenues(): Promise<Venue[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("lokale");
 
-  const aktywny = (rodzaj: string) =>
-    `EXISTS (SELECT 1 FROM pakiety p WHERE p.lokal_id = l.id AND p.rodzaj = '${rodzaj}'
+  const isActive = (kind: string) =>
+    `EXISTS (SELECT 1 FROM pakiety p WHERE p.lokal_id = l.id AND p.rodzaj = '${kind}'
              AND @dzis BETWEEN p.od_dnia AND p.do_dnia)`;
-  const wiersze = db
+  const rows = db
     .prepare(
       `SELECT l.id, l.slug, l.nazwa, l.typ, l.kuchnie, l.lat, l.lon, l.gmina, l.miejscowosc, l.adres,
               l.telefon, l.www, l.facebook, l.instagram, l.email, l.menu_url, l.cechy,
               l.godziny, l.dostawa, l.na_wynos, l.opis, l.szablon,
-              ${aktywny("top")} AS promowany, ${aktywny("galeria")} AS galeria,
+              ${isActive("top")} AS promowany, ${isActive("galeria")} AS galeria,
               (SELECT p.tytul FROM promocje p WHERE p.lokal_id = l.id AND p.aktywna = 1 AND p.usunieto IS NULL
                  AND (p.od_dnia IS NULL OR p.od_dnia <= @dzis) AND (p.do_dnia IS NULL OR p.do_dnia >= @dzis)
                ORDER BY p.kolejnosc, p.id LIMIT 1) AS promocja
        FROM lokale l WHERE l.ukryty = 0`,
     )
-    .all({ dzis: dzisiaj() }) as Wiersz[];
+    .all({ dzis: today() }) as Row[];
 
   // Ręczne poprawki (tabela poprawki) wygrywają z danymi z OSM.
-  const poprawki = new Map<number, Record<string, unknown>>();
+  const overrides = new Map<number, Record<string, unknown>>();
   for (const p of db.prepare("SELECT lokal_id, pole, wartosc FROM poprawki").all() as {
     lokal_id: number;
     pole: string;
     wartosc: string;
   }[]) {
-    poprawki.set(p.lokal_id, { ...poprawki.get(p.lokal_id), [p.pole]: JSON.parse(p.wartosc) });
+    overrides.set(p.lokal_id, { ...overrides.get(p.lokal_id), [p.pole]: JSON.parse(p.wartosc) });
   }
 
   // Kuchnie z menu: lokal z pizzą w karcie trafia do kategorii „Pizza” (sos czy dodatek do pizzy się nie liczy).
-  const zMenu = new Map<number, Set<string>>();
+  const fromMenu = new Map<number, Set<string>>();
   for (const d of db.prepare("SELECT lokal_id, sekcja, nazwa FROM menu").all() as {
     lokal_id: number;
     sekcja: string;
     nazwa: string;
   }[]) {
-    const tekst = `${d.sekcja} ${d.nazwa}`;
-    if (/dodat|\bsos|\bdip/i.test(tekst)) continue;
-    for (const k of kuchnieZNazwy(tekst)) zMenu.set(d.lokal_id, (zMenu.get(d.lokal_id) ?? new Set()).add(k));
+    const text = `${d.sekcja} ${d.nazwa}`;
+    if (/dodat|\bsos|\bdip/i.test(text)) continue;
+    for (const k of cuisinesFromName(text)) fromMenu.set(d.lokal_id, (fromMenu.get(d.lokal_id) ?? new Set()).add(k));
   }
-  const wegeZMenu = new Set(
+  const vegFromMenu = new Set(
     (
       db
         .prepare(
@@ -136,78 +136,78 @@ export async function pobierzLokale(): Promise<Lokal[]> {
            WHERE cechy LIKE '%"wege"%' AND sekcja NOT LIKE '%napoj%' AND sekcja NOT LIKE '%dodat%'
            GROUP BY lokal_id HAVING COUNT(*) >= ?`,
         )
-        .all(DAN_WEGE) as { lokal_id: number }[]
+        .all(VEG_DISHES) as { lokal_id: number }[]
     ).map((m) => m.lokal_id),
   );
   // Lokal, który podał strefy dostawy, dowozi — nawet jeśli w OSM tego nie ma.
-  const zeStrefami = new Set(
+  const withZones = new Set(
     (db.prepare("SELECT DISTINCT lokal_id FROM strefy_dostawy").all() as { lokal_id: number }[]).map((s) => s.lokal_id),
   );
 
   // Dania z menu do wyboru zdjęcia poglądowego lokalu (np. lokal z karbonarą w karcie może dostać karbonarę).
-  const kluczeMenu = new Map<number, KluczDania[]>();
+  const menuKeys = new Map<number, DishKey[]>();
   for (const d of db.prepare("SELECT lokal_id, sekcja, nazwa, opis FROM menu ORDER BY lokal_id, kolejnosc").all() as {
     lokal_id: number;
     sekcja: string;
     nazwa: string;
     opis: string | null;
   }[]) {
-    const k = kluczDania(d.sekcja, d.nazwa, d.opis);
-    if (k) kluczeMenu.set(d.lokal_id, [...(kluczeMenu.get(d.lokal_id) ?? []), k]);
+    const k = dishKey(d.sekcja, d.nazwa, d.opis);
+    if (k) menuKeys.set(d.lokal_id, [...(menuKeys.get(d.lokal_id) ?? []), k]);
   }
 
-  const lista = wiersze
-    .map((wiersz) => {
-      const p = poprawki.get(wiersz.id) ?? {};
+  const list = rows
+    .map((row) => {
+      const p = overrides.get(row.id) ?? {};
       const { kuchnie: kuchniePoprawione, dostawa, na_wynos: naWynosPoprawione, ...reszta } = p;
       // udogodnienia z poprawek trafiają do cech, nie jako osobne pola lokalu
-      const pola = Object.fromEntries(
-        Object.entries(reszta).filter(([k]) => !(CECHY_Z_POPRAWEK as readonly string[]).includes(k)),
+      const fields = Object.fromEntries(
+        Object.entries(reszta).filter(([k]) => !(FEATURES_FROM_OVERRIDES as readonly string[]).includes(k)),
       );
       return {
-        ...wiersz,
-        ...pola,
-        cechy: JSON.stringify(cechyLokalu(wiersz.cechy, p, wegeZMenu.has(wiersz.id))),
-        kuchnie: kuchniePoprawione ? JSON.stringify(kuchniePoprawione) : wiersz.kuchnie,
-        dostawa: dostawa === undefined ? wiersz.dostawa : Number(dostawa),
-        na_wynos: naWynosPoprawione === undefined ? wiersz.na_wynos : Number(naWynosPoprawione),
-      } as Wiersz;
+        ...row,
+        ...fields,
+        cechy: JSON.stringify(venueFeatures(row.cechy, p, vegFromMenu.has(row.id))),
+        kuchnie: kuchniePoprawione ? JSON.stringify(kuchniePoprawione) : row.kuchnie,
+        dostawa: dostawa === undefined ? row.dostawa : Number(dostawa),
+        na_wynos: naWynosPoprawione === undefined ? row.na_wynos : Number(naWynosPoprawione),
+      } as Row;
     })
     .map(({ na_wynos, menu_url, ...w }) => ({
       ...w,
       menuUrl: menu_url,
-      cechy: JSON.parse(w.cechy) as Cechy,
+      cechy: JSON.parse(w.cechy) as Features,
       kuchnie: [
-        ...new Set([...(JSON.parse(w.kuchnie) as string[]), ...kuchnieZNazwy(w.nazwa), ...(zMenu.get(w.id) ?? [])]),
+        ...new Set([...(JSON.parse(w.kuchnie) as string[]), ...cuisinesFromName(w.nazwa), ...(fromMenu.get(w.id) ?? [])]),
       ],
-      dostawa: w.dostawa === 1 || zeStrefami.has(w.id),
+      dostawa: w.dostawa === 1 || withZones.has(w.id),
       naWynos: na_wynos === 1,
       promowany: w.promowany === 1,
       galeria: w.galeria === 1,
     }))
     .sort((a, b) => Number(b.promowany) - Number(a.promowany) || a.nazwa.localeCompare(b.nazwa, "pl"));
 
-  const zdjecia = przydzielZdjecia(
-    lista,
-    new Map([...kluczeMenu].map(([id, klucze]) => [id, daniaNaZdjecie(klucze)])),
+  const photos = assignPhotos(
+    list,
+    new Map([...menuKeys].map(([id, klucze]) => [id, dishesForPhoto(klucze)])),
   );
-  return lista.map((l) => ({ ...l, zdjecie: zdjecia.get(l.id) ?? null }));
+  return list.map((l) => ({ ...l, zdjecie: photos.get(l.id) ?? null }));
 }
 
 /** Miejscowości powiatu (miasta i wsie), Kraśnik pierwszy — do wyboru „blisko …” bez GPS. */
-export async function pobierzMiejscowosci(): Promise<Miejscowosc[]> {
+export async function getTowns(): Promise<Town[]> {
   "use cache";
   cacheLife("days");
   // node:sqlite zwraca obiekty bez prototypu — React nie przekaże ich do komponentu klienta, więc kopiujemy.
-  const wiersze = (db.prepare("SELECT nazwa, typ, lat, lon FROM miejscowosci").all() as Miejscowosc[]).map((m) => ({
+  const rows = (db.prepare("SELECT nazwa, typ, lat, lon FROM miejscowosci").all() as Town[]).map((m) => ({
     ...m,
   }));
-  return wiersze.sort(
+  return rows.sort(
     (a, b) => Number(b.typ === "town") - Number(a.typ === "town") || a.nazwa.localeCompare(b.nazwa, "pl"),
   );
 }
 
-export async function pobierzLokal(slug: string): Promise<Lokal | null> {
-  const lokale = await pobierzLokale();
-  return lokale.find((l) => l.slug === slug) ?? null;
+export async function getVenue(slug: string): Promise<Venue | null> {
+  const venues = await getVenues();
+  return venues.find((l) => l.slug === slug) ?? null;
 }

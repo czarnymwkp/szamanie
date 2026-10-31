@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import { daneLokalu } from "@/lib/panel/lokal";
-import { wymagajLokalu } from "@/lib/panel/konta";
-import { zapiszDane } from "./akcje";
-import DostepDoLokalu from "./DostepDoLokalu";
-import FormularzDanych from "./FormularzDanych";
+import { venueData } from "@/lib/panel/lokal";
+import { requireVenue } from "@/lib/panel/konta";
+import { saveDetails } from "./akcje";
+import VenueAccess from "./DostepDoLokalu";
+import DetailsForm from "./FormularzDanych";
 
 export const metadata: Metadata = { title: "Dane lokalu" };
 
 // strona zależy od konta i adresu — czeka na serwer (jak cały panel)
 export const instant = false;
 
-export default async function DaneLokalu({ params }: PageProps<"/panel/[slug]">) {
+export default async function VenueData({ params }: PageProps<"/panel/[slug]">) {
   const { slug } = await params;
-  const { konto, lokal } = await wymagajLokalu(slug);
+  const { konto, lokal } = await requireVenue(slug);
   return (
     <>
-      <FormularzDanych dane={daneLokalu(lokal.id)} zapisz={zapiszDane.bind(null, slug)} />
-      {konto.rola === "admin" && <DostepDoLokalu lokal={lokal} />}
+      <DetailsForm dane={venueData(lokal.id)} zapisz={saveDetails.bind(null, slug)} />
+      {konto.rola === "admin" && <VenueAccess lokal={lokal} />}
     </>
   );
 }

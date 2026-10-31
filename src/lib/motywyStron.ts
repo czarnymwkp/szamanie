@@ -5,7 +5,7 @@
  * Logo i zdjęcia lokalu tylko za zgodą właściciela (przed wdrożeniem potwierdzić).
  */
 
-export type TokenKoloru =
+export type ColorToken =
   | "tlo"
   | "karta"
   | "krem"
@@ -20,7 +20,7 @@ export type TokenKoloru =
   | "zamkniete";
 
 /** Kroje z `components/szablony/kroje.ts`. */
-export type KrojLokalu =
+export type VenueFont =
   | "playfair"
   | "karla"
   | "rokkitt"
@@ -39,12 +39,12 @@ export type KrojLokalu =
   | "poppins"
   | "rubik-dirt";
 
-export type MotywStrony = {
-  kolory: Partial<Record<TokenKoloru, string>>;
+export type PageTheme = {
+  kolory: Partial<Record<ColorToken, string>>;
   ciemny?: boolean; // ciemne pola formularzy i paski przewijania
   /** etykiety: drobne napisy wersalikami (ceny, cechy dań) — przez --etykiety-lokalu; bez niego krój tekstu. */
   /** ozdobny: pismo odręczne w tytułach działów menu — przez --ozdobny-lokalu. */
-  kroje?: { naglowki: KrojLokalu; tekst: KrojLokalu; etykiety?: KrojLokalu; ozdobny?: KrojLokalu };
+  kroje?: { naglowki: VenueFont; tekst: VenueFont; etykiety?: VenueFont; ozdobny?: VenueFont };
   /**
    * kreda: tablica kredowa (smugi i pył kredy, .tlo-kreda w globals.css); marmur: ciemny marmur ze złotymi
    * żyłkami (.tlo-marmur); plamy: beżowe plamy i cienkie czerwone warstwice w rogach (.tlo-plamy).
@@ -79,7 +79,7 @@ export type MotywStrony = {
   menuSpis?: "wersaliki" | "tablica" | "srodek" | "kropki";
 };
 
-const MOTYWY: Record<string, MotywStrony> = {
+const THEMES: Record<string, PageTheme> = {
   // pizzeriaparkowa.pl: czarne tło, świetliki, białe drzewo, Playfair Display + Karla, zielone akcenty.
   "pizzeria-parkowa-krasnik": {
     ciemny: true,
@@ -254,6 +254,6 @@ const MOTYWY: Record<string, MotywStrony> = {
   },
 };
 
-export function motywStrony(slug: string): MotywStrony | null {
-  return MOTYWY[slug] ?? null;
+export function pageTheme(slug: string): PageTheme | null {
+  return THEMES[slug] ?? null;
 }

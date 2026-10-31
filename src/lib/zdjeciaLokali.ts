@@ -1,14 +1,14 @@
-import { ZDJECIA_DAN, type KluczDania } from "./zdjeciaDan";
-import { ZDJECIA_KATEGORII, type KluczZdjecia } from "./zdjeciaKategorii";
+import { DISH_PHOTOS, type DishKey } from "./zdjeciaDan";
+import { CATEGORY_PHOTOS, type PhotoKey } from "./zdjeciaKategorii";
 
 // Zdjęcie poglądowe na kartę lokalu — każdy lokal inne, dopóki nie ma własnych zdjęć. Kolejność wyboru: dania
 // z jego menu (najczęstsze najpierw), potem jego kuchnie i rodzaj lokalu, a gdy pula się wyczerpie — dowolne
 // nieużyte zdjęcie. Zdjęć (dania + kategorie) jest więcej niż lokali, więc nic się nie powtarza.
 
-export type ZdjecieLokalu = { plik: string; pozycja?: string };
-type Kandydat = KluczDania | `kategoria:${KluczZdjecia}`;
+export type VenuePhoto = { plik: string; pozycja?: string };
+type Candidate = DishKey | `kategoria:${PhotoKey}`;
 
-const POLSKA: Kandydat[] = [
+const POLISH: Candidate[] = [
   "kategoria:polska",
   "pierogi",
   "schabowy",
@@ -23,10 +23,10 @@ const POLSKA: Kandydat[] = [
   "flaki",
   "kurczak-sos",
 ];
-const AZJATYCKA: Kandydat[] = ["kategoria:azjatycka", "krewetki", "kurczak-sos", "ryba"];
-const ELEGANCKA: Kandydat[] = ["poledwiczka", "tatar", "losos", "carpaccio", "kategoria:restauracja", "ryba", "kaczka"];
+const ASIAN: Candidate[] = ["kategoria:azjatycka", "krewetki", "kurczak-sos", "ryba"];
+const FINE_DINING: Candidate[] = ["poledwiczka", "tatar", "losos", "carpaccio", "kategoria:restauracja", "ryba", "kaczka"];
 
-const Z_KUCHNI: Record<string, Kandydat[]> = {
+const BY_CUISINE: Record<string, Candidate[]> = {
   pizza: [
     "kategoria:pizza",
     "pizza",
@@ -42,9 +42,9 @@ const Z_KUCHNI: Record<string, Kandydat[]> = {
   burger: ["kategoria:burger", "burger", "burger-podwojny", "burger-kurczak", "frytki", "nuggetsy"],
   chicken: ["kurczak", "nuggetsy", "burger-kurczak"],
   kebab: ["kategoria:kebab", "wrap", "kanapka", "kurczak", "tost", "frytki", "nuggetsy"],
-  polish: POLSKA,
-  regional: POLSKA,
-  dumplings: ["pierogi", ...POLSKA],
+  polish: POLISH,
+  regional: POLISH,
+  dumplings: ["pierogi", ...POLISH],
   italian: [
     "kategoria:wloska",
     "carbonara",
@@ -61,23 +61,23 @@ const Z_KUCHNI: Record<string, Kandydat[]> = {
   ],
   pasta: ["carbonara", "bolognese", "pesto", "makaron-kremowy"],
   greek: ["kategoria:grecka", "salatka-grecka", "ryba", "krewetki"],
-  chinese: AZJATYCKA,
-  asian: AZJATYCKA,
-  vietnamese: AZJATYCKA,
-  thai: AZJATYCKA,
-  japanese: AZJATYCKA,
-  sushi: AZJATYCKA,
-  indian: AZJATYCKA,
-  steak_house: ELEGANCKA,
-  international: ELEGANCKA,
-  fine_dining: ELEGANCKA,
+  chinese: ASIAN,
+  asian: ASIAN,
+  vietnamese: ASIAN,
+  thai: ASIAN,
+  japanese: ASIAN,
+  sushi: ASIAN,
+  indian: ASIAN,
+  steak_house: FINE_DINING,
+  international: FINE_DINING,
+  fine_dining: FINE_DINING,
   salad: ["salatka", "salatka-cezar", "salatka-grecka"],
   cake: ["szarlotka", "tarta", "fondant", "tiramisu"],
   coffee_shop: ["cappuccino", "latte", "espresso", "kawa-mrozona"],
   ice_cream: ["lody", "panna-cotta", "cannolo"],
 };
 
-const Z_TYPU: Record<string, Kandydat[]> = {
+const BY_TYPE: Record<string, Candidate[]> = {
   cafe: [
     "kategoria:kawa",
     "cappuccino",
@@ -123,7 +123,7 @@ const Z_TYPU: Record<string, Kandydat[]> = {
 };
 
 // Napoje z menu nie idą na kartę lokalu — bary, puby i kawiarnie dostają je z puli swojego rodzaju.
-const NAPOJE = new Set<KluczDania>([
+const DRINKS = new Set<DishKey>([
   "espresso",
   "cappuccino",
   "latte",
@@ -143,51 +143,51 @@ const NAPOJE = new Set<KluczDania>([
   "whisky",
 ]);
 // Na ostatnią chwilę (gdy pule się wyczerpią) — bez napojów, które słabo wyglądają jako zdjęcie lokalu.
-const WSZYSTKIE: Kandydat[] = [
-  ...(Object.keys(ZDJECIA_KATEGORII) as KluczZdjecia[]).map((k) => `kategoria:${k}` as const),
-  ...(Object.keys(ZDJECIA_DAN) as KluczDania[]).filter((k) => !NAPOJE.has(k)),
+const ALL: Candidate[] = [
+  ...(Object.keys(CATEGORY_PHOTOS) as PhotoKey[]).map((k) => `kategoria:${k}` as const),
+  ...(Object.keys(DISH_PHOTOS) as DishKey[]).filter((k) => !DRINKS.has(k)),
 ];
 
-function zdjecie(k: Kandydat): ZdjecieLokalu | null {
+function photo(k: Candidate): VenuePhoto | null {
   if (k.startsWith("kategoria:")) {
-    const z = ZDJECIA_KATEGORII[k.slice("kategoria:".length) as KluczZdjecia];
+    const z = CATEGORY_PHOTOS[k.slice("kategoria:".length) as PhotoKey];
     return z ? { plik: z.plik, pozycja: z.pozycja } : null;
   }
-  const z = ZDJECIA_DAN[k as KluczDania];
+  const z = DISH_PHOTOS[k as DishKey];
   return z ? { plik: z.plik } : null;
 }
 
 /** Dania z menu lokalu do wyboru zdjęcia (bez napojów), od najczęstszego. */
-export function daniaNaZdjecie(klucze: KluczDania[]): KluczDania[] {
-  const ile = new Map<KluczDania, number>();
-  for (const k of klucze) if (!NAPOJE.has(k)) ile.set(k, (ile.get(k) ?? 0) + 1);
-  return [...ile.keys()].sort((a, b) => ile.get(b)! - ile.get(a)!);
+export function dishesForPhoto(keys: DishKey[]): DishKey[] {
+  const count = new Map<DishKey, number>();
+  for (const k of keys) if (!DRINKS.has(k)) count.set(k, (count.get(k) ?? 0) + 1);
+  return [...count.keys()].sort((a, b) => count.get(b)! - count.get(a)!);
 }
 
 /** Każdemu lokalowi inne zdjęcie: najpierw lokale z najkrótszą listą pasujących, żeby nie zostały z niczym. */
-export function przydzielZdjecia(
-  lokale: { id: number; typ: string; kuchnie: string[] }[],
-  daniaZMenu: Map<number, KluczDania[]>,
-): Map<number, ZdjecieLokalu> {
-  const listy = lokale.map((l) => ({
+export function assignPhotos(
+  venues: { id: number; typ: string; kuchnie: string[] }[],
+  dishesFromMenu: Map<number, DishKey[]>,
+): Map<number, VenuePhoto> {
+  const lists = venues.map((l) => ({
     id: l.id,
     lista: [
-      ...new Set<Kandydat>([
-        ...(daniaZMenu.get(l.id) ?? []),
-        ...l.kuchnie.flatMap((k) => Z_KUCHNI[k] ?? []),
-        ...(Z_TYPU[l.typ] ?? Z_TYPU.restaurant),
+      ...new Set<Candidate>([
+        ...(dishesFromMenu.get(l.id) ?? []),
+        ...l.kuchnie.flatMap((k) => BY_CUISINE[k] ?? []),
+        ...(BY_TYPE[l.typ] ?? BY_TYPE.restaurant),
       ]),
-    ].filter((k) => zdjecie(k)),
+    ].filter((k) => photo(k)),
   }));
-  listy.sort((a, b) => a.lista.length - b.lista.length || a.id - b.id);
+  lists.sort((a, b) => a.lista.length - b.lista.length || a.id - b.id);
 
-  const uzyte = new Set<Kandydat>();
-  const wynik = new Map<number, ZdjecieLokalu>();
-  for (const { id, lista } of listy) {
-    const k = lista.find((k) => !uzyte.has(k)) ?? WSZYSTKIE.find((k) => !uzyte.has(k)) ?? lista[0];
+  const used = new Set<Candidate>();
+  const result = new Map<number, VenuePhoto>();
+  for (const { id, lista } of lists) {
+    const k = lista.find((k) => !used.has(k)) ?? ALL.find((k) => !used.has(k)) ?? lista[0];
     if (!k) continue;
-    uzyte.add(k);
-    wynik.set(id, zdjecie(k)!);
+    used.add(k);
+    result.set(id, photo(k)!);
   }
-  return wynik;
+  return result;
 }

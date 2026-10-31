@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useLista } from "@/components/menu/useLista";
+import { useOrderList } from "@/components/menu/useLista";
 
 /**
  * Baner motywu lokalu z jego maskotką: postać kołysze się, nad miską unosi się para, a gdy ktoś doda danie do listy
  * (albo je zdejmie), podskakuje — `key` z liczbą pozycji odtwarza animację od nowa. Pod nią nazwa (<h1> strony)
  * krojem ozdobnym, `haslo` i adres. Maskotka to grafika lokalu (public/motywy/…) — tylko za jego zgodą.
  */
-export default function BanerLudzik({
+export default function MascotBanner({
   slug,
   nazwa,
   znak,
@@ -21,7 +21,7 @@ export default function BanerLudzik({
   haslo?: string;
   podpis: string;
 }) {
-  const { liczba } = useLista(slug);
+  const { liczba } = useOrderList(slug);
   return (
     <div className="px-5 pt-16 pb-6 text-center sm:pt-20">
       <div aria-hidden className="ludzik-kolysanie relative mx-auto w-32 sm:w-40">

@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { reka } from "../szkic/szkic";
+import { hand } from "../szkic/szkic";
 
-export default function Naglowek({ start = "/" }: { start?: string }) {
+export default function Header({ start = "/" }: { start?: string }) {
   return (
     <header className="naglowek sticky top-0 z-40 border-b-2 border-dashed border-obrys-2 bg-[#fffdf7]/90 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-8 px-5">
@@ -14,7 +14,7 @@ export default function Naglowek({ start = "/" }: { start?: string }) {
             Wszystkie lokale
           </Link>
         </nav>
-        <span aria-hidden className={`${reka.className} ml-auto hidden -rotate-3 text-xl text-akcent-tekst sm:block`}>
+        <span aria-hidden className={`${hand.className} ml-auto hidden -rotate-3 text-xl text-akcent-tekst sm:block`}>
           smacznego!
         </span>
         <Link

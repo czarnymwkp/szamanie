@@ -20,9 +20,9 @@ import { readFileSync } from "node:fs";
 import { openDatabase } from "../src/lib/db/otworz.mjs";
 import { slugify } from "../src/lib/slug.mjs";
 
-const PLIK = "dane/lokale-spoza-osm.txt";
-const TYPY = new Set(["restaurant", "fast_food", "cafe", "pub", "bar", "ice_cream", "food_court"]);
-const KLUCZE = {
+const FILE = "dane/lokale-spoza-osm.txt";
+const TYPES = new Set(["restaurant", "fast_food", "cafe", "pub", "bar", "ice_cream", "food_court"]);
+const KEYS = {
   typ: "typ",
   kuchnie: "kuchnie",
   gmina: "gmina",
@@ -41,35 +41,35 @@ const KLUCZE = {
   źródło: null,
 };
 
-function wczytaj() {
-  const lokale = [];
-  let lokal = null;
-  readFileSync(PLIK, "utf8")
+function load() {
+  const venues = [];
+  let venue = null;
+  readFileSync(FILE, "utf8")
     .split(/\r?\n/)
-    .forEach((surowa, i) => {
-      const linia = surowa.trim();
-      if (!linia || linia.startsWith("# ")) return;
-      const naglowek = linia.match(/^==\s*(.+?)\s*==$/);
-      if (naglowek) {
-        lokal = { nazwa: naglowek[1], linia: i + 1 };
-        lokale.push(lokal);
+    .forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line || line.startsWith("# ")) return;
+      const heading = line.match(/^==\s*(.+?)\s*==$/);
+      if (heading) {
+        venue = { nazwa: heading[1], linia: i + 1 };
+        venues.push(venue);
         return;
       }
-      const m = linia.match(/^([^:]+):\s*(.*)$/);
-      if (!lokal || !m || !(m[1].toLowerCase() in KLUCZE)) throw new Error(`${PLIK}:${i + 1}: nie rozumiem „${linia}”`);
-      const klucz = KLUCZE[m[1].toLowerCase()];
-      if (klucz) lokal[klucz] = m[2].trim();
+      const m = line.match(/^([^:]+):\s*(.*)$/);
+      if (!venue || !m || !(m[1].toLowerCase() in KEYS)) throw new Error(`${FILE}:${i + 1}: nie rozumiem „${line}”`);
+      const key = KEYS[m[1].toLowerCase()];
+      if (key) venue[key] = m[2].trim();
     });
-  return lokale;
+  return venues;
 }
 
-function sprawdz(l) {
-  const gdzie = `${PLIK}:${l.linia} (${l.nazwa})`;
-  if (!TYPY.has(l.typ)) throw new Error(`${gdzie}: typ musi być jednym z: ${[...TYPY].join(", ")}`);
+function check(l) {
+  const where = `${FILE}:${l.linia} (${l.nazwa})`;
+  if (!TYPES.has(l.typ)) throw new Error(`${where}: typ musi być jednym z: ${[...TYPES].join(", ")}`);
   const [lat, lon] = (l.wspolrzedne ?? "").split(",").map(Number);
-  if (!(lat > 49 && lat < 55 && lon > 14 && lon < 25)) throw new Error(`${gdzie}: brak albo złe współrzędne`);
-  if (!l.gmina || !l.miejscowosc) throw new Error(`${gdzie}: potrzebne gmina i miejscowość`);
-  const takNie = (t) => (/^tak$/i.test(t ?? "") ? 1 : 0);
+  if (!(lat > 49 && lat < 55 && lon > 14 && lon < 25)) throw new Error(`${where}: brak albo złe współrzędne`);
+  if (!l.gmina || !l.miejscowosc) throw new Error(`${where}: potrzebne gmina i miejscowość`);
+  const yesNo = (t) => (/^tak$/i.test(t ?? "") ? 1 : 0);
   return {
     slug: slugify(`${l.nazwa} ${l.miejscowosc}`),
     nazwa: l.nazwa,
@@ -86,33 +86,33 @@ function sprawdz(l) {
     email: l.email ?? null,
     menu_url: l.menu_url ?? null,
     godziny: l.godziny ?? null,
-    dostawa: takNie(l.dostawa),
-    na_wynos: takNie(l.na_wynos),
+    dostawa: yesNo(l.dostawa),
+    na_wynos: yesNo(l.na_wynos),
     opis: l.opis ?? null,
   };
 }
 
-const lokale = wczytaj().map(sprawdz);
+const venueRows = load().map(check);
 const db = openDatabase();
-const istniejacy = db.prepare("SELECT id, osm_id FROM lokale WHERE slug = ?");
-const POLA = Object.keys(lokale[0] ?? {}).filter((p) => p !== "slug");
-const wstaw = db.prepare(
-  `INSERT INTO lokale (slug, ${POLA.join(", ")}, osm_id, reczna_edycja)
-   VALUES (@slug, ${POLA.map((p) => "@" + p).join(", ")}, NULL, 1)`,
+const existingOne = db.prepare("SELECT id, osm_id FROM lokale WHERE slug = ?");
+const FIELDS = Object.keys(venueRows[0] ?? {}).filter((p) => p !== "slug");
+const insert = db.prepare(
+  `INSERT INTO lokale (slug, ${FIELDS.join(", ")}, osm_id, reczna_edycja)
+   VALUES (@slug, ${FIELDS.map((p) => "@" + p).join(", ")}, NULL, 1)`,
 );
-const zmien = db.prepare(
-  `UPDATE lokale SET ${POLA.map((p) => `${p} = @${p}`).join(", ")}, zaktualizowano = datetime('now') WHERE slug = @slug`,
+const change = db.prepare(
+  `UPDATE lokale SET ${FIELDS.map((p) => `${p} = @${p}`).join(", ")}, zaktualizowano = datetime('now') WHERE slug = @slug`,
 );
 
-for (const l of lokale) {
-  const jest = istniejacy.get(l.slug);
-  if (jest?.osm_id) {
-    console.warn(`${l.slug}: ten lokal jest już w OSM (${jest.osm_id}) — popraw go przez „npm run popraw”. Pomijam.`);
-  } else if (jest) {
-    zmien.run(l);
+for (const l of venueRows) {
+  const exists = existingOne.get(l.slug);
+  if (exists?.osm_id) {
+    console.warn(`${l.slug}: ten lokal jest już w OSM (${exists.osm_id}) — popraw go przez „npm run popraw”. Pomijam.`);
+  } else if (exists) {
+    change.run(l);
     console.log(`${l.slug}: zaktualizowano.`);
   } else {
-    wstaw.run(l);
+    insert.run(l);
     console.log(`${l.slug}: dodano.`);
   }
 }

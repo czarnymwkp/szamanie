@@ -1,9 +1,9 @@
 // Zdjęcia poglądowe dań — przy pozycji menu, dopóki lokal nie doda własnego zdjęcia.
 // Pliki w public/zdjecia/dania/ (kwadrat 600×600). Źródła i licencje są wypisane na stronie /autorzy-zdjec.
 // Danie bez pasującej reguły (albo z kluczem bez zdjęcia) nie ma zdjęcia — lepsze to niż zdjęcie czegoś innego.
-import { bezPolskich } from "./slug.mjs";
+import { stripPolish } from "./slug.mjs";
 
-export type KluczDania =
+export type DishKey =
   | "pizza"
   | "pizza-margherita"
   | "pizza-salami"
@@ -82,7 +82,7 @@ export type KluczDania =
   | "shot"
   | "whisky";
 
-export type ZdjecieDania = {
+export type DishPhoto = {
   plik: string;
   opis: string; // co widać na zdjęciu (strona z autorami)
   autor: string;
@@ -90,10 +90,10 @@ export type ZdjecieDania = {
   zrodlo: string;
 };
 
-const p = (plik: string) => `/zdjecia/dania/${plik}.jpg`;
+const p = (file: string) => `/zdjecia/dania/${file}.jpg`;
 
 // Rosół celowo bez zdjęcia — w wolnych zasobach są tylko azjatyckie zupy z makaronem.
-export const ZDJECIA_DAN: Partial<Record<KluczDania, ZdjecieDania>> = {
+export const DISH_PHOTOS: Partial<Record<DishKey, DishPhoto>> = {
   pizza: {
     plik: p("pizza"),
     opis: "Pizza w całości",
@@ -628,10 +628,10 @@ export const ZDJECIA_DAN: Partial<Record<KluczDania, ZdjecieDania>> = {
   },
 };
 
-type Regula = [RegExp, KluczDania | null];
+type Rule = [RegExp, DishKey | null];
 
 // Pizza po składnikach: nazwa + opis. Kolejność ma znaczenie — pierwsza pasująca reguła wygrywa.
-const PIZZA: Regula[] = [
+const PIZZA: Rule[] = [
   [/nutell/, null], // pizza na słodko — żadne ze zdjęć nie pasuje
   [/calzone|zawijan/, "calzone"],
   [/ananas|hawaj/, "pizza-hawajska"],
@@ -642,7 +642,7 @@ const PIZZA: Regula[] = [
 ];
 
 // Makaron po sosie: nazwa + opis.
-const MAKARON: Regula[] = [
+const PASTA: Rule[] = [
   [/carbonar/, "carbonara"],
   [/krewet|owoce morza|owocami morza|gamber|mare\b|scampi/, "makaron-owoce-morza"],
   [/pesto/, "pesto"],
@@ -650,7 +650,7 @@ const MAKARON: Regula[] = [
 ];
 
 // Pozostałe dania — tylko po nazwie (opis typu „lody waniliowe” przy szarlotce zmyliłby reguły).
-const PO_NAZWIE: Regula[] = [
+const BY_NAME: Rule[] = [
   [/pierog/, "pierogi"],
   [/(krem|zupa).*pomidor|pomidorowa/, "zupa-pomidorowa"],
   [/(krem|zupa).*dyni/, "zupa-dyniowa"],
@@ -704,13 +704,13 @@ const PO_NAZWIE: Regula[] = [
   [/finlandia|stumbras|wodka/, "shot"],
 ];
 
-const pierwsza = (reguly: Regula[], tekst: string) => reguly.find(([wzor]) => wzor.test(tekst));
+const first = (rules: Rule[], text: string) => rules.find(([wzor]) => wzor.test(text));
 
 /** Które zdjęcie poglądowe pasuje do pozycji menu; null, gdy żadne. */
-export function kluczDania(sekcja: string, nazwa: string, opis: string | null): KluczDania | null {
-  const s = bezPolskich(sekcja);
-  const n = bezPolskich(nazwa);
-  const no = `${n} ${bezPolskich(opis ?? "")}`;
+export function dishKey(section: string, name: string, description: string | null): DishKey | null {
+  const s = stripPolish(section);
+  const n = stripPolish(name);
+  const no = `${n} ${stripPolish(description ?? "")}`;
 
   if (/dodat/.test(s) || /^(dodat|opakow|sos\b|sok do)/.test(n)) return null;
 
@@ -719,7 +719,7 @@ export function kluczDania(sekcja: string, nazwa: string, opis: string | null): 
   if (/gnocchi/.test(n)) return "gnocchi";
   if (/raviol/.test(n)) return "ravioli";
   if (/pizz|calzone/.test(s) || /pizz/.test(n)) {
-    const r = pierwsza(PIZZA, no);
+    const r = first(PIZZA, no);
     if (r) return r[1];
     return /mozzarell|\bser\b/.test(no) && !/pomidor|\bsos\b/.test(no) ? "pizza-biala" : "pizza"; // ser bez sosu = biała
   }
@@ -731,12 +731,12 @@ export function kluczDania(sekcja: string, nazwa: string, opis: string | null): 
   if (/salat|insalat/.test(s) || /salat|insalat/.test(n)) {
     return /cezar|caesar/.test(n) ? "salatka-cezar" : /greck/.test(n) ? "salatka-grecka" : "salatka";
   }
-  const zupa = /rosol|zup|krem\b|pomidorowa|flak|zurek|kwasnic/.test(n); // „Rosół z makaronem” to nie makaron
-  if (!zupa && (/makaron/.test(s) || /makaron|spaghetti|penne|tagliatel|linguin|bucatini|rigatoni|fettucc/.test(n))) {
-    return pierwsza(MAKARON, no)?.[1] ?? "makaron-kremowy";
+  const soup = /rosol|zup|krem\b|pomidorowa|flak|zurek|kwasnic/.test(n); // „Rosół z makaronem” to nie makaron
+  if (!soup && (/makaron/.test(s) || /makaron|spaghetti|penne|tagliatel|linguin|bucatini|rigatoni|fettucc/.test(n))) {
+    return first(PASTA, no)?.[1] ?? "makaron-kremowy";
   }
 
-  const r = pierwsza(PO_NAZWIE, n);
+  const r = first(BY_NAME, n);
   if (r) return r[1];
   // Po sekcji albo opisie, gdy nazwa nic nie mówi („Spice Cinnamon”, „Pornstar Martini”, „Cantina Borba Bianco”).
   if (/herbat|rooibos/.test(no)) return "herbata";
@@ -748,7 +748,7 @@ export function kluczDania(sekcja: string, nazwa: string, opis: string | null): 
 }
 
 /** Ścieżka zdjęcia poglądowego dla pozycji menu; null, gdy nie mamy pasującego. */
-export function zdjecieDania(sekcja: string, nazwa: string, opis: string | null) {
-  const klucz = kluczDania(sekcja, nazwa, opis);
-  return (klucz && ZDJECIA_DAN[klucz]?.plik) || null;
+export function dishPhoto(section: string, name: string, description: string | null) {
+  const key = dishKey(section, name, description);
+  return (key && DISH_PHOTOS[key]?.plik) || null;
 }

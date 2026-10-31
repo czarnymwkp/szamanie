@@ -1,7 +1,7 @@
 import { Minus, Plus } from "lucide-react";
 
 /** Okrągły „+”, a po dodaniu: − ilość +. */
-export default function Licznik({
+export default function Counter({
   ile,
   nazwa,
   dodaj,

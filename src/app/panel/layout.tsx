@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import KontoWNaglowku from "./KontoWNaglowku";
+import HeaderAccount from "./KontoWNaglowku";
 
 export const metadata: Metadata = {
   title: { default: "Panel lokalu", template: "%s · Panel lokalu" },
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 // Panel zależy od zalogowanego konta (ciasteczko), więc nie ma czego prerenderować — strony czekają na serwer.
 export const instant = false;
 
-export default function UkladPanelu({ children }: LayoutProps<"/panel">) {
+export default function PanelLayout({ children }: LayoutProps<"/panel">) {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-obrys bg-white/90 backdrop-blur-md">
@@ -24,18 +24,18 @@ export default function UkladPanelu({ children }: LayoutProps<"/panel">) {
             Panel lokalu
           </Link>
           <Suspense fallback={null}>
-            <KontoWNaglowku />
+            <HeaderAccount />
           </Suspense>
         </div>
       </header>
       <main id="tresc" className="mx-auto w-full max-w-4xl flex-1 px-4 pt-6 pb-24 sm:pt-10">
-        <Suspense fallback={<Ladowanie />}>{children}</Suspense>
+        <Suspense fallback={<Loading />}>{children}</Suspense>
       </main>
     </>
   );
 }
 
-function Ladowanie() {
+function Loading() {
   return (
     <div aria-busy className="animate-pulse space-y-4">
       <div className="h-9 w-2/3 rounded-xl bg-obrys" />

@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { cenyDan, promocjeDoEdycji } from "@/lib/panel/lokal";
-import { wymagajLokalu } from "@/lib/panel/konta";
-import { usunPromocje, zapiszPromocje } from "../akcje";
-import Promocje from "./Promocje";
+import { dishPrices, promotionsDraft } from "@/lib/panel/lokal";
+import { requireVenue } from "@/lib/panel/konta";
+import { deletePromotionAction, savePromotionAction } from "../akcje";
+import Promotions from "./Promocje";
 
 export const metadata: Metadata = { title: "Promocje" };
 
 // strona zależy od konta i adresu — czeka na serwer (jak cały panel)
 export const instant = false;
 
-export default async function StronaPromocji({ params }: PageProps<"/panel/[slug]/promocje">) {
+export default async function PromotionsPage({ params }: PageProps<"/panel/[slug]/promocje">) {
   const { slug } = await params;
-  const { lokal } = await wymagajLokalu(slug);
+  const { lokal } = await requireVenue(slug);
   return (
-    <Promocje
-      promocje={promocjeDoEdycji(lokal.id)}
-      dania={cenyDan(lokal.id)}
-      zapisz={zapiszPromocje.bind(null, slug)}
-      usun={usunPromocje.bind(null, slug)}
+    <Promotions
+      promocje={promotionsDraft(lokal.id)}
+      dania={dishPrices(lokal.id)}
+      zapisz={savePromotionAction.bind(null, slug)}
+      usun={deletePromotionAction.bind(null, slug)}
     />
   );
 }

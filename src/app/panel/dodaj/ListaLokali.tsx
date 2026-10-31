@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 import { useDeferredValue, useState } from "react";
-import { kartaRamka, pole } from "@/components/panel/style";
-import { bezPolskich } from "@/lib/slug.mjs";
+import { framedCard, field } from "@/components/panel/style";
+import { stripPolish } from "@/lib/slug.mjs";
 
-type Lokal = { slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
+type Venue = { slug: string; nazwa: string; adres: string | null; miejscowosc: string | null };
 
 /** Lista lokali z wyszukiwarką; `prefiks` — dokąd prowadzi wiersz (zgłoszenie albo, dla admina, panel lokalu). */
-export default function ListaLokali({ lokale, prefiks = "/panel/przejmij/" }: { lokale: Lokal[]; prefiks?: string }) {
+export default function VenueList({ lokale, prefiks = "/panel/przejmij/" }: { lokale: Venue[]; prefiks?: string }) {
   const [fraza, setFraza] = useState("");
-  const f = bezPolskich(useDeferredValue(fraza).trim());
-  const wyniki = f
-    ? lokale.filter((l) => bezPolskich(`${l.nazwa} ${l.adres ?? ""} ${l.miejscowosc ?? ""}`).includes(f))
+  const f = stripPolish(useDeferredValue(fraza).trim());
+  const results = f
+    ? lokale.filter((l) => stripPolish(`${l.nazwa} ${l.adres ?? ""} ${l.miejscowosc ?? ""}`).includes(f))
     : lokale;
 
   return (
@@ -25,11 +25,11 @@ export default function ListaLokali({ lokale, prefiks = "/panel/przejmij/" }: { 
           value={fraza}
           onChange={(e) => setFraza(e.target.value)}
           placeholder="Nazwa lokalu albo ulica"
-          className={`${pole} pl-11`}
+          className={`${field} pl-11`}
         />
       </label>
-      <ul className={`${kartaRamka} divide-y divide-obrys`}>
-        {wyniki.slice(0, 60).map((l) => (
+      <ul className={`${framedCard} divide-y divide-obrys`}>
+        {results.slice(0, 60).map((l) => (
           <li key={l.slug}>
             <Link href={`${prefiks}${l.slug}`} className="flex items-center gap-3 px-5 py-3.5 transition hover:bg-krem">
               <span className="min-w-0 flex-1">
@@ -42,7 +42,7 @@ export default function ListaLokali({ lokale, prefiks = "/panel/przejmij/" }: { 
             </Link>
           </li>
         ))}
-        {!wyniki.length && <li className="px-5 py-4 text-tekst-2">Nic nie pasuje do „{fraza}”.</li>}
+        {!results.length && <li className="px-5 py-4 text-tekst-2">Nic nie pasuje do „{fraza}”.</li>}
       </ul>
     </div>
   );

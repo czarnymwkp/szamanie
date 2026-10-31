@@ -1,62 +1,62 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { SzczegolyPrzyjec } from "@/components/Przyjecia";
-import { Pigulki, Sekcja } from "@/components/StronaFrazy";
-import SzablonLokalu from "@/components/szablony";
-import { godzinySchemaOrg, parsujGodziny } from "@/lib/godziny";
+import { EventDetails } from "@/components/Przyjecia";
+import { Pills, Section } from "@/components/StronaFrazy";
+import VenueTemplate from "@/components/szablony";
+import { schemaOrgHours, parseHours } from "@/lib/godziny";
 import { SITE_URL } from "@/lib/konfiguracja";
-import { pobierzLokal, pobierzLokale, type Lokal } from "@/lib/lokale";
-import { pobierzMenu, type Menu } from "@/lib/menu";
-import { linkFacebooka, linkWww, nazwaKuchni, opisLokalu, pelnyAdres } from "@/lib/nazwy";
-import { przyjeciaLokalu } from "@/lib/przyjecia";
-import { doIndeksu, kategorieZeStrona, lokaleKategorii, obszaryZeStrona, tytulStrony, type Obszar } from "@/lib/seo";
+import { getVenue, getVenues, type Venue } from "@/lib/lokale";
+import { getMenu, type Menu } from "@/lib/menu";
+import { facebookUrl, websiteUrl, cuisineName, venueDescription, fullAddress } from "@/lib/nazwy";
+import { venueEvents } from "@/lib/przyjecia";
+import { toIndex, categoriesWithPage, categoryVenues, areasWithPage, pageTitle, type Area } from "@/lib/seo";
 
 // Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
-  const lokale = await pobierzLokale();
+  const venues = await getVenues();
   // Cache Components wymaga co najmniej jednego parametru; pusta baza → strona 404.
-  return lokale.length ? lokale.map((l) => ({ slug: l.slug })) : [{ slug: "brak" }];
+  return venues.length ? venues.map((l) => ({ slug: l.slug })) : [{ slug: "brak" }];
 }
 
 export async function generateMetadata({ params }: PageProps<"/lokal/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const lokal = await pobierzLokal(slug);
-  if (!lokal) return {};
-  const [menu, lokale, indeks] = await Promise.all([pobierzMenu(lokal.id), pobierzLokale(), doIndeksu(lokal)]);
-  const miasto = lokal.miejscowosc ?? "Kraśnik";
+  const venue = await getVenue(slug);
+  if (!venue) return {};
+  const [menu, lokale, indeks] = await Promise.all([getMenu(venue.id), getVenues(), toIndex(venue)]);
+  const city = venue.miejscowosc ?? "Kraśnik";
   // „Zapiekanki Kraśnik - Bar Przekąskowy” bez drugiego „Kraśnik”; lokale o tej samej nazwie w tej samej
   // miejscowości (trzy lodziarnie Sandomierskiej Manufaktury Lodów) rozróżnia ulica — krótko, bez imion i stopni
   // („Generała Władysława Sikorskiego 7a” → „Sikorskiego 7a”), bo tytuł i tak jest długi.
-  const ulica = lokal.adres?.match(/(?:(?:Plac|Aleja|Al\.|Rynek|Osiedle|Os\.) )?\S+ \d\S*$/)?.[0] ?? lokal.adres;
-  const gdzie = [
-    lokal.nazwa.toLowerCase().includes(miasto.toLowerCase()) ? "" : ` ${miasto}`,
-    ulica && lokale.some((l) => l.id !== lokal.id && l.nazwa === lokal.nazwa && l.miejscowosc === lokal.miejscowosc)
-      ? `, ${ulica}`
+  const street = venue.adres?.match(/(?:(?:Plac|Aleja|Al\.|Rynek|Osiedle|Os\.) )?\S+ \d\S*$/)?.[0] ?? venue.adres;
+  const where = [
+    venue.nazwa.toLowerCase().includes(city.toLowerCase()) ? "" : ` ${city}`,
+    street && lokale.some((l) => l.id !== venue.id && l.nazwa === venue.nazwa && l.miejscowosc === venue.miejscowosc)
+      ? `, ${street}`
       : "",
   ].join("");
-  const uslugi = [lokal.dostawa && "dowóz", lokal.naWynos && "na wynos"].filter(Boolean).join(" i ");
+  const services = [venue.dostawa && "dowóz", venue.naWynos && "na wynos"].filter(Boolean).join(" i ");
   // rodzaj i najwyżej dwie kuchnie — pełna lista („Kawa · Lody · Makarony · Sałatki…”) wydłuża opis ponad 160 znaków
-  const rodzaj = opisLokalu(lokal).split(" · ").slice(0, 3).join(" · ");
+  const kind = venueDescription(venue).split(" · ").slice(0, 3).join(" · ");
   // Z menu tytuł łapie wyszukiwania „<lokal> Kraśnik menu”, „… ceny”. Nazwa w opisie, bo bez niej pięć kebabów
   // miałoby ten sam opis.
-  const pelny = `${lokal.nazwa}${gdzie} — ${menu ? "menu i ceny" : "godziny i telefon"}`;
+  const fullPath = `${venue.nazwa}${where} — ${menu ? "menu i ceny" : "godziny i telefon"}`;
   // bardzo długa nazwa (z ulicą): krótsza końcówka, żeby całość zmieściła się w wyniku Google
-  const tytul = pelny.length > 60 ? `${lokal.nazwa}${gdzie} — ${menu ? "menu" : "godziny"}` : pelny;
+  const title = fullPath.length > 60 ? `${venue.nazwa}${where} — ${menu ? "menu" : "godziny"}` : fullPath;
   return {
     // długa nazwa lokalu: bez „ | szamanie.pl” na końcu, żeby Google nie uciął „menu i ceny”
-    title: tytulStrony(tytul),
+    title: pageTitle(title),
     description: menu
-      ? `${lokal.nazwa}: menu z cenami (${menu.liczba} pozycji), godziny otwarcia, telefon i dojazd. ${rodzaj}, ${pelnyAdres(lokal)}.`
-      : `${lokal.nazwa} — ${rodzaj}, ${pelnyAdres(lokal)}. ${uslugi ? `${uslugi[0].toUpperCase()}${uslugi.slice(1)}. ` : ""}Sprawdź godziny otwarcia, telefon i dojazd.`,
-    alternates: { canonical: `/lokal/${lokal.slug}` },
+      ? `${venue.nazwa}: menu z cenami (${menu.liczba} pozycji), godziny otwarcia, telefon i dojazd. ${kind}, ${fullAddress(venue)}.`
+      : `${venue.nazwa} — ${kind}, ${fullAddress(venue)}. ${services ? `${services[0].toUpperCase()}${services.slice(1)}. ` : ""}Sprawdź godziny otwarcia, telefon i dojazd.`,
+    alternates: { canonical: `/lokal/${venue.slug}` },
     ...(!indeks && { robots: { index: false, follow: true } }),
   };
 }
 
-const TYPY_SCHEMA: Record<string, string> = {
+const SCHEMA_TYPES: Record<string, string> = {
   restaurant: "Restaurant",
   fast_food: "FastFoodRestaurant",
   cafe: "CafeOrCoffeeShop",
@@ -66,26 +66,26 @@ const TYPY_SCHEMA: Record<string, string> = {
 };
 
 // Dane strukturalne dla Google (schema.org), żeby lokal mógł się pokazać z adresem, godzinami i menu.
-function daneStrukturalne(lokal: Lokal, menu: Menu | null) {
-  const tydzien = parsujGodziny(lokal.godziny);
+function structuredData(venue: Venue, menu: Menu | null) {
+  const week = parseHours(venue.godziny);
   return {
     "@context": "https://schema.org",
-    "@type": TYPY_SCHEMA[lokal.typ] ?? "FoodEstablishment",
-    name: lokal.nazwa,
-    url: `${SITE_URL}/lokal/${lokal.slug}`,
-    telephone: lokal.telefon ?? undefined,
+    "@type": SCHEMA_TYPES[venue.typ] ?? "FoodEstablishment",
+    name: venue.nazwa,
+    url: `${SITE_URL}/lokal/${venue.slug}`,
+    telephone: venue.telefon ?? undefined,
     address: {
       "@type": "PostalAddress",
-      streetAddress: lokal.adres ?? undefined,
-      addressLocality: lokal.miejscowosc ?? undefined,
+      streetAddress: venue.adres ?? undefined,
+      addressLocality: venue.miejscowosc ?? undefined,
       addressCountry: "PL",
     },
-    geo: { "@type": "GeoCoordinates", latitude: lokal.lat, longitude: lokal.lon },
-    servesCuisine: lokal.kuchnie.length ? lokal.kuchnie.map(nazwaKuchni) : undefined,
-    openingHours: tydzien ? godzinySchemaOrg(tydzien) : undefined,
+    geo: { "@type": "GeoCoordinates", latitude: venue.lat, longitude: venue.lon },
+    servesCuisine: venue.kuchnie.length ? venue.kuchnie.map(cuisineName) : undefined,
+    openingHours: week ? schemaOrgHours(week) : undefined,
     sameAs:
-      lokal.www || lokal.facebook
-        ? [lokal.www && linkWww(lokal.www), lokal.facebook && linkFacebooka(lokal.facebook)].filter(Boolean)
+      venue.www || venue.facebook
+        ? [venue.www && websiteUrl(venue.www), venue.facebook && facebookUrl(venue.facebook)].filter(Boolean)
         : undefined,
     hasMenu: menu
       ? {
@@ -117,83 +117,83 @@ function daneStrukturalne(lokal: Lokal, menu: Menu | null) {
 }
 
 /** Okruszki dla Google: szamanie.pl › Kraśnik › lokal (obszar tylko, gdy ma swoją stronę). */
-function okruszki(lokal: Lokal, obszar: Obszar | undefined) {
-  const sciezka = [
+function breadcrumbs(venue: Venue, area: Area | undefined) {
+  const path = [
     { name: "szamanie.pl", item: SITE_URL },
-    ...(obszar ? [{ name: obszar.nazwa, item: `${SITE_URL}/${obszar.slug}` }] : []),
-    { name: lokal.nazwa, item: `${SITE_URL}/lokal/${lokal.slug}` },
+    ...(area ? [{ name: area.nazwa, item: `${SITE_URL}/${area.slug}` }] : []),
+    { name: venue.nazwa, item: `${SITE_URL}/lokal/${venue.slug}` },
   ];
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: sciezka.map((o, i) => ({ "@type": "ListItem", position: i + 1, ...o })),
+    itemListElement: path.map((o, i) => ({ "@type": "ListItem", position: i + 1, ...o })),
   };
 }
 
 // Treść zależna od adresu jest w <Suspense>, żeby wspólny szkielet strony mógł się pokazać od razu.
 // Karty na liście mają prefetch, więc przy kliknięciu treść jest już pobrana i baner płynnie przechodzi.
-export default function StronaLokalu({ params }: PageProps<"/lokal/[slug]">) {
+export default function VenuePage({ params }: PageProps<"/lokal/[slug]">) {
   return (
-    <Suspense fallback={<SzkieletLokalu />}>
-      <TrescLokalu params={params} />
+    <Suspense fallback={<VenueSkeleton />}>
+      <VenueContent params={params} />
     </Suspense>
   );
 }
 
-async function TrescLokalu({ params }: Pick<PageProps<"/lokal/[slug]">, "params">) {
+async function VenueContent({ params }: Pick<PageProps<"/lokal/[slug]">, "params">) {
   const { slug } = await params;
-  const lokal = await pobierzLokal(slug);
-  if (!lokal) notFound();
-  const [menu, lokale] = await Promise.all([pobierzMenu(lokal.id), pobierzLokale()]);
+  const venue = await getVenue(slug);
+  if (!venue) notFound();
+  const [menu, lokale] = await Promise.all([getMenu(venue.id), getVenues()]);
   // Linki do stron fraz, na których jest ten lokal („Pizza w Kraśniku”…).
-  const obszar = obszaryZeStrona(lokale).find((o) => lokal.gmina && [...o.gminy, ...o.okolica].includes(lokal.gmina));
-  const linki = obszar
+  const area = areasWithPage(lokale).find((o) => venue.gmina && [...o.gminy, ...o.okolica].includes(venue.gmina));
+  const links = area
     ? [
-        ...kategorieZeStrona(lokale, obszar)
+        ...categoriesWithPage(lokale, area)
           .filter((k) => {
-            const { w, okolica } = lokaleKategorii([lokal], obszar, k);
+            const { w, okolica } = categoryVenues([venue], area, k);
             return w.length + okolica.length > 0;
           })
-          .map((k) => ({ nazwa: `${k.nazwa} ${obszar.w}`, adres: `/${obszar.slug}/${k.slug}` })),
-        { nazwa: `Gdzie zjeść ${obszar.w}`, adres: `/${obszar.slug}` },
+          .map((k) => ({ nazwa: `${k.nazwa} ${area.w}`, adres: `/${area.slug}/${k.slug}` })),
+        { nazwa: `Gdzie zjeść ${area.w}`, adres: `/${area.slug}` },
       ]
     : [];
-  const przyjecia = przyjeciaLokalu(lokal);
-  if (przyjecia) linki.push({ nazwa: "Sale weselne i na przyjęcia", adres: "/sale-weselne" });
+  const events = venueEvents(venue);
+  if (events) links.push({ nazwa: "Sale weselne i na przyjęcia", adres: "/sale-weselne" });
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify([daneStrukturalne(lokal, menu), okruszki(lokal, obszar)]).replace(/</g, "\\u003c"),
+          __html: JSON.stringify([structuredData(venue, menu), breadcrumbs(venue, area)]).replace(/</g, "\\u003c"),
         }}
       />
-      <SzablonLokalu lokal={lokal} />
-      {przyjecia && (
+      <VenueTemplate lokal={venue} />
+      {events && (
         <div className="mx-auto max-w-5xl px-5">
-          <Sekcja id="przyjecia" tytul="Wesela i przyjęcia">
+          <Section id="przyjecia" tytul="Wesela i przyjęcia">
             <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="font-semibold text-tekst-2">
-                {lokal.nazwa} organizuje przyjęcia. O wolny termin i menu zapytaj przez telefon.
+                {venue.nazwa} organizuje przyjęcia. O wolny termin i menu zapytaj przez telefon.
               </p>
-              <SzczegolyPrzyjec przyjecia={przyjecia} />
+              <EventDetails przyjecia={events} />
             </div>
-          </Sekcja>
+          </Section>
         </div>
       )}
-      {linki.length > 0 && (
+      {links.length > 0 && (
         <div className="mx-auto max-w-5xl px-5">
-          <Sekcja id="zobacz-tez" tytul="Zobacz też">
-            <Pigulki linki={linki} />
-          </Sekcja>
+          <Section id="zobacz-tez" tytul="Zobacz też">
+            <Pills linki={links} />
+          </Section>
         </div>
       )}
     </>
   );
 }
 
-function SzkieletLokalu() {
+function VenueSkeleton() {
   return (
     // wysoki na cały ekran: przy pierwszym wczytaniu stopka nie mignie tuż pod szkieletem i nie skoczy w dół (CLS)
     <div aria-busy="true" aria-label="Wczytywanie lokalu" className="min-h-svh animate-pulse">

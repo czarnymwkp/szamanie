@@ -6,7 +6,7 @@ import { useSyncExternalStore } from "react";
  * Jedna pozycja na liście do zamówienia. gr = null, gdy lokal nie podał ceny.
  * kto = imię osoby, od której pozycja przyszła w linku „Zamawiamy razem” (razem.ts); bez niego — moja.
  */
-export type PozycjaListy = {
+export type ListItem = {
   klucz: string;
   nazwa: string;
   wariant: string | null;
@@ -15,104 +15,104 @@ export type PozycjaListy = {
   kto?: string;
 };
 /** strefa = nazwa strefy dostawy albo ODBIOR; null = jeszcze nie wybrano. */
-export type Lista = { pozycje: PozycjaListy[]; uwagi: string; strefa: string | null };
+export type OrderList = { pozycje: ListItem[]; uwagi: string; strefa: string | null };
 
-export const ODBIOR = "odbior";
-const PUSTA: Lista = { pozycje: [], uwagi: "", strefa: null };
+export const PICKUP = "odbior";
+const EMPTY: OrderList = { pozycje: [], uwagi: "", strefa: null };
 
 // Lista żyje w przeglądarce (bez konta i bez serwera): osobno dla każdego lokalu, w localStorage.
 // Gdy localStorage jest niedostępny (tryb prywatny), lista działa do zamknięcia karty.
-const klucz = (slug: string) => `szamanie:lista:${slug}`;
-const stan = new Map<string, Lista>();
-const sluchacze = new Set<() => void>();
+const key = (slug: string) => `szamanie:lista:${slug}`;
+const state = new Map<string, OrderList>();
+const listeners = new Set<() => void>();
 
-function zPamieci(slug: string): Lista {
+function fromStorage(slug: string): OrderList {
   try {
-    const zapisana = localStorage.getItem(klucz(slug));
-    if (zapisana) return { ...PUSTA, ...JSON.parse(zapisana) };
+    const saved = localStorage.getItem(key(slug));
+    if (saved) return { ...EMPTY, ...JSON.parse(saved) };
   } catch {}
-  return PUSTA;
+  return EMPTY;
 }
 
-function czytaj(slug: string): Lista {
-  if (!stan.has(slug)) stan.set(slug, zPamieci(slug));
-  return stan.get(slug)!;
+function read(slug: string): OrderList {
+  if (!state.has(slug)) state.set(slug, fromStorage(slug));
+  return state.get(slug)!;
 }
 
-function zapisz(slug: string, lista: Lista) {
-  stan.set(slug, lista);
+function save(slug: string, list: OrderList) {
+  state.set(slug, list);
   try {
-    if (lista.pozycje.length || lista.uwagi) localStorage.setItem(klucz(slug), JSON.stringify(lista));
-    else localStorage.removeItem(klucz(slug));
+    if (list.pozycje.length || list.uwagi) localStorage.setItem(key(slug), JSON.stringify(list));
+    else localStorage.removeItem(key(slug));
   } catch {}
-  sluchacze.forEach((s) => s());
+  listeners.forEach((s) => s());
 }
 
-function subskrybuj(zmiana: () => void) {
-  sluchacze.add(zmiana);
+function subscribe(change: () => void) {
+  listeners.add(change);
   // ta sama lista otwarta w innej karcie
-  const zInnejKarty = (e: StorageEvent) => {
+  const fromOtherTab = (e: StorageEvent) => {
     if (e.key?.startsWith("szamanie:lista:")) {
-      stan.delete(e.key.slice("szamanie:lista:".length));
-      zmiana();
+      state.delete(e.key.slice("szamanie:lista:".length));
+      change();
     }
   };
-  window.addEventListener("storage", zInnejKarty);
+  window.addEventListener("storage", fromOtherTab);
   return () => {
-    sluchacze.delete(zmiana);
-    window.removeEventListener("storage", zInnejKarty);
+    listeners.delete(change);
+    window.removeEventListener("storage", fromOtherTab);
   };
 }
 
-export function kluczPozycji(id: number, wariant: string | null) {
-  return wariant ? `${id}:${wariant}` : String(id);
+export function itemKey(id: number, variant: string | null) {
+  return variant ? `${id}:${variant}` : String(id);
 }
 
-export function useLista(slug: string) {
-  const lista = useSyncExternalStore(subskrybuj, () => czytaj(slug), () => PUSTA);
-  const zmien = (nowa: Partial<Lista>) => zapisz(slug, { ...czytaj(slug), ...nowa });
+export function useOrderList(slug: string) {
+  const list = useSyncExternalStore(subscribe, () => read(slug), () => EMPTY);
+  const change = (newOne: Partial<OrderList>) => save(slug, { ...read(slug), ...newOne });
 
-  const dodaj = (p: Omit<PozycjaListy, "ilosc">) => {
-    const pozycje = czytaj(slug).pozycje;
-    const jest = pozycje.find((x) => x.klucz === p.klucz && !x.kto);
-    zmien({
-      pozycje: jest
-        ? pozycje.map((x) => (x === jest ? { ...x, ilosc: x.ilosc + 1 } : x))
-        : [...pozycje, { ...p, ilosc: 1 }],
+  const add = (p: Omit<ListItem, "ilosc">) => {
+    const items = read(slug).pozycje;
+    const exists = items.find((x) => x.klucz === p.klucz && !x.kto);
+    change({
+      pozycje: exists
+        ? items.map((x) => (x === exists ? { ...x, ilosc: x.ilosc + 1 } : x))
+        : [...items, { ...p, ilosc: 1 }],
     });
   };
   /** kto: czyja pozycja (z „Zamawiamy razem”); bez niego — moja. */
-  const zmienIlosc = (kluczPoz: string, o: number, kto?: string) =>
-    zmien({
-      pozycje: czytaj(slug)
-        .pozycje.map((x) => (x.klucz === kluczPoz && x.kto === kto ? { ...x, ilosc: x.ilosc + o } : x))
+  const changeQuantity = (itemKey: string, o: number, who?: string) =>
+    change({
+      pozycje: read(slug)
+        .pozycje.map((x) => (x.klucz === itemKey && x.kto === who ? { ...x, ilosc: x.ilosc + o } : x))
         .filter((x) => x.ilosc > 0),
     });
 
-  const liczba = lista.pozycje.reduce((s, p) => s + p.ilosc, 0);
-  const sumaGr = lista.pozycje.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
+  const count = list.pozycje.reduce((s, p) => s + p.ilosc, 0);
+  const sumGr = list.pozycje.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
   return {
-    lista,
-    liczba,
-    sumaGr,
-    bezCeny: lista.pozycje.some((p) => p.gr === null),
+    lista: list,
+    liczba: count,
+    sumaGr: sumGr,
+    bezCeny: list.pozycje.some((p) => p.gr === null),
     // licznik przy daniu w menu pokazuje tylko moje sztuki — cudze zmienia się na liście
-    ilosc: (kluczPoz: string) => lista.pozycje.find((x) => x.klucz === kluczPoz && !x.kto)?.ilosc ?? 0,
-    dodaj,
-    zmienIlosc,
-    ustawUwagi: (uwagi: string) => zmien({ uwagi }),
-    ustawStrefe: (strefa: string | null) => zmien({ strefa }),
-    wyczysc: () => zmien({ pozycje: [], uwagi: "" }),
+    ilosc: (itemKey: string) => list.pozycje.find((x) => x.klucz === itemKey && !x.kto)?.ilosc ?? 0,
+    dodaj: add,
+    zmienIlosc: changeQuantity,
+    ustawUwagi: (notes: string) => change({ uwagi: notes }),
+    ustawStrefe: (zone: string | null) => change({ strefa: zone }),
+    wyczysc: () => change({ pozycje: [], uwagi: "" }),
     /**
      * Lista z linku „Zamawiamy razem”. Pozycje pod moim imieniem wracają jako moje; gdy link mnie nie zna,
      * dochodzą do niego moje dotychczasowe pozycje (dopisane, zanim ktoś przysłał link).
      */
-    przyjmijRazem: (pozycje: PozycjaListy[], uwagi: string, mojeImie: string) => {
-      const zLinku = pozycje.map((p) => (mojeImie && p.kto === mojeImie ? { ...p, kto: undefined } : p));
-      const moje = zLinku.some((p) => !p.kto) ? [] : czytaj(slug).pozycje.filter((p) => !p.kto);
-      zmien({ pozycje: [...zLinku, ...moje], uwagi: uwagi || czytaj(slug).uwagi });
+    przyjmijRazem: (items: ListItem[], notes: string, myName: string) => {
+      const fromLink = items.map((p) => (myName && p.kto === myName ? { ...p, kto: undefined } : p));
+      const mine = fromLink.some((p) => !p.kto) ? [] : read(slug).pozycje.filter((p) => !p.kto);
+      change({ pozycje: [...fromLink, ...mine], uwagi: notes || read(slug).uwagi });
     },
   };
 }
 
-export type ListaLokalu = ReturnType<typeof useLista>;
+export type VenueOrderList = ReturnType<typeof useOrderList>;

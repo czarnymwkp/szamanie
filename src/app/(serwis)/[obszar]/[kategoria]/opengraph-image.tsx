@@ -1,32 +1,32 @@
-import { zl } from "@/lib/ceny";
-import { pobierzLokale } from "@/lib/lokale";
-import { ileLokali } from "@/lib/nazwy";
-import { ROZMIAR, obrazekUdostepnien } from "@/lib/obrazekUdostepnien";
-import { daniaKategorii, lokaleKategorii, znajdzStrone } from "@/lib/seo";
-import { ZDJECIA_KATEGORII } from "@/lib/zdjeciaKategorii";
+import { formatPln } from "@/lib/ceny";
+import { getVenues } from "@/lib/lokale";
+import { venueCount } from "@/lib/nazwy";
+import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { categoryDishes, categoryVenues, findPage } from "@/lib/seo";
+import { CATEGORY_PHOTOS } from "@/lib/zdjeciaKategorii";
 
 export const alt = "Lokale z kategorii na szamanie.pl — godziny, telefon, ceny";
-export const size = ROZMIAR;
+export const size = SIZE;
 export const contentType = "image/png";
 
-export default async function Obrazek({ params }: { params: Promise<{ obszar: string; kategoria: string }> }) {
+export default async function Image({ params }: { params: Promise<{ obszar: string; kategoria: string }> }) {
   const { obszar: o, kategoria: k } = await params;
-  const lokale = await pobierzLokale();
-  const strona = znajdzStrone(lokale, o, k);
-  if (!strona?.kategoria) return new Response(null, { status: 404 });
-  const { obszar, kategoria } = strona;
-  const { w } = lokaleKategorii(lokale, obszar, kategoria);
-  const zObszaru = new Set(w.map((l) => l.id));
-  const ceny = (await daniaKategorii(kategoria))
-    .filter((d) => zObszaru.has(d.lokalId))
+  const venues = await getVenues();
+  const page = findPage(venues, o, k);
+  if (!page?.kategoria) return new Response(null, { status: 404 });
+  const { obszar, kategoria } = page;
+  const { w } = categoryVenues(venues, obszar, kategoria);
+  const fromArea = new Set(w.map((l) => l.id));
+  const prices = (await categoryDishes(kategoria))
+    .filter((d) => fromArea.has(d.lokalId))
     .flatMap((d) => d.ceny.map((c) => c.gr));
-  return obrazekUdostepnien({
+  return shareImage({
     tytul: `${kategoria.nazwa} ${obszar.w}`,
-    podtytul: `${ileLokali(w.length)}: ${w
+    podtytul: `${venueCount(w.length)}: ${w
       .slice(0, 3)
       .map((l) => l.nazwa)
       .join(", ")}${w.length > 3 ? " i inne" : ""}.`,
-    zdjecie: ZDJECIA_KATEGORII[kategoria.zdjecie]?.plik,
-    dopisek: ceny.length ? `Ceny od ${zl(Math.min(...ceny))}` : "Godziny · telefon · dojazd",
+    zdjecie: CATEGORY_PHOTOS[kategoria.zdjecie]?.plik,
+    dopisek: prices.length ? `Ceny od ${formatPln(Math.min(...prices))}` : "Godziny · telefon · dojazd",
   });
 }

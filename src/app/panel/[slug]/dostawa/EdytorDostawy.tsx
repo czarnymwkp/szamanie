@@ -2,55 +2,55 @@
 
 import { Check, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { etykieta, karta, komunikatBledu, komunikatOk, pole, podpowiedz, przyciskGlowny, przyciskMaly } from "@/components/panel/style";
-import type { StrefaEdycja } from "@/lib/panel/lokal";
-import type { StanFormularza } from "../akcje";
+import { label, card, errorMessage, okMessage, field, hint, primaryButton, smallButton } from "@/components/panel/style";
+import type { ZoneDraft } from "@/lib/panel/lokal";
+import type { FormState } from "../akcje";
 
-type Strefa = StrefaEdycja & { k: string };
+type Zone = ZoneDraft & { k: string };
 
-let licznik = 0;
-const klucz = () => `s${++licznik}`;
-const pusta = (): Strefa => ({ k: klucz(), nazwa: "", miejsca: "", cena: "", minimum: "" });
+let counter = 0;
+const key = () => `s${++counter}`;
+const emptyList = (): Zone => ({ k: key(), nazwa: "", miejsca: "", cena: "", minimum: "" });
 
-export default function EdytorDostawy({
+export default function DeliveryEditor({
   strefy: poczatkowe,
   uwagi: poczatkoweUwagi,
   miejscowosci,
   zapisz,
 }: {
-  strefy: StrefaEdycja[];
+  strefy: ZoneDraft[];
   uwagi: string;
   miejscowosci: string[];
-  zapisz: (strefy: StrefaEdycja[], uwagi: string) => Promise<StanFormularza>;
+  zapisz: (zones: ZoneDraft[], notes: string) => Promise<FormState>;
 }) {
-  const [strefy, setStrefy] = useState<Strefa[]>(() =>
-    poczatkowe.length ? poczatkowe.map((s) => ({ ...s, k: klucz() })) : [pusta()],
+  const [strefy, setStrefy] = useState<Zone[]>(() =>
+    poczatkowe.length ? poczatkowe.map((s) => ({ ...s, k: key() })) : [emptyList()],
   );
   const [uwagi, setUwagi] = useState(poczatkoweUwagi);
-  const [stan, setStan] = useState<StanFormularza>({});
+  const [stan, setStan] = useState<FormState>({});
   const [trwa, startTransition] = useTransition();
   const [zapisane, setZapisane] = useState(() => JSON.stringify([poczatkowe, poczatkoweUwagi]));
-  const bezKluczy = strefy.map(({ nazwa, miejsca, cena, minimum }) => ({ nazwa, miejsca, cena, minimum }));
-  const zmienione =
-    JSON.stringify([bezKluczy.filter((s) => s.nazwa || s.miejsca || s.cena || s.minimum), uwagi]) !== zapisane;
+  const withoutKeys = strefy.map(({ nazwa, miejsca, cena, minimum }) => ({ nazwa, miejsca, cena, minimum }));
+  const changed =
+    JSON.stringify([withoutKeys.filter((s) => s.nazwa || s.miejsca || s.cena || s.minimum), uwagi]) !== zapisane;
 
   useEffect(() => {
-    if (!zmienione) return;
-    const ostrzez = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", ostrzez);
-    return () => window.removeEventListener("beforeunload", ostrzez);
-  }, [zmienione]);
+    if (!changed) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [changed]);
 
-  const zmien = (k: string, pole: keyof StrefaEdycja, v: string) => {
+  const change = (k: string, field: keyof ZoneDraft, v: string) => {
     setStan({});
-    setStrefy((l) => l.map((s) => (s.k === k ? { ...s, [pole]: v } : s)));
+    setStrefy((l) => l.map((s) => (s.k === k ? { ...s, [field]: v } : s)));
   };
 
-  function zapiszWszystko() {
+  function saveAll() {
     startTransition(async () => {
-      const wynik = await zapisz(bezKluczy, uwagi);
-      setStan(wynik);
-      if (wynik.ok) setZapisane(JSON.stringify([bezKluczy.filter((s) => s.nazwa || s.miejsca || s.cena || s.minimum), uwagi]));
+      const result = await zapisz(withoutKeys, uwagi);
+      setStan(result);
+      if (result.ok) setZapisane(JSON.stringify([withoutKeys.filter((s) => s.nazwa || s.miejsca || s.cena || s.minimum), uwagi]));
     });
   }
 
@@ -68,19 +68,19 @@ export default function EdytorDostawy({
 
       <ul className="space-y-3">
         {strefy.map((s, i) => (
-          <li key={s.k} className={`${karta} space-y-3`}>
+          <li key={s.k} className={`${card} space-y-3`}>
             <div className="flex items-center gap-2">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-krem text-sm font-black">
                 {i + 1}
               </span>
               <input
                 value={s.nazwa}
-                onChange={(e) => zmien(s.k, "nazwa", e.target.value)}
+                onChange={(e) => change(s.k, "nazwa", e.target.value)}
                 list="miejscowosci"
                 placeholder="Strefa, np. Kraśnik albo Kraśnik Fabryczny"
                 aria-label="Nazwa strefy"
                 maxLength={80}
-                className={`${pole} font-extrabold`}
+                className={`${field} font-extrabold`}
               />
               <button
                 type="button"
@@ -92,57 +92,57 @@ export default function EdytorDostawy({
               </button>
             </div>
             <div>
-              <label className={etykieta} htmlFor={`miejsca-${i}`}>
+              <label className={label} htmlFor={`miejsca-${i}`}>
                 Miejscowości w strefie <span className="font-normal text-tekst-2">(po przecinku)</span>
               </label>
               <input
                 id={`miejsca-${i}`}
                 value={s.miejsca}
-                onChange={(e) => zmien(s.k, "miejsca", e.target.value)}
+                onChange={(e) => change(s.k, "miejsca", e.target.value)}
                 placeholder="np. Budzyń, Wyżnianka"
-                className={pole}
+                className={field}
               />
-              <p className={podpowiedz}>Puste, gdy nazwa strefy to jedna miejscowość.</p>
+              <p className={hint}>Puste, gdy nazwa strefy to jedna miejscowość.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className={etykieta}>Cena dostawy</span>
+                <span className={label}>Cena dostawy</span>
                 <span className="flex items-center gap-2">
                   <input
                     value={s.cena}
-                    onChange={(e) => zmien(s.k, "cena", e.target.value)}
+                    onChange={(e) => change(s.k, "cena", e.target.value)}
                     inputMode="decimal"
                     placeholder="np. 5"
-                    className={`${pole} text-right`}
+                    className={`${field} text-right`}
                   />
                   <span className="text-tekst-2">zł</span>
                 </span>
               </label>
               <label className="block">
-                <span className={etykieta}>Zamówienie od</span>
+                <span className={label}>Zamówienie od</span>
                 <span className="flex items-center gap-2">
                   <input
                     value={s.minimum}
-                    onChange={(e) => zmien(s.k, "minimum", e.target.value)}
+                    onChange={(e) => change(s.k, "minimum", e.target.value)}
                     inputMode="decimal"
                     placeholder="bez minimum"
-                    className={`${pole} text-right`}
+                    className={`${field} text-right`}
                   />
                   <span className="text-tekst-2">zł</span>
                 </span>
               </label>
             </div>
-            <p className={podpowiedz}>Cena 0 = dostawa gratis. Puste pole = nie podajecie.</p>
+            <p className={hint}>Cena 0 = dostawa gratis. Puste pole = nie podajecie.</p>
           </li>
         ))}
       </ul>
 
-      <button type="button" onClick={() => setStrefy((l) => [...l, pusta()])} className={`${przyciskMaly} h-11 bg-krem px-5`}>
+      <button type="button" onClick={() => setStrefy((l) => [...l, emptyList()])} className={`${smallButton} h-11 bg-krem px-5`}>
         <Plus className="size-4" aria-hidden /> Dodaj strefę
       </button>
 
-      <div className={karta}>
-        <label htmlFor="uwagi" className={etykieta}>
+      <div className={card}>
+        <label htmlFor="uwagi" className={label}>
           Uwagi do dostawy <span className="font-normal text-tekst-2">(opcjonalnie)</span>
         </label>
         <input
@@ -154,26 +154,26 @@ export default function EdytorDostawy({
           }}
           maxLength={300}
           placeholder="np. dowozimy od 12:00 do 21:00"
-          className={pole}
+          className={field}
         />
       </div>
 
       <div className="sticky bottom-0 z-30 -mx-4 border-t border-obrys bg-tlo/95 px-4 py-3 backdrop-blur">
         {stan.blad && (
-          <p role="alert" className={`mb-3 ${komunikatBledu}`}>
+          <p role="alert" className={`mb-3 ${errorMessage}`}>
             {stan.blad}
           </p>
         )}
-        {stan.ok && !zmienione && (
-          <p role="status" className={`mb-3 flex items-center gap-2 ${komunikatOk}`}>
+        {stan.ok && !changed && (
+          <p role="status" className={`mb-3 flex items-center gap-2 ${okMessage}`}>
             <Check className="size-4" aria-hidden /> {stan.ok}
           </p>
         )}
         <button
           type="button"
-          onClick={zapiszWszystko}
-          disabled={!zmienione || trwa}
-          className={`${przyciskGlowny} w-full sm:w-auto`}
+          onClick={saveAll}
+          disabled={!changed || trwa}
+          className={`${primaryButton} w-full sm:w-auto`}
         >
           {trwa ? "Zapisuję…" : "Zapisz dostawę"}
         </button>

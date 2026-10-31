@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, Phone, X } from "lucide-react";
-import { karta, kartaRamka, pole, przyciskMaly } from "@/components/panel/style";
+import { card, framedCard, field, smallButton } from "@/components/panel/style";
 import { db } from "@/lib/db";
-import { pobierzLokale } from "@/lib/lokale";
-import { linkTelefonu } from "@/lib/nazwy";
-import { wymagajAdmina } from "@/lib/panel/konta";
-import ListaLokali from "../dodaj/ListaLokali";
-import LinkDoPanelu from "../LinkDoPanelu";
-import { nowyLinkDoPanelu, odbierzDostep, rozpatrzZgloszenie } from "./akcje";
+import { getVenues } from "@/lib/lokale";
+import { phoneUrl } from "@/lib/nazwy";
+import { requireAdmin } from "@/lib/panel/konta";
+import VenueList from "../dodaj/ListaLokali";
+import PanelLink from "../LinkDoPanelu";
+import { newPanelLink, revokeAccess, reviewClaim } from "./akcje";
 
 export const metadata: Metadata = { title: "Administracja" };
 
-type Zgloszenie = {
+type Claim = {
   id: number;
   imie: string;
   telefon: string;
@@ -27,12 +27,12 @@ type Zgloszenie = {
   adres: string | null;
 };
 
-const kiedy = (sql: string) =>
+const when = (sql: string) =>
   new Date(`${sql.replace(" ", "T")}Z`).toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" });
 
-export default async function Admin() {
-  await wymagajAdmina();
-  const zgloszenia = (
+export default async function AdminPage() {
+  await requireAdmin();
+  const claims = (
     db
       .prepare(
         `SELECT z.id, z.imie, z.telefon, z.rola, z.wiadomosc, z.status, z.notatka, z.utworzono,
@@ -40,11 +40,11 @@ export default async function Admin() {
          FROM zgloszenia z LEFT JOIN konta k ON k.id = z.konto_id JOIN lokale l ON l.id = z.lokal_id
          ORDER BY z.status = 'nowe' DESC, z.utworzono DESC LIMIT 100`,
       )
-      .all() as Zgloszenie[]
+      .all() as Claim[]
   ).map((z) => ({ ...z }));
   // numer lokalu z poprawkami — na niego dzwonimy, nie na numer podany w zgłoszeniu
-  const telefony = new Map((await pobierzLokale()).map((l) => [l.slug, l.telefon]));
-  const dostepy = (
+  const phones = new Map((await getVenues()).map((l) => [l.slug, l.telefon]));
+  const accesses = (
     db
       .prepare(
         `SELECT k.id AS konto, k.email, k.imie, k.telefon, k.link IS NOT NULL AS ma_link, k.rola,
@@ -64,7 +64,7 @@ export default async function Admin() {
       slug: string;
     }[]
   ).map((d) => ({ ...d }));
-  const wszystkie = (
+  const all = (
     db.prepare("SELECT slug, nazwa, adres, miejscowosc FROM lokale ORDER BY nazwa COLLATE NOCASE").all() as {
       slug: string;
       nazwa: string;
@@ -72,30 +72,30 @@ export default async function Admin() {
       miejscowosc: string | null;
     }[]
   ).map((l) => ({ ...l }));
-  const nowe = zgloszenia.filter((z) => z.status === "nowe");
-  const stare = zgloszenia.filter((z) => z.status !== "nowe");
+  const newOnes = claims.filter((z) => z.status === "nowe");
+  const old = claims.filter((z) => z.status !== "nowe");
 
   return (
     <div className="space-y-10">
       <h1 className="font-grotesk text-3xl font-bold tracking-tight">Administracja</h1>
 
       <section>
-        <h2 className="mb-3 text-lg font-black">Nowe zgłoszenia ({nowe.length})</h2>
-        {nowe.length ? (
+        <h2 className="mb-3 text-lg font-black">Nowe zgłoszenia ({newOnes.length})</h2>
+        {newOnes.length ? (
           <p className="mb-3 text-sm text-tekst-2">Po przyjęciu wyślij link do panelu z listy „Kto zarządza lokalami”.</p>
         ) : (
           <p className="text-tekst-2">Brak nowych zgłoszeń.</p>
         )}
         <ul className="space-y-3">
-          {nowe.map((z) => {
-            const telefonLokalu = telefony.get(z.slug);
+          {newOnes.map((z) => {
+            const venuePhone = phones.get(z.slug);
             return (
-              <li key={z.id} className={`${karta} space-y-3`}>
+              <li key={z.id} className={`${card} space-y-3`}>
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <Link href={`/lokal/${z.slug}`} className="text-lg font-black hover:underline">
                     {z.nazwa}
                   </Link>
-                  <span className="text-xs text-tekst-2">{kiedy(z.utworzono)}</span>
+                  <span className="text-xs text-tekst-2">{when(z.utworzono)}</span>
                 </div>
                 <p className="text-sm leading-relaxed">
                   <b>{z.imie}</b> ({z.rola}) · tel. {z.telefon}
@@ -104,21 +104,21 @@ export default async function Admin() {
                 </p>
                 <p className="text-sm">
                   Potwierdź pod numerem lokalu:{" "}
-                  {telefonLokalu ? (
-                    <a href={linkTelefonu(telefonLokalu)} className="inline-flex items-center gap-1 font-black text-akcent-tekst">
-                      <Phone className="size-4" aria-hidden /> {telefonLokalu}
+                  {venuePhone ? (
+                    <a href={phoneUrl(venuePhone)} className="inline-flex items-center gap-1 font-black text-akcent-tekst">
+                      <Phone className="size-4" aria-hidden /> {venuePhone}
                     </a>
                   ) : (
                     <b>brak numeru lokalu — zweryfikuj inaczej (np. osobiście)</b>
                   )}
                 </p>
-                <form action={rozpatrzZgloszenie} className="flex flex-wrap items-center gap-2">
+                <form action={reviewClaim} className="flex flex-wrap items-center gap-2">
                   <input type="hidden" name="id" value={z.id} />
-                  <input name="notatka" placeholder="Notatka, np. „potwierdzone telefonicznie”" className={`${pole} flex-1 basis-60 py-2`} />
-                  <button name="decyzja" value="przyjete" className={`${przyciskMaly} bg-otwarte text-white`}>
+                  <input name="notatka" placeholder="Notatka, np. „potwierdzone telefonicznie”" className={`${field} flex-1 basis-60 py-2`} />
+                  <button name="decyzja" value="przyjete" className={`${smallButton} bg-otwarte text-white`}>
                     <Check className="size-4" aria-hidden /> Przyjmij
                   </button>
-                  <button name="decyzja" value="odrzucone" className={`${przyciskMaly} bg-krem`}>
+                  <button name="decyzja" value="odrzucone" className={`${smallButton} bg-krem`}>
                     <X className="size-4" aria-hidden /> Odrzuć
                   </button>
                 </form>
@@ -130,9 +130,9 @@ export default async function Admin() {
 
       <section>
         <h2 className="mb-3 text-lg font-black">Kto zarządza lokalami</h2>
-        {!dostepy.length && <p className="text-tekst-2">Jeszcze nikt.</p>}
-        <ul className={`${kartaRamka} divide-y divide-obrys`}>
-          {dostepy.map((d) => (
+        {!accesses.length && <p className="text-tekst-2">Jeszcze nikt.</p>}
+        <ul className={`${framedCard} divide-y divide-obrys`}>
+          {accesses.map((d) => (
             <li key={`${d.lokal}-${d.konto}`} className="flex flex-wrap items-center gap-3 px-5 py-3">
               <Link href={`/panel/${d.slug}`} className="font-extrabold hover:underline">
                 {d.nazwa}
@@ -140,16 +140,16 @@ export default async function Admin() {
               <span className="min-w-0 flex-1 truncate text-sm text-tekst-2">
                 {[d.imie, d.telefon, d.email].filter(Boolean).join(" · ")}
               </span>
-              <LinkDoPanelu
-                utworz={nowyLinkDoPanelu.bind(null, d.konto)}
+              <PanelLink
+                utworz={newPanelLink.bind(null, d.konto)}
                 telefon={d.telefon}
                 nazwa={d.nazwa}
                 maLink={!!d.ma_link}
               />
-              <form action={odbierzDostep}>
+              <form action={revokeAccess}>
                 <input type="hidden" name="lokal" value={d.lokal} />
                 <input type="hidden" name="konto" value={d.konto} />
-                <button className={`${przyciskMaly} bg-krem`}>Odbierz dostęp</button>
+                <button className={`${smallButton} bg-krem`}>Odbierz dostęp</button>
               </form>
             </li>
           ))}
@@ -159,14 +159,14 @@ export default async function Admin() {
       <section>
         <h2 className="mb-1 text-lg font-black">Panel dowolnego lokalu</h2>
         <p className="mb-3 text-sm text-tekst-2">Tam też dasz komuś dostęp bez zgłoszenia — na dole zakładki „Dane”.</p>
-        <ListaLokali lokale={wszystkie} prefiks="/panel/" />
+        <VenueList lokale={all} prefiks="/panel/" />
       </section>
 
-      {stare.length > 0 && (
+      {old.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-black">Rozpatrzone</h2>
           <ul className="space-y-1 text-sm">
-            {stare.map((z) => (
+            {old.map((z) => (
               <li key={z.id}>
                 {z.status === "przyjete" ? "✓" : "✗"} <b>{z.nazwa}</b> — {[z.imie, z.telefon, z.email].filter(Boolean).join(", ")}
                 {z.notatka && <span className="text-tekst-2"> · {z.notatka}</span>}

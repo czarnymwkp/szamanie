@@ -1,15 +1,15 @@
-import type { Lokal, Miejscowosc } from "@/lib/lokale";
-import type { Dostawa, Menu } from "@/lib/menu";
-import type { LinkStopki } from "./StopkaM";
+import type { Venue, Town } from "@/lib/lokale";
+import type { Delivery, Menu } from "@/lib/menu";
+import type { FooterLink } from "./StopkaM";
 
 // Druga seria propozycji (27.10): cały wygląd na telefon — strona główna i strona lokalu.
 // Każda ma inne tło „z prześwitem”, inny układ i inne animacje. Wspólne: dane, lista do zamówienia,
 // miejsce na banery reklamowe pod wyszukiwarką i listek „Wege”.
 
-export type PropsGlownejM = { lokale: Lokal[]; miejscowosci: Miejscowosc[]; nr: number; linki: LinkStopki[] };
-export type PropsLokaluM = { lokal: Lokal; menu: Menu | null; dostawa: Dostawa | null; nr: number; linki: LinkStopki[] };
+export type HomeProps = { lokale: Venue[]; miejscowosci: Town[]; nr: number; linki: FooterLink[] };
+export type VenueProps = { lokal: Venue; menu: Menu | null; dostawa: Delivery | null; nr: number; linki: FooterLink[] };
 
-export const PROPOZYCJE_M = [
+export const MOBILE_PROPOSALS = [
   { nr: 1, nazwa: "Zorza", opis: "Kolorowa zorza płynie pod szklanymi kartami. Na stronie lokalu pływający pasek akcji jak w iOS." },
   { nr: 2, nazwa: "Neon", opis: "Ciemno, ziarno jak na filmie, światło idzie za palcem, neonowe napisy. Restauracja nocą." },
   { nr: 3, nazwa: "Szkicownik", opis: "Papier, rysowane ikony jedzenia w tle, naklejki z taśmą. Menu jak karta w lokalu." },
@@ -33,9 +33,9 @@ export const PROPOZYCJE_M = [
 ] as const;
 
 /** Lokal z najdłuższym menu — na nim pokazujemy stronę lokalu. */
-export const PRZYKLADOWY_LOKAL_M = "musicaffe-krasnik";
+export const SAMPLE_VENUE = "musicaffe-krasnik";
 /** Do podglądu na liście propozycji: różne kuchnie i długości menu. */
-export const LOKALE_DO_PODGLADU = [
+export const PREVIEW_VENUES = [
   { slug: "musicaffe-krasnik", nazwa: "MusiCaffe" },
   { slug: "burger-pizza-krasnik", nazwa: "Burger&Pizza" },
   { slug: "bd-star-kebab-krasnik", nazwa: "BD Star Kebab" },
@@ -43,12 +43,12 @@ export const LOKALE_DO_PODGLADU = [
   { slug: "mar-mat-krasnik", nazwa: "Mar-Mat (bez menu)" },
 ];
 
-export const adresM = (nr: number) => `/propozycje/m/${nr}`;
-export const lokalM = (nr: number, slug: string) => `/propozycje/m/${nr}/lokal/${slug}`;
+export const venueUrl = (nr: number) => `/propozycje/m/${nr}`;
+export const venueHref = (nr: number, slug: string) => `/propozycje/m/${nr}/lokal/${slug}`;
 
 /** Stałe losowanie (to samo na serwerze i w przeglądarce) do rozrzucania ozdób tła. */
-export function losowe(ziarno: number) {
-  let s = ziarno;
+export function seededRandom(seed: number) {
+  let s = seed;
   return () => {
     s = (s * 16807) % 2147483647;
     return s / 2147483647;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import Szaman from "../Szaman";
+import Mascot from "../Szaman";
 
 /**
  * Animowany szaman w stylu propozycji: ta sama postać (je burgera, czaruje), przepuszczona przez filtr SVG.
@@ -12,7 +12,7 @@ import Szaman from "../Szaman";
  * koloru; bauhaus — kolory podstawowe; kino — sepia w świetle reflektora. Pinezka nie ma filtra: szaman siedzi
  * w znaczniku mapy.
  */
-export type StylSzamana =
+export type MascotStyle =
   | "szkic"
   | "neon"
   | "plakat"
@@ -35,16 +35,16 @@ export type StylSzamana =
   | "bauhaus"
   | "kino";
 
-const KRAWEDZIE = "-1 -1 -1 -1 8 -1 -1 -1 -1";
+const EDGES = "-1 -1 -1 -1 8 -1 -1 -1 -1";
 
 /** Raster jak w druku: odcienie szarości z szumem, potem próg — zostaje farba albo papier. */
-function raster(czestosc: string, farba: string, mocSzumu: string): ReactNode {
+function raster(frequency: string, paint: string, noiseStrength: string): ReactNode {
   return (
     <>
       <feColorMatrix type="saturate" values="0" result="szary" />
-      <feTurbulence type="fractalNoise" baseFrequency={czestosc} numOctaves="1" seed="7" result="szum" />
+      <feTurbulence type="fractalNoise" baseFrequency={frequency} numOctaves="1" seed="7" result="szum" />
       <feColorMatrix in="szum" type="saturate" values="0" result="szumSzary" />
-      <feComposite in="szary" in2="szumSzary" operator="arithmetic" k2="1" k3={mocSzumu} k4="-0.22" result="zSzumem" />
+      <feComposite in="szary" in2="szumSzary" operator="arithmetic" k2="1" k3={noiseStrength} k4="-0.22" result="zSzumem" />
       <feComponentTransfer in="zSzumem" result="prog">
         <feFuncR type="discrete" tableValues="0 1" />
         <feFuncG type="discrete" tableValues="0 1" />
@@ -54,15 +54,15 @@ function raster(czestosc: string, farba: string, mocSzumu: string): ReactNode {
       <feComponentTransfer in="jasne" result="farbaAlfa">
         <feFuncA type="table" tableValues="1 0" />
       </feComponentTransfer>
-      <feFlood floodColor={farba} />
+      <feFlood floodColor={paint} />
       <feComposite in2="farbaAlfa" operator="in" result="farbaNaPapierze" />
       <feComposite in="farbaNaPapierze" in2="SourceAlpha" operator="in" />
     </>
   );
 }
 
-function filtr(styl: StylSzamana): ReactNode {
-  switch (styl) {
+function filterFn(style: MascotStyle): ReactNode {
+  switch (style) {
     case "druk":
       return raster("0.9", "#1c1a17", "0.55");
     case "termo":
@@ -127,7 +127,7 @@ function filtr(styl: StylSzamana): ReactNode {
           <feConvolveMatrix
             in="szary"
             order="3"
-            kernelMatrix={KRAWEDZIE}
+            kernelMatrix={EDGES}
             preserveAlpha="true"
             result="krawedzie"
           />
@@ -160,7 +160,7 @@ function filtr(styl: StylSzamana): ReactNode {
           <feConvolveMatrix
             in="szary"
             order="3"
-            kernelMatrix={KRAWEDZIE}
+            kernelMatrix={EDGES}
             preserveAlpha="true"
             result="krawedzie"
           />
@@ -311,7 +311,7 @@ function filtr(styl: StylSzamana): ReactNode {
   }
 }
 
-const CSS: Partial<Record<StylSzamana, string>> = {
+const CSS: Partial<Record<MascotStyle, string>> = {
   neon: "animate-[m-mruganie_6s_infinite]",
   naklejka: "-rotate-6 drop-shadow-[0_6px_10px_rgba(0,0,0,0.25)]",
   zorza: "drop-shadow-[0_10px_24px_rgba(255,61,127,0.35)]",
@@ -328,15 +328,15 @@ const CSS: Partial<Record<StylSzamana, string>> = {
   komiks: "-rotate-3",
 };
 
-export default function SzamanM({
+export default function StyledMascot({
   styl,
   className = "",
 }: {
-  styl: StylSzamana;
+  styl: MascotStyle;
   className?: string;
 }) {
   const id = `szaman-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
-  const definicja = filtr(styl);
+  const definition = filterFn(styl);
 
   if (styl === "pinezka") {
     // szaman w znaczniku mapy: okrągła główka z ogonkiem, opada i pulsuje krąg pod spodem
@@ -346,7 +346,7 @@ export default function SzamanM({
           <span className="m-fala absolute -bottom-2 left-1/2 h-4 w-16 -translate-x-1/2 rounded-[50%] bg-[#1a73e8]/40" />
           <div className="m-pinezka relative mx-auto aspect-square w-full rounded-full rounded-br-none border-4 border-white bg-[#e8f0fe] shadow-xl [rotate:45deg]">
             <div className="absolute inset-[6%] overflow-hidden rounded-full [rotate:-45deg]">
-              <Szaman className="w-full translate-y-[6%]" />
+              <Mascot className="w-full translate-y-[6%]" />
             </div>
           </div>
         </div>
@@ -356,7 +356,7 @@ export default function SzamanM({
 
   return (
     <div aria-hidden className={`${className} ${CSS[styl] ?? ""}`}>
-      {definicja && (
+      {definition && (
         <svg width="0" height="0" className="absolute">
           <defs>
             <filter
@@ -367,13 +367,13 @@ export default function SzamanM({
               height="130%"
               colorInterpolationFilters="sRGB"
             >
-              {definicja}
+              {definition}
             </filter>
           </defs>
         </svg>
       )}
-      <div style={definicja ? { filter: `url(#${id})` } : undefined}>
-        <Szaman className="w-full" />
+      <div style={definition ? { filter: `url(#${id})` } : undefined}>
+        <Mascot className="w-full" />
       </div>
     </div>
   );

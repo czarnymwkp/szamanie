@@ -12,20 +12,20 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { karta, kartaRamka, komunikatBledu, komunikatOk, pole, przyciskGlowny, przyciskMaly } from "@/components/panel/style";
-import type { CechaDania } from "@/lib/menu";
-import type { DanieEdycja, SekcjaEdycja } from "@/lib/panel/lokal";
-import { bezPolskich } from "@/lib/slug.mjs";
-import type { StanMenu } from "../akcje";
+import { card, framedCard, errorMessage, okMessage, field, primaryButton, smallButton } from "@/components/panel/style";
+import type { DishFeature } from "@/lib/menu";
+import type { DishDraft, SectionDraft } from "@/lib/panel/lokal";
+import { stripPolish } from "@/lib/slug.mjs";
+import type { MenuState } from "../akcje";
 
 // Edytor całego menu w przeglądarce; „Zapisz” wysyła je w całości (serwer sprawdza i zapisuje w jednej transakcji).
 // Ceny zmienia się od razu na liście — to najczęstsza zmiana; resztę dania po rozwinięciu ołówkiem.
 
-type Cena = { k: string; wariant: string; cena: string };
-type Danie = Omit<DanieEdycja, "ceny"> & { k: string; ceny: Cena[] };
-type Sekcja = Omit<SekcjaEdycja, "dania"> & { k: string; dania: Danie[] };
+type Price = { k: string; wariant: string; cena: string };
+type Dish = Omit<DishDraft, "ceny"> & { k: string; ceny: Price[] };
+type Section = Omit<SectionDraft, "dania"> & { k: string; dania: Dish[] };
 
-const CECHY: { id: CechaDania; nazwa: string }[] = [
+const FEATURES: { id: DishFeature; nazwa: string }[] = [
   { id: "wege", nazwa: "wege" },
   { id: "ostre", nazwa: "ostre" },
   { id: "polecane", nazwa: "polecane" },
@@ -33,18 +33,18 @@ const CECHY: { id: CechaDania; nazwa: string }[] = [
 ];
 
 // klucze Reacta dla nowych wierszy (crypto.randomUUID nie działa na http:// z telefonu w sieci domowej)
-let licznik = 0;
-const klucz = () => `k${++licznik}`;
+let counter = 0;
+const key = () => `k${++counter}`;
 
-const zKluczami = (menu: SekcjaEdycja[]): Sekcja[] =>
+const withKeys = (menu: SectionDraft[]): Section[] =>
   menu.map((s) => ({
     ...s,
-    k: klucz(),
-    dania: s.dania.map((d) => ({ ...d, k: klucz(), ceny: d.ceny.map((c) => ({ ...c, k: klucz() })) })),
+    k: key(),
+    dania: s.dania.map((d) => ({ ...d, k: key(), ceny: d.ceny.map((c) => ({ ...c, k: key() })) })),
   }));
 
-const bezKluczy = (sekcje: Sekcja[]): SekcjaEdycja[] =>
-  sekcje.map(({ nazwa, opis, dania }) => ({
+const withoutKeys = (sections: Section[]): SectionDraft[] =>
+  sections.map(({ nazwa, opis, dania }) => ({
     nazwa,
     opis,
     dania: dania.map(({ id, nazwa, opis, ceny, cechy }) => ({
@@ -56,49 +56,49 @@ const bezKluczy = (sekcje: Sekcja[]): SekcjaEdycja[] =>
     })),
   }));
 
-const przesun = <T,>(lista: T[], i: number, o: number) => {
+const move = <T,>(list: T[], i: number, o: number) => {
   const j = i + o;
-  if (j < 0 || j >= lista.length) return lista;
-  const nowa = [...lista];
-  [nowa[i], nowa[j]] = [nowa[j], nowa[i]];
-  return nowa;
+  if (j < 0 || j >= list.length) return list;
+  const newOne = [...list];
+  [newOne[i], newOne[j]] = [newOne[j], newOne[i]];
+  return newOne;
 };
 
-const nowaCena = (): Cena => ({ k: klucz(), wariant: "", cena: "" });
+const newPrice = (): Price => ({ k: key(), wariant: "", cena: "" });
 
-export default function EdytorMenu({
+export default function MenuEditor({
   menu,
   zapisz,
 }: {
-  menu: SekcjaEdycja[];
-  zapisz: (menu: SekcjaEdycja[]) => Promise<StanMenu>;
+  menu: SectionDraft[];
+  zapisz: (menu: SectionDraft[]) => Promise<MenuState>;
 }) {
-  const [sekcje, setSekcje] = useState(() => zKluczami(menu));
-  const [zapisane, setZapisane] = useState(() => JSON.stringify(bezKluczy(zKluczami(menu))));
+  const [sekcje, setSekcje] = useState(() => withKeys(menu));
+  const [zapisane, setZapisane] = useState(() => JSON.stringify(withoutKeys(withKeys(menu))));
   const [otwarte, setOtwarte] = useState<Set<string>>(() => new Set(menu.length <= 3 ? sekcje.map((s) => s.k) : []));
   const [edytowane, setEdytowane] = useState<string | null>(null);
   const [fraza, setFraza] = useState("");
-  const [stan, setStan] = useState<StanMenu>({});
+  const [stan, setStan] = useState<MenuState>({});
   const [trwa, startTransition] = useTransition();
 
-  const zmienione = JSON.stringify(bezKluczy(sekcje)) !== zapisane;
+  const changed = JSON.stringify(withoutKeys(sekcje)) !== zapisane;
 
   // ostrzeżenie przy zamykaniu karty z niezapisanymi zmianami
   useEffect(() => {
-    if (!zmienione) return;
-    const ostrzez = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", ostrzez);
-    return () => window.removeEventListener("beforeunload", ostrzez);
-  }, [zmienione]);
+    if (!changed) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [changed]);
 
-  const zmienSekcje = (k: string, f: (s: Sekcja) => Sekcja) => {
+  const changeSection = (k: string, f: (s: Section) => Section) => {
     setStan({});
-    setSekcje((lista) => lista.map((s) => (s.k === k ? f(s) : s)));
+    setSekcje((list) => list.map((s) => (s.k === k ? f(s) : s)));
   };
-  const zmienDanie = (ks: string, kd: string, f: (d: Danie) => Danie) =>
-    zmienSekcje(ks, (s) => ({ ...s, dania: s.dania.map((d) => (d.k === kd ? f(d) : d)) }));
+  const changeDish = (sectionKey: string, dishKey: string, f: (d: Dish) => Dish) =>
+    changeSection(sectionKey, (s) => ({ ...s, dania: s.dania.map((d) => (d.k === dishKey ? f(d) : d)) }));
 
-  const przelacz = (k: string) =>
+  const toggle = (k: string) =>
     setOtwarte((o) => {
       const n = new Set(o);
       if (n.has(k)) n.delete(k);
@@ -106,52 +106,52 @@ export default function EdytorMenu({
       return n;
     });
 
-  function dodajSekcje() {
-    const s: Sekcja = { k: klucz(), nazwa: "", opis: "", dania: [] };
-    setSekcje((lista) => [...lista, s]);
+  function addSection() {
+    const s: Section = { k: key(), nazwa: "", opis: "", dania: [] };
+    setSekcje((list) => [...list, s]);
     setOtwarte((o) => new Set(o).add(s.k));
   }
 
-  function dodajDanie(ks: string) {
-    const d: Danie = { k: klucz(), id: null, nazwa: "", opis: "", ceny: [nowaCena()], cechy: [] };
-    zmienSekcje(ks, (s) => ({ ...s, dania: [...s.dania, d] }));
+  function addDish(sectionKey: string) {
+    const d: Dish = { k: key(), id: null, nazwa: "", opis: "", ceny: [newPrice()], cechy: [] };
+    changeSection(sectionKey, (s) => ({ ...s, dania: [...s.dania, d] }));
     setEdytowane(d.k);
   }
 
-  function przeniesDanie(ks: string, kd: string, doSekcji: string) {
-    setSekcje((lista) => {
-      const danie = lista.find((s) => s.k === ks)?.dania.find((d) => d.k === kd);
-      if (!danie) return lista;
-      return lista.map((s) =>
-        s.k === ks
-          ? { ...s, dania: s.dania.filter((d) => d.k !== kd) }
-          : s.k === doSekcji
-            ? { ...s, dania: [...s.dania, danie] }
+  function moveDish(sectionKey: string, dishKey: string, toSection: string) {
+    setSekcje((list) => {
+      const dish = list.find((s) => s.k === sectionKey)?.dania.find((d) => d.k === dishKey);
+      if (!dish) return list;
+      return list.map((s) =>
+        s.k === sectionKey
+          ? { ...s, dania: s.dania.filter((d) => d.k !== dishKey) }
+          : s.k === toSection
+            ? { ...s, dania: [...s.dania, dish] }
             : s,
       );
     });
-    setOtwarte((o) => new Set(o).add(doSekcji));
+    setOtwarte((o) => new Set(o).add(toSection));
   }
 
-  function zapiszWszystko() {
+  function saveAll() {
     startTransition(async () => {
-      const wynik = await zapisz(bezKluczy(sekcje));
-      setStan(wynik);
-      if (wynik.menu) {
-        const nowe = zKluczami(wynik.menu);
+      const result = await zapisz(withoutKeys(sekcje));
+      setStan(result);
+      if (result.menu) {
+        const newOnes = withKeys(result.menu);
         // otwarte działy zostają otwarte (po nazwie — klucze są nowe)
-        const nazwyOtwartych = new Set(sekcje.filter((s) => otwarte.has(s.k)).map((s) => s.nazwa));
-        setSekcje(nowe);
-        setOtwarte(new Set(nowe.filter((s) => nazwyOtwartych.has(s.nazwa)).map((s) => s.k)));
-        setZapisane(JSON.stringify(bezKluczy(nowe)));
+        const openNames = new Set(sekcje.filter((s) => otwarte.has(s.k)).map((s) => s.nazwa));
+        setSekcje(newOnes);
+        setOtwarte(new Set(newOnes.filter((s) => openNames.has(s.nazwa)).map((s) => s.k)));
+        setZapisane(JSON.stringify(withoutKeys(newOnes)));
         setEdytowane(null);
       }
     });
   }
 
-  const f = bezPolskich(fraza.trim());
-  const pasuje = (d: Danie) => !f || bezPolskich(`${d.nazwa} ${d.opis}`).includes(f);
-  const liczbaDan = sekcje.reduce((n, s) => n + s.dania.length, 0);
+  const f = stripPolish(fraza.trim());
+  const matches = (d: Dish) => !f || stripPolish(`${d.nazwa} ${d.opis}`).includes(f);
+  const dishCount = sekcje.reduce((n, s) => n + s.dania.length, 0);
 
   return (
     <div className="space-y-4">
@@ -162,36 +162,36 @@ export default function EdytorMenu({
           <input
             value={fraza}
             onChange={(e) => setFraza(e.target.value)}
-            placeholder={`Szukaj wśród ${liczbaDan} dań`}
-            className={`${pole} pl-11`}
+            placeholder={`Szukaj wśród ${dishCount} dań`}
+            className={`${field} pl-11`}
           />
         </label>
         <button
           type="button"
           onClick={() => setOtwarte(new Set(otwarte.size ? [] : sekcje.map((s) => s.k)))}
-          className={`${przyciskMaly} bg-krem`}
+          className={`${smallButton} bg-krem`}
         >
           {otwarte.size ? "Zwiń działy" : "Rozwiń działy"}
         </button>
       </div>
 
       {!sekcje.length && (
-        <p className={`${karta} text-tekst-2`}>
+        <p className={`${card} text-tekst-2`}>
           Menu jest puste. Dodaj pierwszy dział (np. „Pizza”), a w nim dania z cenami.
         </p>
       )}
 
       {sekcje.map((s, i) => {
-        const widoczne = s.dania.filter(pasuje);
-        if (f && !widoczne.length) return null;
-        const otwarta = !!f || otwarte.has(s.k);
+        const visible = s.dania.filter(matches);
+        if (f && !visible.length) return null;
+        const isOpenNow = !!f || otwarte.has(s.k);
         return (
-          <section key={s.k} className={kartaRamka}>
-            {otwarta ? (
+          <section key={s.k} className={framedCard}>
+            {isOpenNow ? (
               <div className="flex items-center gap-1 p-2 sm:gap-1.5 sm:p-3">
                 <button
                   type="button"
-                  onClick={() => przelacz(s.k)}
+                  onClick={() => toggle(s.k)}
                   aria-expanded
                   aria-label="Zwiń dział"
                   className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-krem"
@@ -200,18 +200,18 @@ export default function EdytorMenu({
                 </button>
                 <input
                   value={s.nazwa}
-                  onChange={(e) => zmienSekcje(s.k, (x) => ({ ...x, nazwa: e.target.value }))}
+                  onChange={(e) => changeSection(s.k, (x) => ({ ...x, nazwa: e.target.value }))}
                   placeholder="Nazwa działu, np. Pizza"
                   aria-label="Nazwa działu"
                   maxLength={80}
                   className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-lg font-black outline-none focus:bg-krem"
                 />
-                <PrzyciskiKolejnosci
-                  gora={() => setSekcje((l) => przesun(l, i, -1))}
-                  dol={() => setSekcje((l) => przesun(l, i, 1))}
+                <OrderButtons
+                  gora={() => setSekcje((l) => move(l, i, -1))}
+                  dol={() => setSekcje((l) => move(l, i, 1))}
                   co="dział"
                 />
-                <Usun
+                <DeleteButton
                   co="dział"
                   pytanie={s.dania.length ? `Usunąć dział z ${s.dania.length} daniami?` : "Usunąć dział?"}
                   usun={() => setSekcje((l) => l.filter((x) => x.k !== s.k))}
@@ -221,7 +221,7 @@ export default function EdytorMenu({
               // zwinięty dział: cały pasek rozwija — nazwę i kolejność zmienia się po rozwinięciu
               <button
                 type="button"
-                onClick={() => przelacz(s.k)}
+                onClick={() => toggle(s.k)}
                 aria-expanded={false}
                 className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition hover:bg-krem"
               >
@@ -235,34 +235,34 @@ export default function EdytorMenu({
               </button>
             )}
 
-            {otwarta && (
+            {isOpenNow && (
               <div className="border-t border-obrys">
                 <input
                   value={s.opis}
-                  onChange={(e) => zmienSekcje(s.k, (x) => ({ ...x, opis: e.target.value }))}
+                  onChange={(e) => changeSection(s.k, (x) => ({ ...x, opis: e.target.value }))}
                   placeholder="Opis działu (opcjonalnie), np. „do każdej pizzy sos gratis”"
                   aria-label="Opis działu"
                   maxLength={200}
                   className="w-full bg-transparent px-5 py-2.5 text-sm text-tekst-2 outline-none focus:bg-krem"
                 />
                 <ul className="divide-y divide-obrys border-t border-obrys">
-                  {widoczne.map((d) => (
+                  {visible.map((d) => (
                     <li key={d.k}>
                       {edytowane === d.k ? (
-                        <EdycjaDania
+                        <DishEditor
                           danie={d}
                           sekcje={sekcje}
                           sekcja={s.k}
-                          zmien={(fn) => zmienDanie(s.k, d.k, fn)}
-                          przenies={(doSekcji) => przeniesDanie(s.k, d.k, doSekcji)}
+                          zmien={(fn) => changeDish(s.k, d.k, fn)}
+                          przenies={(toSection) => moveDish(s.k, d.k, toSection)}
                           kolejnosc={(o) =>
-                            zmienSekcje(s.k, (x) => ({ ...x, dania: przesun(x.dania, x.dania.indexOf(d), o) }))
+                            changeSection(s.k, (x) => ({ ...x, dania: move(x.dania, x.dania.indexOf(d), o) }))
                           }
-                          usun={() => zmienSekcje(s.k, (x) => ({ ...x, dania: x.dania.filter((y) => y.k !== d.k) }))}
+                          usun={() => changeSection(s.k, (x) => ({ ...x, dania: x.dania.filter((y) => y.k !== d.k) }))}
                           zamknij={() => setEdytowane(null)}
                         />
                       ) : (
-                        <WierszDania danie={d} zmien={(fn) => zmienDanie(s.k, d.k, fn)} edytuj={() => setEdytowane(d.k)} />
+                        <DishRow danie={d} zmien={(fn) => changeDish(s.k, d.k, fn)} edytuj={() => setEdytowane(d.k)} />
                       )}
                     </li>
                   ))}
@@ -270,7 +270,7 @@ export default function EdytorMenu({
                 {!f && (
                   <button
                     type="button"
-                    onClick={() => dodajDanie(s.k)}
+                    onClick={() => addDish(s.k)}
                     className="flex w-full items-center gap-2 border-t border-obrys px-5 py-3.5 text-sm font-extrabold text-akcent-tekst transition hover:bg-krem"
                   >
                     <Plus className="size-4" aria-hidden /> Dodaj danie
@@ -282,10 +282,10 @@ export default function EdytorMenu({
         );
       })}
 
-      {f && sekcje.every((s) => !s.dania.some(pasuje)) && <p className="text-tekst-2">Nic nie pasuje do „{fraza}”.</p>}
+      {f && sekcje.every((s) => !s.dania.some(matches)) && <p className="text-tekst-2">Nic nie pasuje do „{fraza}”.</p>}
 
       {!f && (
-        <button type="button" onClick={dodajSekcje} className={`${przyciskMaly} h-11 bg-krem px-5`}>
+        <button type="button" onClick={addSection} className={`${smallButton} h-11 bg-krem px-5`}>
           <Plus className="size-4" aria-hidden /> Dodaj dział
         </button>
       )}
@@ -293,38 +293,38 @@ export default function EdytorMenu({
       {/* pasek zapisu przyklejony do dołu ekranu */}
       <div className="sticky bottom-0 z-30 -mx-4 border-t border-obrys bg-tlo/95 px-4 py-3 backdrop-blur">
         {stan.blad && (
-          <p role="alert" className={`mb-3 ${komunikatBledu}`}>
+          <p role="alert" className={`mb-3 ${errorMessage}`}>
             {stan.blad}
           </p>
         )}
-        {stan.ok && !zmienione && (
-          <p role="status" className={`mb-3 flex items-center gap-2 ${komunikatOk}`}>
+        {stan.ok && !changed && (
+          <p role="status" className={`mb-3 flex items-center gap-2 ${okMessage}`}>
             <Check className="size-4" aria-hidden /> {stan.ok}
           </p>
         )}
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={zapiszWszystko}
-            disabled={!zmienione || trwa}
-            className={`${przyciskGlowny} flex-1 sm:flex-none`}
+            onClick={saveAll}
+            disabled={!changed || trwa}
+            className={`${primaryButton} flex-1 sm:flex-none`}
           >
             {trwa ? "Zapisuję…" : "Zapisz menu"}
           </button>
-          {zmienione && !trwa && <span className="text-sm font-bold text-akcent-tekst">Masz niezapisane zmiany</span>}
+          {changed && !trwa && <span className="text-sm font-bold text-akcent-tekst">Masz niezapisane zmiany</span>}
         </div>
       </div>
     </div>
   );
 }
 
-function opisCen(d: Danie) {
+function priceDescription(d: Dish) {
   return d.ceny.filter((c) => c.cena || c.wariant);
 }
 
 /** Zwinięte danie: nazwa i pola cen do szybkiej zmiany. */
-function WierszDania({ danie, zmien, edytuj }: { danie: Danie; zmien: (f: (d: Danie) => Danie) => void; edytuj: () => void }) {
-  const ceny = opisCen(danie);
+function DishRow({ danie, zmien, edytuj }: { danie: Dish; zmien: (f: (d: Dish) => Dish) => void; edytuj: () => void }) {
+  const prices = priceDescription(danie);
   return (
     <div className="flex items-start gap-2 px-4 py-3 sm:items-center sm:px-5">
       <button type="button" onClick={edytuj} className="min-w-0 flex-1 text-left">
@@ -334,8 +334,8 @@ function WierszDania({ danie, zmien, edytuj }: { danie: Danie; zmien: (f: (d: Da
         {danie.opis && <span className="line-clamp-1 text-sm text-tekst-2">{danie.opis}</span>}
       </button>
       <div className="flex flex-col items-end gap-1.5 sm:flex-row sm:items-center">
-        {ceny.length ? (
-          ceny.map((c) => (
+        {prices.length ? (
+          prices.map((c) => (
             <label key={c.k} className="flex items-center gap-1.5 text-sm">
               {c.wariant && <span className="text-tekst-2">{c.wariant}</span>}
               <input
@@ -366,7 +366,7 @@ function WierszDania({ danie, zmien, edytuj }: { danie: Danie; zmien: (f: (d: Da
   );
 }
 
-function EdycjaDania({
+function DishEditor({
   danie,
   sekcje,
   sekcja,
@@ -376,19 +376,19 @@ function EdycjaDania({
   usun,
   zamknij,
 }: {
-  danie: Danie;
-  sekcje: Sekcja[];
+  danie: Dish;
+  sekcje: Section[];
   sekcja: string;
-  zmien: (f: (d: Danie) => Danie) => void;
-  przenies: (doSekcji: string) => void;
+  zmien: (f: (d: Dish) => Dish) => void;
+  przenies: (toSection: string) => void;
   kolejnosc: (o: number) => void;
   usun: () => void;
   zamknij: () => void;
 }) {
-  const zmienCene = (k: string, pole: "wariant" | "cena", v: string) =>
-    zmien((d) => ({ ...d, ceny: d.ceny.map((c) => (c.k === k ? { ...c, [pole]: v } : c)) }));
-  const kilka = danie.ceny.length > 1;
-  const zWariantem = kilka || !!danie.ceny[0]?.wariant; // np. jedna cena „0,5 l”
+  const changePrice = (k: string, field: "wariant" | "cena", v: string) =>
+    zmien((d) => ({ ...d, ceny: d.ceny.map((c) => (c.k === k ? { ...c, [field]: v } : c)) }));
+  const several = danie.ceny.length > 1;
+  const withVariant = several || !!danie.ceny[0]?.wariant; // np. jedna cena „0,5 l”
 
   return (
     <div className="space-y-3 bg-krem/50 px-4 py-4 sm:px-5">
@@ -399,7 +399,7 @@ function EdycjaDania({
         aria-label="Nazwa dania"
         maxLength={120}
         autoFocus={!danie.nazwa}
-        className={`${pole} font-extrabold`}
+        className={`${field} font-extrabold`}
       />
       <textarea
         value={danie.opis}
@@ -408,32 +408,32 @@ function EdycjaDania({
         aria-label="Opis dania"
         rows={2}
         maxLength={500}
-        className={pole}
+        className={field}
       />
 
       <div className="space-y-2">
         {danie.ceny.map((c) => (
           <div key={c.k} className="flex items-center gap-2">
-            {zWariantem && (
+            {withVariant && (
               <input
                 value={c.wariant}
-                onChange={(e) => zmienCene(c.k, "wariant", e.target.value)}
+                onChange={(e) => changePrice(c.k, "wariant", e.target.value)}
                 placeholder="wariant, np. 32 cm"
                 aria-label="Wariant"
                 maxLength={40}
-                className={`${pole} min-w-0 flex-1`}
+                className={`${field} min-w-0 flex-1`}
               />
             )}
             <input
               value={c.cena}
-              onChange={(e) => zmienCene(c.k, "cena", e.target.value)}
+              onChange={(e) => changePrice(c.k, "cena", e.target.value)}
               placeholder="cena"
               aria-label="Cena w złotych"
               inputMode="decimal"
-              className={`${pole} w-28 text-right font-bold`}
+              className={`${field} w-28 text-right font-bold`}
             />
             <span className="text-tekst-2">zł</span>
-            {kilka && (
+            {several && (
               <button
                 type="button"
                 onClick={() => zmien((d) => ({ ...d, ceny: d.ceny.filter((x) => x.k !== c.k) }))}
@@ -448,27 +448,27 @@ function EdycjaDania({
         {danie.ceny.length < 6 && (
           <button
             type="button"
-            onClick={() => zmien((d) => ({ ...d, ceny: [...d.ceny, nowaCena()] }))}
+            onClick={() => zmien((d) => ({ ...d, ceny: [...d.ceny, newPrice()] }))}
             className="text-sm font-extrabold text-akcent-tekst hover:underline"
           >
-            + {!danie.ceny.length ? "Dodaj cenę" : kilka ? "Kolejny wariant" : "Kilka cen (np. rozmiary pizzy)"}
+            + {!danie.ceny.length ? "Dodaj cenę" : several ? "Kolejny wariant" : "Kilka cen (np. rozmiary pizzy)"}
           </button>
         )}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {CECHY.map((c) => {
-          const ma = danie.cechy.includes(c.id);
+        {FEATURES.map((c) => {
+          const has = danie.cechy.includes(c.id);
           return (
             <button
               key={c.id}
               type="button"
-              aria-pressed={ma}
+              aria-pressed={has}
               onClick={() =>
-                zmien((d) => ({ ...d, cechy: ma ? d.cechy.filter((x) => x !== c.id) : [...d.cechy, c.id] }))
+                zmien((d) => ({ ...d, cechy: has ? d.cechy.filter((x) => x !== c.id) : [...d.cechy, c.id] }))
               }
               className={`rounded-full border-2 px-3 py-1 text-sm font-extrabold transition ${
-                ma ? "border-akcent bg-akcent text-na-akcencie" : "border-obrys-2 bg-white"
+                has ? "border-akcent bg-akcent text-na-akcencie" : "border-obrys-2 bg-white"
               }`}
             >
               {c.nazwa}
@@ -495,25 +495,25 @@ function EdycjaDania({
       )}
 
       <div className="flex flex-wrap items-center gap-2 pt-1">
-        <button type="button" onClick={zamknij} className={`${przyciskMaly} bg-tekst text-white`}>
+        <button type="button" onClick={zamknij} className={`${smallButton} bg-tekst text-white`}>
           <Check className="size-4" aria-hidden /> Gotowe
         </button>
-        <PrzyciskiKolejnosci gora={() => kolejnosc(-1)} dol={() => kolejnosc(1)} co="danie" />
+        <OrderButtons gora={() => kolejnosc(-1)} dol={() => kolejnosc(1)} co="danie" />
         <span className="flex-1" />
-        <Usun co="danie" pytanie="Usunąć danie?" usun={usun} zNapisem />
+        <DeleteButton co="danie" pytanie="Usunąć danie?" usun={usun} zNapisem />
       </div>
     </div>
   );
 }
 
-function PrzyciskiKolejnosci({ gora, dol, co }: { gora: () => void; dol: () => void; co: string }) {
-  const klasa = "flex size-9 shrink-0 items-center justify-center rounded-full text-tekst-2 hover:bg-krem hover:text-tekst";
+function OrderButtons({ gora, dol, co }: { gora: () => void; dol: () => void; co: string }) {
+  const cls = "flex size-9 shrink-0 items-center justify-center rounded-full text-tekst-2 hover:bg-krem hover:text-tekst";
   return (
     <>
-      <button type="button" onClick={gora} aria-label={`Przesuń ${co} wyżej`} className={klasa}>
+      <button type="button" onClick={gora} aria-label={`Przesuń ${co} wyżej`} className={cls}>
         <ArrowUp className="size-4" aria-hidden />
       </button>
-      <button type="button" onClick={dol} aria-label={`Przesuń ${co} niżej`} className={klasa}>
+      <button type="button" onClick={dol} aria-label={`Przesuń ${co} niżej`} className={cls}>
         <ArrowDown className="size-4" aria-hidden />
       </button>
     </>
@@ -521,12 +521,12 @@ function PrzyciskiKolejnosci({ gora, dol, co }: { gora: () => void; dol: () => v
 }
 
 /** Usuwanie w dwóch kliknięciach zamiast okienka potwierdzenia. */
-function Usun({ co, pytanie, usun, zNapisem = false }: { co: string; pytanie: string; usun: () => void; zNapisem?: boolean }) {
+function DeleteButton({ co, pytanie, usun, zNapisem = false }: { co: string; pytanie: string; usun: () => void; zNapisem?: boolean }) {
   const [pewny, setPewny] = useState(false);
   if (pewny) {
     return (
       <span className="flex shrink-0 items-center gap-1">
-        <button type="button" onClick={usun} className={`${przyciskMaly} bg-zamkniete text-white`}>
+        <button type="button" onClick={usun} className={`${smallButton} bg-zamkniete text-white`}>
           {pytanie.replace("?", "")}
         </button>
         <button
@@ -547,7 +547,7 @@ function Usun({ co, pytanie, usun, zNapisem = false }: { co: string; pytanie: st
       aria-label={`Usuń ${co}`}
       className={
         zNapisem
-          ? `${przyciskMaly} text-zamkniete hover:bg-zamkniete/10`
+          ? `${smallButton} text-zamkniete hover:bg-zamkniete/10`
           : "flex size-9 shrink-0 items-center justify-center rounded-full text-tekst-2 hover:bg-zamkniete/10 hover:text-zamkniete"
       }
     >

@@ -7,7 +7,7 @@ import { SITE_URL, CONTACT_EMAIL } from "../konfiguracja";
 
 let transport: Transporter | null = null;
 
-function poczta() {
+function mailer() {
   if (!process.env.SMTP_HOST) return null;
   transport ??= nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -18,26 +18,26 @@ function poczta() {
   return transport;
 }
 
-async function wyslij(do_: string, temat: string, tekst: string) {
-  const t = poczta();
+async function send(until_: string, subject: string, text: string) {
+  const t = mailer();
   if (!t) {
-    console.log(`[poczta] do: ${do_}\n[poczta] temat: ${temat}\n${tekst}\n`);
+    console.log(`[poczta] do: ${until_}\n[poczta] temat: ${subject}\n${text}\n`);
     return;
   }
   await t.sendMail({
     from: process.env.SMTP_OD ?? `szamanie.pl <${process.env.SMTP_USER}>`,
-    to: do_,
-    subject: temat,
-    text: tekst,
+    to: until_,
+    subject: subject,
+    text: text,
   });
 }
 
-export function wyslijKodLogowania(email: string, kod: string) {
-  return wyslij(
+export function sendLoginCode(email: string, code: string) {
+  return send(
     email,
-    `${kod} — kod logowania do szamanie.pl`,
+    `${code} — kod logowania do szamanie.pl`,
     [
-      `Twój kod logowania do panelu szamanie.pl: ${kod}`,
+      `Twój kod logowania do panelu szamanie.pl: ${code}`,
       "",
       "Kod jest ważny 10 minut. Jeśli to nie Ty prosiłeś o kod, zignoruj tę wiadomość.",
       "",
@@ -47,14 +47,14 @@ export function wyslijKodLogowania(email: string, kod: string) {
 }
 
 /** Powiadomienie dla admina (CONTACT_EMAIL), np. o nowym zgłoszeniu lokalu. Bez adresu — tylko w logach. */
-export function powiadomAdmina(temat: string, tekst: string) {
+export function notifyAdmin(subject: string, text: string) {
   if (!CONTACT_EMAIL) {
-    console.log(`[poczta] (admin) ${temat}\n${tekst}\n`);
+    console.log(`[poczta] (admin) ${subject}\n${text}\n`);
     return Promise.resolve();
   }
-  return wyslij(CONTACT_EMAIL, temat, tekst);
+  return send(CONTACT_EMAIL, subject, text);
 }
 
-export function wyslijDoWlasciciela(email: string, temat: string, tekst: string) {
-  return wyslij(email, temat, tekst);
+export function sendToOwner(email: string, subject: string, text: string) {
+  return send(email, subject, text);
 }

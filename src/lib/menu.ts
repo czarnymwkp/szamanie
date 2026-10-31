@@ -1,32 +1,32 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "./db";
-import { bezPolskich } from "./slug.mjs";
-import { zdjecieDania } from "./zdjeciaDan";
-import { ZDJECIA_KATEGORII, type KluczZdjecia } from "./zdjeciaKategorii";
+import { stripPolish } from "./slug.mjs";
+import { dishPhoto } from "./zdjeciaDan";
+import { CATEGORY_PHOTOS, type PhotoKey } from "./zdjeciaKategorii";
 
-export type Cena = { wariant: string | null; gr: number };
-export type CechaDania = "wege" | "ostre" | "polecane" | "sezonowe";
+export type Price = { wariant: string | null; gr: number };
+export type DishFeature = "wege" | "ostre" | "polecane" | "sezonowe";
 
-export type PozycjaMenu = {
+export type MenuItem = {
   id: number;
   nazwa: string;
   opis: string | null;
-  ceny: Cena[];
-  cechy: CechaDania[];
+  ceny: Price[];
+  cechy: DishFeature[];
 };
 
 /** Zdjęcie na kafelku sekcji; `pozycja` to object-position kadru. */
-export type Okladka = { plik: string; pozycja: string };
+export type Cover = { plik: string; pozycja: string };
 
-export type SekcjaMenu = {
+export type MenuSectionData = {
   nazwa: string;
   opis: string | null;
-  okladka: Okladka | null; // zdjęcie poglądowe na kafelku sekcji (w samym menu dań bez zdjęć)
-  pozycje: PozycjaMenu[];
+  okladka: Cover | null; // zdjęcie poglądowe na kafelku sekcji (w samym menu dań bez zdjęć)
+  pozycje: MenuItem[];
 };
 
 export type Menu = {
-  sekcje: SekcjaMenu[];
+  sekcje: MenuSectionData[];
   liczba: number;
   zrodlo: string | null;
   sprawdzono: string | null;
@@ -34,14 +34,14 @@ export type Menu = {
   stareCeny: boolean; // ceny sprzed ponad roku (np. zdjęcie tablicy z 2023)
 };
 
-const ROK_MS = 365 * 24 * 60 * 60 * 1000;
+const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
-export type Strefa = { nazwa: string; miejsca: string[]; cenaGr: number | null; minGr: number | null };
-export type Dostawa = { strefy: Strefa[]; zrodlo: string | null; sprawdzono: string | null; uwagi: string | null };
+export type Zone = { nazwa: string; miejsca: string[]; cenaGr: number | null; minGr: number | null };
+export type Delivery = { strefy: Zone[]; zrodlo: string | null; sprawdzono: string | null; uwagi: string | null };
 
 // Okładki sekcji: najpierw zdjęcie kategorii (pierwsza pasująca reguła), potem zdjęcie poglądowe pierwszego dania
 // sekcji, które je ma (np. „Napoje zimne” → cola). To samo zdjęcie nie powtarza się w jednym menu.
-const OKLADKI: [RegExp, KluczZdjecia][] = [
+const COVERS: [RegExp, PhotoKey][] = [
   [/pizz|calzone/, "pizza"],
   [/burger/, "burger"],
   [/kebab|grill/, "kebab"],
@@ -57,45 +57,45 @@ const OKLADKI: [RegExp, KluczZdjecia][] = [
   [/drink|alkohol|win[ao]|koktajl/, "bar"],
 ];
 
-function okladka(sekcja: string, dania: { nazwa: string; opis: string | null }[], uzyte: Set<string>): Okladka | null {
-  const tekst = bezPolskich(sekcja);
-  const trafienie = OKLADKI.find(([wzor]) => wzor.test(tekst));
-  const kategorii = trafienie && ZDJECIA_KATEGORII[trafienie[1]];
-  if (kategorii && !uzyte.has(kategorii.plik)) {
-    uzyte.add(kategorii.plik);
-    return { plik: kategorii.plik, pozycja: kategorii.pozycja };
+function cover(section: string, dishes: { nazwa: string; opis: string | null }[], used: Set<string>): Cover | null {
+  const text = stripPolish(section);
+  const hit = COVERS.find(([wzor]) => wzor.test(text));
+  const categoryOf = hit && CATEGORY_PHOTOS[hit[1]];
+  if (categoryOf && !used.has(categoryOf.plik)) {
+    used.add(categoryOf.plik);
+    return { plik: categoryOf.plik, pozycja: categoryOf.pozycja };
   }
-  for (const d of dania) {
-    const plik = zdjecieDania(sekcja, d.nazwa, d.opis);
-    if (plik && !uzyte.has(plik)) {
-      uzyte.add(plik);
-      return { plik, pozycja: "center" };
+  for (const d of dishes) {
+    const file = dishPhoto(section, d.nazwa, d.opis);
+    if (file && !used.has(file)) {
+      used.add(file);
+      return { plik: file, pozycja: "center" };
     }
   }
   return null;
 }
 
 /** Menu lokalu z podziałem na sekcje; null, gdy lokal nie ma jeszcze menu w bazie. */
-export async function pobierzMenu(lokalId: number): Promise<Menu | null> {
+export async function getMenu(venueId: number): Promise<Menu | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("menu");
 
-  const pozycje = db
+  const items = db
     .prepare("SELECT id, sekcja, nazwa, opis, ceny, cechy FROM menu WHERE lokal_id = ? ORDER BY kolejnosc")
-    .all(lokalId) as { id: number; sekcja: string; nazwa: string; opis: string | null; ceny: string; cechy: string }[];
-  if (!pozycje.length) return null;
+    .all(venueId) as { id: number; sekcja: string; nazwa: string; opis: string | null; ceny: string; cechy: string }[];
+  if (!items.length) return null;
 
-  const sekcje = (
-    db.prepare("SELECT nazwa, opis FROM menu_sekcje WHERE lokal_id = ? ORDER BY kolejnosc").all(lokalId) as {
+  const sections = (
+    db.prepare("SELECT nazwa, opis FROM menu_sekcje WHERE lokal_id = ? ORDER BY kolejnosc").all(venueId) as {
       nazwa: string;
       opis: string | null;
     }[]
-  ).map((s): SekcjaMenu => ({ nazwa: s.nazwa, opis: s.opis, okladka: null, pozycje: [] }));
-  const poNazwie = new Map(sekcje.map((s) => [s.nazwa, s]));
+  ).map((s): MenuSectionData => ({ nazwa: s.nazwa, opis: s.opis, okladka: null, pozycje: [] }));
+  const byName = new Map(sections.map((s) => [s.nazwa, s]));
 
-  for (const p of pozycje) {
-    poNazwie.get(p.sekcja)?.pozycje.push({
+  for (const p of items) {
+    byName.get(p.sekcja)?.pozycje.push({
       id: p.id,
       nazwa: p.nazwa,
       opis: p.opis,
@@ -103,54 +103,54 @@ export async function pobierzMenu(lokalId: number): Promise<Menu | null> {
       cechy: JSON.parse(p.cechy),
     });
   }
-  const uzyte = new Set<string>();
-  for (const s of sekcje) s.okladka = okladka(s.nazwa, s.pozycje, uzyte);
-  const info = db.prepare("SELECT menu_zrodlo, menu_sprawdzono FROM lokale WHERE id = ?").get(lokalId) as {
+  const used = new Set<string>();
+  for (const s of sections) s.okladka = cover(s.nazwa, s.pozycje, used);
+  const info = db.prepare("SELECT menu_zrodlo, menu_sprawdzono FROM lokale WHERE id = ?").get(venueId) as {
     menu_zrodlo: string | null;
     menu_sprawdzono: string | null;
   };
   return {
-    sekcje: sekcje.filter((s) => s.pozycje.length),
-    liczba: pozycje.length,
+    sekcje: sections.filter((s) => s.pozycje.length),
+    liczba: items.length,
     zrodlo: info.menu_zrodlo,
     sprawdzono: info.menu_sprawdzono,
-    bezCen: pozycje.every((p) => p.ceny === "[]"),
-    stareCeny: !!info.menu_sprawdzono && Date.now() - Date.parse(info.menu_sprawdzono) > ROK_MS,
+    bezCen: items.every((p) => p.ceny === "[]"),
+    stareCeny: !!info.menu_sprawdzono && Date.now() - Date.parse(info.menu_sprawdzono) > YEAR_MS,
   };
 }
 
 /** Strefy dostawy lokalu (miejscowość → cena, minimum); null, gdy lokal ich nie podał. */
-export async function pobierzDostawe(lokalId: number): Promise<Dostawa | null> {
+export async function getDelivery(venueId: number): Promise<Delivery | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("menu");
 
-  const strefy = (
+  const zones = (
     db
       .prepare("SELECT nazwa, miejsca, cena_gr, min_gr FROM strefy_dostawy WHERE lokal_id = ? ORDER BY kolejnosc")
-      .all(lokalId) as { nazwa: string; miejsca: string; cena_gr: number | null; min_gr: number | null }[]
+      .all(venueId) as { nazwa: string; miejsca: string; cena_gr: number | null; min_gr: number | null }[]
   ).map((s) => ({ nazwa: s.nazwa, miejsca: JSON.parse(s.miejsca) as string[], cenaGr: s.cena_gr, minGr: s.min_gr }));
-  if (!strefy.length) return null;
+  if (!zones.length) return null;
 
   const info = db
     .prepare("SELECT dostawa_zrodlo, dostawa_sprawdzono, dostawa_uwagi FROM lokale WHERE id = ?")
-    .get(lokalId) as { dostawa_zrodlo: string | null; dostawa_sprawdzono: string | null; dostawa_uwagi: string | null };
-  return { strefy, zrodlo: info.dostawa_zrodlo, sprawdzono: info.dostawa_sprawdzono, uwagi: info.dostawa_uwagi };
+    .get(venueId) as { dostawa_zrodlo: string | null; dostawa_sprawdzono: string | null; dostawa_uwagi: string | null };
+  return { strefy: zones, zrodlo: info.dostawa_zrodlo, sprawdzono: info.dostawa_sprawdzono, uwagi: info.dostawa_uwagi };
 }
 
-export type Danie = { id: number; lokalId: number; sekcja: string; nazwa: string; opis: string | null; ceny: Cena[] };
+export type Dish = { id: number; lokalId: number; sekcja: string; nazwa: string; opis: string | null; ceny: Price[] };
 
 /**
  * Dania ze wszystkich lokali pasujące do frazy (nazwa, opis albo sekcja; bez polskich znaków),
  * np. „burger” → wszystkie burgery z cenami. Do wyszukiwarki dań i stron fraz.
  */
-export async function szukajDan(fraza: string): Promise<Danie[]> {
+export async function searchDishes(phrase: string): Promise<Dish[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("menu");
 
   // Szukamy od początku słowa: „lody” nie trafi w „młody”. Kolumna szukaj ma same słowa oddzielone spacją.
-  const f = bezPolskich(fraza).replace(/[^a-z0-9]+/g, " ").trim();
+  const f = stripPolish(phrase).replace(/[^a-z0-9]+/g, " ").trim();
   if (f.length < 2) return [];
   return (
     db

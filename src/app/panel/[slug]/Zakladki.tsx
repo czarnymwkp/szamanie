@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BadgePercent, BookOpen, Store, Truck } from "lucide-react";
 
-export default function Zakladki({ slug }: { slug: string }) {
-  const sciezka = usePathname();
-  const zakladki = [
+export default function Tabs({ slug }: { slug: string }) {
+  const path = usePathname();
+  const tabs = [
     // krótkie nazwy na telefonie — cztery zakładki mieszczą się w jednym rzędzie
     { href: `/panel/${slug}`, nazwa: "Dane lokalu", krotko: "Dane", Ikona: Store },
     { href: `/panel/${slug}/menu`, nazwa: "Menu i ceny", krotko: "Menu", Ikona: BookOpen },
@@ -16,15 +16,15 @@ export default function Zakladki({ slug }: { slug: string }) {
   return (
     <nav aria-label="Sekcje panelu lokalu" className="-mx-4 mt-5 overflow-x-auto px-4">
       <ul className="flex w-max gap-1 border-b border-obrys pb-px sm:w-auto sm:gap-2">
-        {zakladki.map(({ href, nazwa, krotko, Ikona }) => {
-          const aktywna = sciezka === href;
+        {tabs.map(({ href, nazwa, krotko, Ikona }) => {
+          const active = path === href;
           return (
             <li key={href}>
               <Link
                 href={href}
-                aria-current={aktywna ? "page" : undefined}
+                aria-current={active ? "page" : undefined}
                 className={`-mb-px flex items-center gap-1.5 border-b-[3px] px-2.5 py-2.5 text-sm font-extrabold whitespace-nowrap transition sm:gap-2 sm:px-3 ${
-                  aktywna ? "border-akcent text-tekst" : "border-transparent text-tekst-2 hover:text-tekst"
+                  active ? "border-akcent text-tekst" : "border-transparent text-tekst-2 hover:text-tekst"
                 }`}
               >
                 <Ikona className="size-4" aria-hidden />

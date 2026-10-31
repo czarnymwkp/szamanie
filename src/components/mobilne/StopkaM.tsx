@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, ArrowUp, Store } from "lucide-react";
-import SzamanM, { type StylSzamana } from "./SzamanM";
+import StyledMascot, { type MascotStyle } from "./SzamanM";
 
-export type LinkStopki = { nazwa: string; adres: string };
+export type FooterLink = { nazwa: string; adres: string };
 
-const POTRAWY = "PIZZA ✦ KEBAB ✦ BURGERY ✦ PIEROGI ✦ KAWA ✦ LODY ✦ ZAPIEKANKI ✦ SAŁATKI ✦ ";
+const DISHES = "PIZZA ✦ KEBAB ✦ BURGERY ✦ PIEROGI ✦ KAWA ✦ LODY ✦ ZAPIEKANKI ✦ SAŁATKI ✦ ";
 
 /**
  * Stopka propozycji na telefon: taśma z potrawami, szaman (dotknij — podskoczy), „Smacznego!”, karta „Masz
@@ -15,14 +15,14 @@ const POTRAWY = "PIZZA ✦ KEBAB ✦ BURGERY ✦ PIEROGI ✦ KAWA ✦ LODY ✦ Z
  * wymagane przez ODbL) jest na stronie „Źródła danych i zdjęć”, do której prowadzi link w stopce.
  * Kolory z tokenów (tło = tekst strony), więc pasuje do jasnych i ciemnych propozycji.
  */
-export default function StopkaM({ linki, szaman, className = "" }: { linki: LinkStopki[]; szaman: StylSzamana; className?: string }) {
+export default function FooterContent({ linki, szaman, className = "" }: { linki: FooterLink[]; szaman: MascotStyle; className?: string }) {
   const [skok, setSkok] = useState(0);
   return (
     <footer className={`relative mt-16 overflow-hidden rounded-t-[2.5rem] bg-tekst text-tlo ${className}`}>
       <div aria-hidden className="overflow-hidden border-b border-tlo/10 py-2.5">
         <div className="flex w-max animate-tasma text-sm font-black tracking-widest text-akcent">
-          <span>{POTRAWY.repeat(3)}</span>
-          <span>{POTRAWY.repeat(3)}</span>
+          <span>{DISHES.repeat(3)}</span>
+          <span>{DISHES.repeat(3)}</span>
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export default function StopkaM({ linki, szaman, className = "" }: { linki: Link
             className="w-28 shrink-0"
           >
             <span key={skok} className={`block ${skok ? "animate-[m-skok_0.9s_cubic-bezier(0.3,1.5,0.5,1)]" : ""}`}>
-              <SzamanM styl={szaman} className="w-full" />
+              <StyledMascot styl={szaman} className="w-full" />
             </span>
           </button>
           <div>

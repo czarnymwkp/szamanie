@@ -2,32 +2,32 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  BanerFrazy,
-  CennikiDostawy,
-  DaneDlaGoogle,
-  Kolejnosc,
-  ListaNazw,
-  Pigulki,
-  Pytania,
-  Sekcja,
-  SiatkaLokali,
-  cenaDostawy,
+  PhraseBanner,
+  DeliveryPricing,
+  StructuredData,
+  Order,
+  NameList,
+  Pills,
+  Faq,
+  Section,
+  VenueGrid,
+  deliveryPrice,
   ileLokali,
-  type Okruszek,
-  type Pytanie,
+  type Breadcrumb,
+  type Question,
 } from "@/components/StronaFrazy";
-import { zl } from "@/lib/ceny";
-import { pobierzLokale, type Lokal } from "@/lib/lokale";
-import type { Dostawa } from "@/lib/menu";
+import { formatPln } from "@/lib/ceny";
+import { getVenues, type Venue } from "@/lib/lokale";
+import type { Delivery } from "@/lib/menu";
 import {
-  cennikiDostawy,
-  kategorieZeStrona,
-  lokaleKategorii,
-  lokaleObszaru,
-  lokaleZDowozem,
-  obszaryZDowozem,
-  zDowozem,
-  type Obszar,
+  deliveryPricing,
+  categoriesWithPage,
+  categoryVenues,
+  areaVenues,
+  venuesWithDelivery,
+  areasWithDelivery,
+  withDelivery,
+  type Area,
 } from "@/lib/seo";
 
 // Strona „Jedzenie z dowozem w Kraśniku” — pod wyszukiwania „dowóz Kraśnik”, „pizza z dowozem Kraśnik”:
@@ -37,116 +37,116 @@ import {
 export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
-  const obszary = obszaryZDowozem(await pobierzLokale());
+  const areas = areasWithDelivery(await getVenues());
   // Cache Components wymaga co najmniej jednego parametru; „brak” → 404.
-  return obszary.length ? obszary.map((o) => ({ obszar: o.slug })) : [{ obszar: "brak" }];
+  return areas.length ? areas.map((o) => ({ obszar: o.slug })) : [{ obszar: "brak" }];
 }
 
-async function wczytaj(params: PageProps<"/[obszar]/dowoz">["params"]) {
+async function load(params: PageProps<"/[obszar]/dowoz">["params"]) {
   const { obszar: slug } = await params;
-  const lokale = await pobierzLokale();
-  const obszar = obszaryZDowozem(lokale).find((o) => o.slug === slug);
-  if (!obszar) return null;
-  const { w, okolica } = lokaleZDowozem(lokale, obszar);
-  return { lokale, obszar, w, okolica, cenniki: await cennikiDostawy([...w, ...okolica]) };
+  const venues = await getVenues();
+  const area = areasWithDelivery(venues).find((o) => o.slug === slug);
+  if (!area) return null;
+  const { w, okolica } = venuesWithDelivery(venues, area);
+  return { lokale: venues, obszar: area, w, okolica, cenniki: await deliveryPricing([...w, ...okolica]) };
 }
 
 export async function generateMetadata({ params }: PageProps<"/[obszar]/dowoz">): Promise<Metadata> {
-  const dane = await wczytaj(params);
-  if (!dane) return {};
-  const { obszar, w } = dane;
-  const nazwy = w.slice(0, 3).map((l) => l.nazwa);
+  const date = await load(params);
+  if (!date) return {};
+  const { obszar, w } = date;
+  const names = w.slice(0, 3).map((l) => l.nazwa);
   return {
     title: `Jedzenie z dowozem ${obszar.nazwa} — kto dowozi i za ile`,
-    description: `Dowóz jedzenia ${obszar.w}: ${nazwy.join(", ")}${w.length > 3 ? " i inne" : ""}. Ceny dostawy, minimalne zamówienie i telefon — zamów pizzę albo obiad do domu.`,
+    description: `Dowóz jedzenia ${obszar.w}: ${names.join(", ")}${w.length > 3 ? " i inne" : ""}. Ceny dostawy, minimalne zamówienie i telefon — zamów pizzę albo obiad do domu.`,
     alternates: { canonical: `/${obszar.slug}/dowoz` },
   };
 }
 
-export default async function StronaDowozu({ params }: PageProps<"/[obszar]/dowoz">) {
-  const dane = await wczytaj(params);
-  if (!dane) notFound();
-  const { lokale, obszar, w, okolica, cenniki } = dane;
-  const bezCennika = w.filter((l) => !cenniki.some((c) => c.lokal.id === l.id));
-  const okruszki: Okruszek[] = [
+export default async function DeliveryPage({ params }: PageProps<"/[obszar]/dowoz">) {
+  const date = await load(params);
+  if (!date) notFound();
+  const { lokale, obszar, w, okolica, cenniki } = date;
+  const withoutPricing = w.filter((l) => !cenniki.some((c) => c.lokal.id === l.id));
+  const breadcrumbs: Breadcrumb[] = [
     { nazwa: "szamanie.pl", adres: "/" },
     { nazwa: obszar.nazwa, adres: `/${obszar.slug}` },
     { nazwa: "Dowóz", adres: `/${obszar.slug}/dowoz` },
   ];
-  const kategorie = kategorieZeStrona(lokale, obszar).filter((k) => k.dowoz);
-  const inneObszary = obszaryZDowozem(lokale).filter((o) => o.slug !== obszar.slug);
+  const categories = categoriesWithPage(lokale, obszar).filter((k) => k.dowoz);
+  const otherAreas = areasWithDelivery(lokale).filter((o) => o.slug !== obszar.slug);
 
   return (
     <>
-      <DaneDlaGoogle okruszki={okruszki} lokale={w} />
-      <BanerFrazy okruszki={okruszki} tytul={`Jedzenie z dowozem ${obszar.w}`} zdjecie="pizza">
+      <StructuredData okruszki={breadcrumbs} lokale={w} />
+      <PhraseBanner okruszki={breadcrumbs} tytul={`Jedzenie z dowozem ${obszar.w}`} zdjecie="pizza">
         <p>
           {ileLokali(w.length)} z dowozem {obszar.w}
           {okolica.length > 0 && <> i {okolica.length} w okolicy</>}. Sprawdź, kto dowiezie pod Twój adres, ile kosztuje
           dostawa i od jakiej kwoty.
         </p>
-      </BanerFrazy>
+      </PhraseBanner>
 
       <div className="mx-auto max-w-6xl px-5">
-        <Sekcja id="lokale" tytul={`Kto dowozi ${obszar.w}: ${ileLokali(w.length)}`}>
-          <SiatkaLokali lokale={w} />
-          <Kolejnosc />
-        </Sekcja>
+        <Section id="lokale" tytul={`Kto dowozi ${obszar.w}: ${ileLokali(w.length)}`}>
+          <VenueGrid lokale={w} />
+          <Order />
+        </Section>
 
         {okolica.length > 0 && (
-          <Sekcja id="okolica" tytul="Z dowozem w okolicy">
-            <SiatkaLokali lokale={okolica} />
-          </Sekcja>
+          <Section id="okolica" tytul="Z dowozem w okolicy">
+            <VenueGrid lokale={okolica} />
+          </Section>
         )}
 
         {cenniki.length > 0 && (
-          <Sekcja id="cennik" tytul={`Ile kosztuje dowóz ${obszar.w}?`}>
+          <Section id="cennik" tytul={`Ile kosztuje dowóz ${obszar.w}?`}>
             <p className="mb-4 max-w-3xl leading-relaxed font-semibold text-tekst-2">
               Ceny dostawy do poszczególnych miejscowości i części miasta, tak jak podają lokale. Im dalej, tym zwykle
               drożej i z wyższym minimalnym zamówieniem.
-              {bezCennika.length > 0 && (
+              {withoutPricing.length > 0 && (
                 <>
                   {" "}
-                  Cennika jeszcze nie mamy od: <ListaNazw lokale={bezCennika} /> — zapytaj przy zamówieniu.
+                  Cennika jeszcze nie mamy od: <NameList lokale={withoutPricing} /> — zapytaj przy zamówieniu.
                 </>
               )}
             </p>
-            <CennikiDostawy cenniki={cenniki} />
-          </Sekcja>
+            <DeliveryPricing cenniki={cenniki} />
+          </Section>
         )}
 
-        <Pytania tytul="Pytania i odpowiedzi" pytania={pytania(lokale, obszar, w, okolica, cenniki)} />
+        <Faq tytul="Pytania i odpowiedzi" pytania={questions(lokale, obszar, w, okolica, cenniki)} />
 
-        <Sekcja id="wiecej" tytul={`Więcej ${obszar.w}`}>
-          <Pigulki
+        <Section id="wiecej" tytul={`Więcej ${obszar.w}`}>
+          <Pills
             linki={[
               { nazwa: `Wszystkie lokale ${obszar.w}`, adres: `/${obszar.slug}` },
-              ...kategorie.map((k) => ({ nazwa: k.nazwa, adres: `/${obszar.slug}/${k.slug}` })),
-              ...inneObszary.map((o) => ({ nazwa: `Dowóz ${o.w}`, adres: `/${o.slug}/dowoz` })),
+              ...categories.map((k) => ({ nazwa: k.nazwa, adres: `/${obszar.slug}/${k.slug}` })),
+              ...otherAreas.map((o) => ({ nazwa: `Dowóz ${o.w}`, adres: `/${o.slug}/dowoz` })),
             ]}
           />
-        </Sekcja>
+        </Section>
       </div>
     </>
   );
 }
 
-function pytania(
-  lokale: Lokal[],
-  obszar: Obszar,
-  w: Lokal[],
-  okolica: Lokal[],
-  cenniki: { lokal: Lokal; dostawa: Dostawa }[],
-): Pytanie[] {
-  const wynik: Pytanie[] = [
+function questions(
+  venues: Venue[],
+  area: Area,
+  w: Venue[],
+  surroundings: Venue[],
+  pricing: { lokal: Venue; dostawa: Delivery }[],
+): Question[] {
+  const result: Question[] = [
     {
-      pytanie: `Kto dowozi jedzenie ${obszar.w}?`,
+      pytanie: `Kto dowozi jedzenie ${area.w}?`,
       odpowiedz: (
         <>
-          Dowóz oznaczyły: <ListaNazw lokale={w} />
-          {okolica.length > 0 && (
+          Dowóz oznaczyły: <NameList lokale={w} />
+          {surroundings.length > 0 && (
             <>
-              , a w okolicy: <ListaNazw lokale={okolica} />
+              , a w okolicy: <NameList lokale={surroundings} />
             </>
           )}
           . Przy każdym lokalu jest telefon i godziny otwarcia — od razu widać, kto teraz przyjmuje zamówienia.
@@ -156,24 +156,24 @@ function pytania(
   ];
 
   // Strefy obejmujące sam obszar, np. „Kraśnik Fabryczny” i „Kraśnik Stary” → miejsca ["Kraśnik"].
-  const wObszarze = cenniki.flatMap(({ lokal, dostawa }) => {
-    const strefy = dostawa.strefy.filter((s) => s.miejsca.includes(obszar.nazwa));
-    return strefy.length ? [{ lokal, strefy }] : [];
+  const inArea = pricing.flatMap(({ lokal, dostawa }) => {
+    const zones = dostawa.strefy.filter((s) => s.miejsca.includes(area.nazwa));
+    return zones.length ? [{ lokal, strefy: zones }] : [];
   });
-  if (wObszarze.length) {
-    wynik.push({
-      pytanie: `Ile kosztuje dowóz ${obszar.w}?`,
+  if (inArea.length) {
+    result.push({
+      pytanie: `Ile kosztuje dowóz ${area.w}?`,
       odpowiedz: (
         <>
-          {wObszarze.map(({ lokal, strefy }, i) => (
+          {inArea.map(({ lokal, strefy }, i) => (
             <span key={lokal.id}>
               {i > 0 && " "}
-              <ListaNazw lokale={[lokal]} />:{" "}
+              <NameList lokale={[lokal]} />:{" "}
               {strefy
                 .map((s) =>
                   s.cenaGr === null
                     ? `${s.nazwa} — cenę podaje przy zamówieniu`
-                    : `${s.nazwa} — ${cenaDostawy(s)}${s.minGr ? ` (zamówienie od ${zl(s.minGr)})` : ""}`,
+                    : `${s.nazwa} — ${deliveryPrice(s)}${s.minGr ? ` (zamówienie od ${formatPln(s.minGr)})` : ""}`,
                 )
                 .join(", ")}
               .
@@ -186,19 +186,19 @@ function pytania(
   }
 
   // „Pizza z dowozem w Kraśniku” — tylko kategorie, w których ktoś dowozi.
-  for (const k of kategorieZeStrona(lokale, obszar).filter((k) => k.dowoz)) {
-    const zKategorii = lokaleKategorii(lokale, obszar, k).w.filter((l) => l.dostawa);
-    if (!zKategorii.length) continue;
-    wynik.push({
-      pytanie: `${k.nazwa} z dowozem ${obszar.w} — gdzie zamówić?`,
+  for (const k of categoriesWithPage(venues, area).filter((k) => k.dowoz)) {
+    const fromCategory = categoryVenues(venues, area, k).w.filter((l) => l.dostawa);
+    if (!fromCategory.length) continue;
+    result.push({
+      pytanie: `${k.nazwa} z dowozem ${area.w} — gdzie zamówić?`,
       odpowiedz: (
         <>
-          Z dowozem: <ListaNazw lokale={zKategorii} />. Wszystkie lokale z tej kategorii, także na miejscu i na wynos:{" "}
+          Z dowozem: <NameList lokale={fromCategory} />. Wszystkie lokale z tej kategorii, także na miejscu i na wynos:{" "}
           <Link
-            href={`/${obszar.slug}/${k.slug}`}
+            href={`/${area.slug}/${k.slug}`}
             className="font-extrabold text-akcent-tekst underline-offset-2 hover:underline"
           >
-            {k.nazwa} {obszar.w}
+            {k.nazwa} {area.w}
           </Link>
           .
         </>
@@ -207,20 +207,20 @@ function pytania(
   }
 
   // bez lodziarni — lody na wynos to oczywistość, a sieciówka z trzema punktami trzy razy powtarza tę samą nazwę
-  const naWynos = zDowozem(lokaleObszaru(lokale, obszar).w).naWynos.filter((l) => l.typ !== "ice_cream");
-  if (naWynos.length) {
-    wynik.push({
-      pytanie: `Gdzie wziąć jedzenie na wynos ${obszar.w}?`,
+  const takeaway = withDelivery(areaVenues(venues, area).w).naWynos.filter((l) => l.typ !== "ice_cream");
+  if (takeaway.length) {
+    result.push({
+      pytanie: `Gdzie wziąć jedzenie na wynos ${area.w}?`,
       odpowiedz: (
         <>
-          Na wynos (bez dowozu): <ListaNazw lokale={naWynos} />. Zadzwoń wcześniej, a jedzenie będzie gotowe, kiedy
+          Na wynos (bez dowozu): <NameList lokale={takeaway} />. Zadzwoń wcześniej, a jedzenie będzie gotowe, kiedy
           podjedziesz.
         </>
       ),
     });
   }
 
-  wynik.push({
+  result.push({
     pytanie: "Jak zamówić jedzenie z dowozem przez szamanie.pl?",
     odpowiedz: (
       <>
@@ -230,5 +230,5 @@ function pytania(
       </>
     ),
   });
-  return wynik;
+  return result;
 }

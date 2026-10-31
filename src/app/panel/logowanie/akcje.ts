@@ -1,52 +1,52 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { nowyKod, sprawdzKod } from "@/lib/panel/kody";
+import { newCode, checkCode } from "@/lib/panel/kody";
 import {
-  adresIp,
-  bezpiecznyCel,
-  kontoPoEmailu,
-  logowanieWlaczone,
-  normalizujEmail,
-  poprawnyEmail,
-  zalogujKonto,
+  ipAddress,
+  safeTarget,
+  accountByEmail,
+  loginEnabled,
+  normalizeEmail,
+  validEmail,
+  loginAccount,
 } from "@/lib/panel/konta";
-import { wyslijKodLogowania } from "@/lib/panel/poczta";
+import { sendLoginCode } from "@/lib/panel/poczta";
 
-export type StanLogowania = { krok: "email" | "kod"; email: string; blad?: string; info?: string };
+export type LoginState = { krok: "email" | "kod"; email: string; blad?: string; info?: string };
 
 /** Jeden formularz w dwóch krokach: „wyslij” — kod na e-mail, „zaloguj” — sprawdzenie kodu. */
-export async function logowanie(_: StanLogowania, formData: FormData): Promise<StanLogowania> {
-  if (!logowanieWlaczone()) redirect("/panel");
-  const email = normalizujEmail(String(formData.get("email") ?? ""));
-  const akcja = formData.get("akcja");
+export async function login(_: LoginState, formData: FormData): Promise<LoginState> {
+  if (!loginEnabled()) redirect("/panel");
+  const email = normalizeEmail(String(formData.get("email") ?? ""));
+  const action = formData.get("akcja");
 
-  if (akcja === "zaloguj") {
-    const wynik = sprawdzKod(email, String(formData.get("kod") ?? ""));
-    if (wynik === "zly") return { krok: "kod", email, blad: "Nieprawidłowy kod. Sprawdź i wpisz jeszcze raz." };
-    if (wynik === "za-duzo") return { krok: "email", email, blad: "Za dużo błędnych prób. Poproś o nowy kod." };
-    if (wynik === "wygasl") return { krok: "email", email, blad: "Kod wygasł. Poproś o nowy." };
-    await zalogujKonto(kontoPoEmailu(email));
-    redirect(bezpiecznyCel(formData.get("dalej")));
+  if (action === "zaloguj") {
+    const result = checkCode(email, String(formData.get("kod") ?? ""));
+    if (result === "zly") return { krok: "kod", email, blad: "Nieprawidłowy kod. Sprawdź i wpisz jeszcze raz." };
+    if (result === "za-duzo") return { krok: "email", email, blad: "Za dużo błędnych prób. Poproś o nowy kod." };
+    if (result === "wygasl") return { krok: "email", email, blad: "Kod wygasł. Poproś o nowy." };
+    await loginAccount(accountByEmail(email));
+    redirect(safeTarget(formData.get("dalej")));
   }
 
-  const ponownie = akcja === "ponownie";
-  if (!poprawnyEmail(email)) return { krok: "email", email, blad: "Wpisz poprawny adres e-mail." };
-  const wynik = nowyKod(email, await adresIp());
-  if ("blad" in wynik) {
-    return wynik.juzWyslany
-      ? { krok: "kod", email, info: wynik.blad }
-      : { krok: ponownie ? "kod" : "email", email, blad: wynik.blad };
+  const again = action === "ponownie";
+  if (!validEmail(email)) return { krok: "email", email, blad: "Wpisz poprawny adres e-mail." };
+  const outcome = newCode(email, await ipAddress());
+  if ("blad" in outcome) {
+    return outcome.juzWyslany
+      ? { krok: "kod", email, info: outcome.blad }
+      : { krok: again ? "kod" : "email", email, blad: outcome.blad };
   }
   try {
-    await wyslijKodLogowania(email, wynik.kod);
-  } catch (blad) {
-    console.error("[panel] wysyłka kodu:", blad);
+    await sendLoginCode(email, outcome.kod);
+  } catch (error) {
+    console.error("[panel] wysyłka kodu:", error);
     return { krok: "email", email, blad: "Nie udało się wysłać maila. Spróbuj za chwilę." };
   }
   // lokalny podgląd bez skrzynki pocztowej: kod na ekranie (na serwerze — nigdy, tam bez SMTP jest tylko w logach)
   if (process.env.NODE_ENV === "development" && !process.env.SMTP_HOST) {
-    return { krok: "kod", email, info: `Podgląd lokalny bez poczty — Twój kod: ${wynik.kod}` };
+    return { krok: "kod", email, info: `Podgląd lokalny bez poczty — Twój kod: ${outcome.kod}` };
   }
-  return { krok: "kod", email, info: ponownie ? "Wysłaliśmy nowy kod." : undefined };
+  return { krok: "kod", email, info: again ? "Wysłaliśmy nowy kod." : undefined };
 }

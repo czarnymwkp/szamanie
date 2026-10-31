@@ -6,7 +6,7 @@ import { UMAMI_ID, UMAMI_SRC } from "@/lib/konfiguracja";
 
 declare global {
   interface Window {
-    umami?: { track: (zdarzenie: string, dane?: Record<string, string>) => void };
+    umami?: { track: (event: string, date?: Record<string, string>) => void };
   }
 }
 
@@ -14,19 +14,19 @@ declare global {
  * Statystyki odwiedzin (Umami, bez ciasteczek) tylko na stronach serwisu, bez panelu. Do tego kliknięcia w telefon
  * i dojazd z każdej strony — jedno nasłuchiwanie zamiast znaczników przy każdym przycisku; telefon mówi, który lokal.
  */
-export default function Statystyki() {
+export default function Analytics() {
   useEffect(() => {
     if (!UMAMI_ID) return;
-    const klik = (e: MouseEvent) => {
+    const onToggle = (e: MouseEvent) => {
       const href = (e.target as Element).closest?.("a[href]")?.getAttribute("href") ?? "";
-      const zdarzenie = href.startsWith("tel:") ? "Zadzwoń" : href.includes("google.com/maps") ? "Dojazd" : null;
-      if (!zdarzenie) return;
-      const dane: Record<string, string> = { strona: location.pathname };
-      if (zdarzenie === "Zadzwoń") dane.telefon = href.slice(4);
-      window.umami?.track(zdarzenie, dane);
+      const event = href.startsWith("tel:") ? "Zadzwoń" : href.includes("google.com/maps") ? "Dojazd" : null;
+      if (!event) return;
+      const date: Record<string, string> = { strona: location.pathname };
+      if (event === "Zadzwoń") date.telefon = href.slice(4);
+      window.umami?.track(event, date);
     };
-    document.addEventListener("click", klik, true);
-    return () => document.removeEventListener("click", klik, true);
+    document.addEventListener("click", onToggle, true);
+    return () => document.removeEventListener("click", onToggle, true);
   }, []);
 
   if (!UMAMI_ID || !UMAMI_SRC) return null;

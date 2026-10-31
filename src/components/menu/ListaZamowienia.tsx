@@ -3,47 +3,47 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ClipboardList, Copy, Phone, Share2, Trash2, Users, X } from "lucide-react";
 import { renderSVG } from "uqr";
-import { reka } from "@/components/szkic/szkic";
-import { zl } from "@/lib/ceny";
-import type { Dostawa } from "@/lib/menu";
-import { linkTelefonu, odmiana } from "@/lib/nazwy";
-import Licznik from "./Licznik";
-import { ZNACZNIK, odkoduj, zakoduj } from "./razem";
-import { ODBIOR, type ListaLokalu, type PozycjaListy } from "./useLista";
+import { hand } from "@/components/szkic/szkic";
+import { formatPln } from "@/lib/ceny";
+import type { Delivery } from "@/lib/menu";
+import { phoneUrl, plural } from "@/lib/nazwy";
+import Counter from "./Licznik";
+import { MARKER, decode, encode } from "./razem";
+import { PICKUP, type VenueOrderList, type ListItem } from "./useLista";
 
 // imię do „Zamawiamy razem” pamiętamy w przeglądarce, żeby nie wpisywać go przy każdym zamówieniu
-const IMIE = "szamanie:imie";
-function czytajImie() {
+const NAME_KEY = "szamanie:imie";
+function readName() {
   try {
-    return localStorage.getItem(IMIE) ?? "";
+    return localStorage.getItem(NAME_KEY) ?? "";
   } catch {
     return "";
   }
 }
 
 // dymek „Zamawiasz z kimś?” pokazujemy raz: po zamknięciu albo użyciu „Razem” już nie wraca
-const DYMEK = "szamanie:dymek-razem";
-function dymekWidziany() {
+const TIP_SEEN_KEY = "szamanie:dymek-razem";
+function tipSeen() {
   try {
-    return localStorage.getItem(DYMEK) === "1";
+    return localStorage.getItem(TIP_SEEN_KEY) === "1";
   } catch {
     return true;
   }
 }
-function zapamietajDymek() {
+function rememberTip() {
   try {
-    localStorage.setItem(DYMEK, "1");
+    localStorage.setItem(TIP_SEEN_KEY, "1");
   } catch {}
 }
 
-const sumaPozycji = (pozycje: PozycjaListy[]) => pozycje.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
+const itemsSum = (items: ListItem[]) => items.reduce((s, p) => s + (p.gr ?? 0) * p.ilosc, 0);
 
 /**
  * Pasek „Twoja lista” na dole ekranu i okno z listą. Przy dzwonieniu lista przełącza się w „ściągawkę”:
  * duże litery, ekran nie gaśnie — żeby zamawiać z telefonu, a nie z kartki. „Zamawiamy razem”: kod QR i link
  * z listą, druga osoba dopisuje swoje i podaje dalej (razem.ts); na liście pozycje są wtedy pogrupowane po osobach.
  */
-export default function ListaZamowienia({
+export default function OrderListDialog({
   l,
   slug,
   dania,
@@ -51,15 +51,15 @@ export default function ListaZamowienia({
   telefon,
   dostawa,
 }: {
-  l: ListaLokalu;
+  l: VenueOrderList;
   // bez nich (stare propozycje wyglądu) nie ma „Zamawiamy razem”
   slug?: string;
-  dania?: Map<string, Omit<PozycjaListy, "ilosc" | "kto">>;
+  dania?: Map<string, Omit<ListItem, "ilosc" | "kto">>;
   nazwa: string;
   telefon: string | null;
-  dostawa: Dostawa | null;
+  dostawa: Delivery | null;
 }) {
-  const okno = useRef<HTMLDialogElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [sciagawka, setSciagawka] = useState(false);
   const [razemOtwarte, setRazemOtwarte] = useState(false);
   const [imie, setImie] = useState("");
@@ -71,171 +71,171 @@ export default function ListaZamowienia({
   // żeby odświeżenie strony nie wczytało jej drugi raz.
   useEffect(() => {
     if (!dania) return;
-    const przyjmij = () => {
-      if (!location.hash.startsWith(ZNACZNIK)) return;
-      const dane = odkoduj(location.hash.slice(ZNACZNIK.length), dania);
+    const acceptLink = () => {
+      if (!location.hash.startsWith(MARKER)) return;
+      const date = decode(location.hash.slice(MARKER.length), dania);
       history.replaceState(null, "", location.pathname + location.search);
-      if (!dane?.pozycje.length) return;
-      l.przyjmijRazem(dane.pozycje, dane.uwagi, czytajImie());
-      if (!okno.current?.open) okno.current?.showModal();
+      if (!date?.pozycje.length) return;
+      l.przyjmijRazem(date.pozycje, date.uwagi, readName());
+      if (!dialogRef.current?.open) dialogRef.current?.showModal();
     };
-    przyjmij();
+    acceptLink();
     // link otwarty, gdy ta strona lokalu już jest otwarta — zmienia się tylko część po „#”, bez przeładowania
-    window.addEventListener("hashchange", przyjmij);
-    return () => window.removeEventListener("hashchange", przyjmij);
+    window.addEventListener("hashchange", acceptLink);
+    return () => window.removeEventListener("hashchange", acceptLink);
   }, [dania, l]);
 
   // Do dzwonienia i wysyłki te same dania od różnych osób idą razem („3 × Margherita”).
-  const zebrane = [
+  const merged = [
     ...lista.pozycje
       .reduce((m, p) => {
         const z = m.get(p.klucz);
         return m.set(p.klucz, z ? { ...z, ilosc: z.ilosc + p.ilosc } : { ...p, kto: undefined });
-      }, new Map<string, PozycjaListy>())
+      }, new Map<string, ListItem>())
       .values(),
   ];
   // Pozycje innych osób (z linku) pogrupowane po imionach, moje na końcu; bez „Zamawiamy razem” — jedna lista.
-  const osoby = [...new Set(lista.pozycje.flatMap((p) => (p.kto ? [p.kto] : [])))];
-  const grupy = osoby.length
-    ? [...osoby, undefined].map((kto) => ({ kto, pozycje: lista.pozycje.filter((p) => p.kto === kto) }))
+  const people = [...new Set(lista.pozycje.flatMap((p) => (p.kto ? [p.kto] : [])))];
+  const groups = people.length
+    ? [...people, undefined].map((who) => ({ kto: who, pozycje: lista.pozycje.filter((p) => p.kto === who) }))
     : [{ kto: undefined, pozycje: lista.pozycje }];
-  const link = (kto: string) => `${location.origin}/lokal/${slug}${ZNACZNIK}${zakoduj(lista.pozycje, lista.uwagi, kto)}`;
-  const linkRazem = razemOtwarte && imie.trim() ? link(imie.trim()) : "";
+  const link = (who: string) => `${location.origin}/lokal/${slug}${MARKER}${encode(lista.pozycje, lista.uwagi, who)}`;
+  const groupLink = razemOtwarte && imie.trim() ? link(imie.trim()) : "";
 
-  const strefa = dostawa?.strefy.find((s) => s.nazwa === lista.strefa) ?? null;
-  const odbior = lista.strefa === ODBIOR;
-  const kosztDostawy = strefa?.cenaGr ?? 0;
-  const brakDoMinimum = strefa?.minGr && sumaGr < strefa.minGr ? strefa.minGr - sumaGr : 0;
-  const razem = sumaGr + kosztDostawy;
+  const zone = dostawa?.strefy.find((s) => s.nazwa === lista.strefa) ?? null;
+  const pickup = lista.strefa === PICKUP;
+  const deliveryCost = zone?.cenaGr ?? 0;
+  const missingToMinimum = zone?.minGr && sumaGr < zone.minGr ? zone.minGr - sumaGr : 0;
+  const total = sumaGr + deliveryCost;
 
   // Po pierwszym daniu dymek nad paskiem podpowiada „Zamawiamy razem” — tylko raz i nie temu, kto dostał listę
   // linkiem (lista ma wtedy pozycje innych osób). liczba > 0 jest tylko w przeglądarce, więc localStorage czytamy
   // dopiero wtedy, a serwer i pierwszy render w przeglądarce są takie same.
-  const pokazDymek =
-    liczba > 0 && !!slug && !dymekZamkniety && !lista.pozycje.some((p) => p.kto) && !dymekWidziany();
-  const zamknijDymek = () => {
-    zapamietajDymek();
+  const showTip =
+    liczba > 0 && !!slug && !dymekZamkniety && !lista.pozycje.some((p) => p.kto) && !tipSeen();
+  const closeTip = () => {
+    rememberTip();
     setDymekZamkniety(true);
   };
-  const otworzRazem = () => {
-    zamknijDymek();
-    setImie((i) => i || czytajImie());
+  const openGroup = () => {
+    closeTip();
+    setImie((i) => i || readName());
     setRazemOtwarte(true);
   };
 
   // Pasek (i dymek nad nim) zasłaniałby dół strony — robimy mu miejsce.
   useEffect(() => {
-    document.body.style.paddingBottom = liczba ? (pokazDymek ? "12rem" : "6rem") : "";
+    document.body.style.paddingBottom = liczba ? (showTip ? "12rem" : "6rem") : "";
     return () => {
       document.body.style.paddingBottom = "";
     };
-  }, [liczba, pokazDymek]);
+  }, [liczba, showTip]);
 
   // Ściągawka: ekran nie gaśnie w czasie rozmowy (po powrocie do przeglądarki blokadę trzeba wziąć ponownie).
   useEffect(() => {
     if (!sciagawka || !("wakeLock" in navigator)) return;
-    let blokada: WakeLockSentinel | null = null;
-    const wez = () => {
+    let lock: WakeLockSentinel | null = null;
+    const acquire = () => {
       if (document.visibilityState === "visible") {
-        navigator.wakeLock.request("screen").then((b) => (blokada = b), () => {});
+        navigator.wakeLock.request("screen").then((b) => (lock = b), () => {});
       }
     };
-    wez();
-    document.addEventListener("visibilitychange", wez);
+    acquire();
+    document.addEventListener("visibilitychange", acquire);
     return () => {
-      document.removeEventListener("visibilitychange", wez);
-      blokada?.release().catch(() => {});
+      document.removeEventListener("visibilitychange", acquire);
+      lock?.release().catch(() => {});
     };
   }, [sciagawka]);
 
-  const tekst = () =>
+  const text = () =>
     [
       `Zamówienie — ${nazwa}`,
-      ...zebrane.map((p) => `${p.ilosc} × ${p.nazwa}${p.wariant ? ` (${p.wariant})` : ""}`),
+      ...merged.map((p) => `${p.ilosc} × ${p.nazwa}${p.wariant ? ` (${p.wariant})` : ""}`),
       lista.uwagi && `Uwagi: ${lista.uwagi}`,
-      strefa ? `Dostawa: ${strefa.nazwa}` : odbior ? "Odbiór osobisty" : "",
-      sumaGr ? `Razem ok. ${zl(razem)}` : "",
+      zone ? `Dostawa: ${zone.nazwa}` : pickup ? "Odbiór osobisty" : "",
+      sumaGr ? `Razem ok. ${formatPln(total)}` : "",
     ]
       .filter(Boolean)
       .join("\n");
 
-  const wyslij = async (tytul: string, wiadomosc: string) => {
+  const send = async (title: string, message: string) => {
     try {
-      if (navigator.share) await navigator.share({ title: tytul, text: wiadomosc });
+      if (navigator.share) await navigator.share({ title: title, text: message });
       else {
-        await navigator.clipboard.writeText(wiadomosc);
+        await navigator.clipboard.writeText(message);
         setSkopiowano(true);
         setTimeout(() => setSkopiowano(false), 2000);
       }
     } catch {}
   };
   // link w treści wiadomości, nie w osobnym polu „url”: część aplikacji (Messenger, SMS) bierze tylko tekst
-  const wyslijRazem = (kto: string) =>
-    wyslij(`Zamawiamy razem — ${nazwa}`, `Zamawiamy razem w ${nazwa} — dopisz swoje dania: ${link(kto)}`);
+  const sendGroupLink = (who: string) =>
+    send(`Zamawiamy razem — ${nazwa}`, `Zamawiamy razem w ${nazwa} — dopisz swoje dania: ${link(who)}`);
 
   // Dolne „Wyślij”: link do dopisania dań (jak „Zamawiamy razem”) zamiast samego tekstu listy. Bez zapisanego imienia
   // najpierw ekran „Razem”, żeby je podać; w starych propozycjach wyglądu (bez sluga) — tekst listy jak dawniej.
-  const udostepnij = () => {
-    if (!slug) return wyslij(`Zamówienie — ${nazwa}`, tekst());
-    const kto = czytajImie();
-    if (kto) return wyslijRazem(kto);
-    otworzRazem();
+  const share = () => {
+    if (!slug) return send(`Zamówienie — ${nazwa}`, text());
+    const who = readName();
+    if (who) return sendGroupLink(who);
+    openGroup();
   };
 
   // Obrazek kodu QR do schowka (wklejenie w czacie); gdy telefon nie przyjmuje obrazków w schowku — plik PNG.
   const [kodQr, setKodQr] = useState("");
-  const kopiujKod = async () => {
-    const adres = URL.createObjectURL(new Blob([renderSVG(linkRazem, { border: 2 })], { type: "image/svg+xml" }));
-    const png = new Promise<Blob>((gotowe, blad) => {
-      const obraz = new Image();
-      obraz.onload = () => {
-        const plotno = document.createElement("canvas");
-        plotno.width = plotno.height = 600;
-        const ctx = plotno.getContext("2d")!;
+  const copyQrCode = async () => {
+    const address = URL.createObjectURL(new Blob([renderSVG(groupLink, { border: 2 })], { type: "image/svg+xml" }));
+    const png = new Promise<Blob>((done, error) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 600;
+        const ctx = canvas.getContext("2d")!;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, 600, 600);
-        ctx.drawImage(obraz, 0, 0, 600, 600);
-        URL.revokeObjectURL(adres);
-        plotno.toBlob((b) => (b ? gotowe(b) : blad(new Error("png"))), "image/png");
+        ctx.drawImage(img, 0, 0, 600, 600);
+        URL.revokeObjectURL(address);
+        canvas.toBlob((b) => (b ? done(b) : error(new Error("png"))), "image/png");
       };
-      obraz.onerror = blad;
-      obraz.src = adres;
+      img.onerror = error;
+      img.src = address;
     });
-    const pokaz = (napis: string) => {
-      setKodQr(napis);
+    const show = (caption: string) => {
+      setKodQr(caption);
       setTimeout(() => setKodQr(""), 2500);
     };
     try {
       // Safari chce dostać obietnicę od razu, jeszcze w tym samym kliknięciu
       await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
-      pokaz("Kod skopiowany — wklej go w wiadomości");
+      show("Kod skopiowany — wklej go w wiadomości");
     } catch {
       try {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(await png);
         a.download = `zamawiamy-razem-${slug}.png`;
         a.click();
-        pokaz("Kod zapisany jako obrazek");
+        show("Kod zapisany jako obrazek");
       } catch {}
     }
   };
 
-  const zamknij = () => {
-    okno.current?.close();
+  const close = () => {
+    dialogRef.current?.close();
     setSciagawka(false);
     setRazemOtwarte(false);
   };
 
-  const wiersz = (p: PozycjaListy) => (
+  const row = (p: ListItem) => (
     <li key={`${p.kto ?? ""}|${p.klucz}`} className="flex items-center gap-3 py-3">
       <div className="min-w-0 flex-1">
         <p className="leading-snug font-extrabold">
           {p.nazwa}
           {p.wariant && <span className="font-bold text-tekst-2"> · {p.wariant}</span>}
         </p>
-        <p className="text-sm font-bold text-tekst-2">{p.gr === null ? "cena w lokalu" : `${p.ilosc} × ${zl(p.gr)}`}</p>
+        <p className="text-sm font-bold text-tekst-2">{p.gr === null ? "cena w lokalu" : `${p.ilosc} × ${formatPln(p.gr)}`}</p>
       </div>
-      <Licznik
+      <Counter
         ile={p.ilosc}
         nazwa={p.nazwa}
         dodaj={() => l.zmienIlosc(p.klucz, 1, p.kto)}
@@ -248,17 +248,17 @@ export default function ListaZamowienia({
     <>
       {liczba > 0 && (
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          {pokazDymek && (
+          {showTip && (
             <div className="pointer-events-auto relative mx-auto mb-4 w-full max-w-md animate-wjazd">
               <button
                 type="button"
                 onClick={() => {
-                  otworzRazem();
-                  okno.current?.showModal();
+                  openGroup();
+                  dialogRef.current?.showModal();
                 }}
                 className="block w-full rotate-[-1.5deg] rounded-2xl border-[2.5px] border-tekst bg-karta py-3 pr-10 pl-4 text-left text-tekst shadow-[4px_4px_0_#1d1b19]"
               >
-                <span className={`${reka.className} block text-[1.4rem] leading-tight`}>
+                <span className={`${hand.className} block text-[1.4rem] leading-tight`}>
                   Zamawiasz z kimś? Pokaż kod QR albo wyślij link — każdy doda swoje ze swojego telefonu!
                 </span>
                 <span className="mt-1 flex items-center gap-1.5 text-sm font-extrabold text-akcent-tekst">
@@ -269,7 +269,7 @@ export default function ListaZamowienia({
               </button>
               <button
                 type="button"
-                onClick={zamknijDymek}
+                onClick={closeTip}
                 aria-label="Zamknij podpowiedź"
                 className="absolute top-1 right-1 flex size-9 items-center justify-center text-tekst"
               >
@@ -279,22 +279,22 @@ export default function ListaZamowienia({
           )}
           <button
             type="button"
-            onClick={() => okno.current?.showModal()}
+            onClick={() => dialogRef.current?.showModal()}
             className="pointer-events-auto mx-auto flex w-full max-w-md animate-wjazd items-center gap-3 rounded-full bg-tekst py-2.5 pr-5 pl-2.5 text-tlo shadow-[0_12px_32px_rgba(0,0,0,0.35)] transition active:scale-[0.98]"
           >
             <span key={liczba} className="flex size-10 animate-kolysanie items-center justify-center rounded-full bg-akcent font-black text-na-akcencie">
               {liczba}
             </span>
             <span className="flex-1 text-left font-extrabold">Twoja lista do zamówienia</span>
-            {sumaGr > 0 && <span className="font-black">{zl(sumaGr)}</span>}
+            {sumaGr > 0 && <span className="font-black">{formatPln(sumaGr)}</span>}
           </button>
         </div>
       )}
 
       <dialog
-        ref={okno}
+        ref={dialogRef}
         aria-label="Twoja lista do zamówienia"
-        onClick={(e) => e.target === e.currentTarget && zamknij()}
+        onClick={(e) => e.target === e.currentTarget && close()}
         onClose={() => {
           setSciagawka(false);
           setRazemOtwarte(false);
@@ -322,7 +322,7 @@ export default function ListaZamowienia({
           {!sciagawka && !razemOtwarte && slug && (
             <button
               type="button"
-              onClick={otworzRazem}
+              onClick={openGroup}
               className="ml-auto flex h-9 items-center gap-1.5 rounded-full border-[1.5px] border-tekst px-3 text-sm font-extrabold"
             >
               <Users className="size-4" aria-hidden /> Razem
@@ -330,7 +330,7 @@ export default function ListaZamowienia({
           )}
           <button
             type="button"
-            onClick={zamknij}
+            onClick={close}
             aria-label="Zamknij"
             className={`${!sciagawka && !razemOtwarte && slug ? "" : "ml-auto"} flex size-9 shrink-0 items-center justify-center rounded-full bg-krem`}
           >
@@ -344,7 +344,7 @@ export default function ListaZamowienia({
           <div className="min-h-0 flex-auto overflow-y-auto px-5 py-6">
             <p className="text-sm font-extrabold text-tekst-2 uppercase">Zamawiasz w: {nazwa}</p>
             <ul className="mt-4 space-y-3">
-              {zebrane.map((p) => (
+              {merged.map((p) => (
                 <li key={p.klucz} className="text-[1.75rem] leading-tight font-black">
                   <span className="text-akcent-tekst">{p.ilosc} ×</span> {p.nazwa}
                   {p.wariant && <span className="font-bold text-tekst-2"> ({p.wariant})</span>}
@@ -353,9 +353,9 @@ export default function ListaZamowienia({
             </ul>
             {lista.uwagi && <p className="mt-5 rounded-2xl bg-krem p-4 text-xl font-bold">Uwagi: {lista.uwagi}</p>}
             <p className="mt-5 text-xl font-extrabold">
-              {strefa ? `Dostawa: ${strefa.nazwa}` : odbior ? "Odbiór osobisty" : ""}
+              {zone ? `Dostawa: ${zone.nazwa}` : pickup ? "Odbiór osobisty" : ""}
             </p>
-            {sumaGr > 0 && <p className="mt-1 text-xl font-extrabold">Razem ok. {zl(razem)}</p>}
+            {sumaGr > 0 && <p className="mt-1 text-xl font-extrabold">Razem ok. {formatPln(total)}</p>}
             <p className="mt-6 text-xs font-semibold text-tekst-2">Ekran nie zgaśnie, dopóki ta lista jest otwarta.</p>
           </div>
         ) : razemOtwarte ? (
@@ -370,7 +370,7 @@ export default function ListaZamowienia({
                 onChange={(e) => {
                   setImie(e.target.value);
                   try {
-                    localStorage.setItem(IMIE, e.target.value.trim());
+                    localStorage.setItem(NAME_KEY, e.target.value.trim());
                   } catch {}
                 }}
                 maxLength={30}
@@ -378,7 +378,7 @@ export default function ListaZamowienia({
                 className="mt-1 h-12 w-full rounded-2xl border-[1.5px] border-obrys-2 bg-karta px-4 font-bold outline-none focus:border-tekst"
               />
             </label>
-            {linkRazem ? (
+            {groupLink ? (
               <>
                 {/* SVG z biblioteki uqr — same kwadraty kodu, bez tekstu z zewnątrz */}
                 <div
@@ -386,14 +386,14 @@ export default function ListaZamowienia({
                   aria-label="Kod QR z listą do zamówienia"
                   // na niskich ekranach mniejszy, żeby cały był widać nad przyciskiem „Wyślij link”
                   className="mx-auto mt-4 w-[min(15rem,30dvh)] max-w-full rounded-2xl bg-white p-2 shadow-sm"
-                  dangerouslySetInnerHTML={{ __html: renderSVG(linkRazem, { border: 1 }) }}
+                  dangerouslySetInnerHTML={{ __html: renderSVG(groupLink, { border: 1 }) }}
                 />
                 <p className="mt-2 text-center text-xs font-bold text-tekst-2">
-                  {liczba} {odmiana(liczba, ["pozycja", "pozycje", "pozycji"])} od: {[...osoby.filter((o) => o !== imie.trim()), imie.trim()].join(", ")}
+                  {liczba} {plural(liczba, ["pozycja", "pozycje", "pozycji"])} od: {[...people.filter((o) => o !== imie.trim()), imie.trim()].join(", ")}
                 </p>
                 <button
                   type="button"
-                  onClick={kopiujKod}
+                  onClick={copyQrCode}
                   className="mx-auto mt-2 flex h-9 items-center gap-1.5 rounded-full border-[1.5px] border-tekst px-3.5 text-sm font-extrabold"
                 >
                   <Copy className="size-4" aria-hidden /> {kodQr || "Kopiuj kod QR"}
@@ -408,22 +408,22 @@ export default function ListaZamowienia({
         ) : (
           <div className="min-h-0 flex-auto overflow-y-auto px-5 pb-4">
             <p className="pt-3 text-sm font-bold text-tekst-2">{nazwa}</p>
-            {grupy.map((g) =>
-              osoby.length ? (
+            {groups.map((g) =>
+              people.length ? (
                 <section key={g.kto ?? ""} className="mt-3">
                   <h3 className="flex justify-between border-b-2 border-tekst pb-1 text-sm font-black">
                     <span>{g.kto ?? "Ty"}</span>
-                    {sumaPozycji(g.pozycje) > 0 && <span>{zl(sumaPozycji(g.pozycje))}</span>}
+                    {itemsSum(g.pozycje) > 0 && <span>{formatPln(itemsSum(g.pozycje))}</span>}
                   </h3>
                   {g.pozycje.length ? (
-                    <ul className="divide-y divide-obrys">{g.pozycje.map(wiersz)}</ul>
+                    <ul className="divide-y divide-obrys">{g.pozycje.map(row)}</ul>
                   ) : (
                     <p className="py-3 text-sm font-semibold text-tekst-2">Dodaj swoje dania przyciskiem + w menu.</p>
                   )}
                 </section>
               ) : (
                 <ul key="lista" className="divide-y divide-obrys">
-                  {g.pozycje.map(wiersz)}
+                  {g.pozycje.map(row)}
                 </ul>
               ),
             )}
@@ -448,18 +448,18 @@ export default function ListaZamowienia({
                   className="mt-1 h-12 w-full rounded-2xl border-[1.5px] border-obrys-2 bg-karta px-4 font-bold outline-none focus:border-tekst"
                 >
                   <option value="">Wybierz miejscowość…</option>
-                  <option value={ODBIOR}>Odbiór osobisty</option>
+                  <option value={PICKUP}>Odbiór osobisty</option>
                   {dostawa.strefy.map((s) => (
                     <option key={s.nazwa} value={s.nazwa}>
                       {s.nazwa}
-                      {s.cenaGr !== null ? ` — ${s.cenaGr ? zl(s.cenaGr) : "gratis"}` : ""}
-                      {s.minGr ? `, min. ${zl(s.minGr)}` : ""}
+                      {s.cenaGr !== null ? ` — ${s.cenaGr ? formatPln(s.cenaGr) : "gratis"}` : ""}
+                      {s.minGr ? `, min. ${formatPln(s.minGr)}` : ""}
                     </option>
                   ))}
                 </select>
-                {brakDoMinimum > 0 && (
+                {missingToMinimum > 0 && (
                   <span className="mt-1.5 block text-sm font-extrabold text-zamkniete">
-                    Do minimalnego zamówienia brakuje {zl(brakDoMinimum)}.
+                    Do minimalnego zamówienia brakuje {formatPln(missingToMinimum)}.
                   </span>
                 )}
               </label>
@@ -469,17 +469,17 @@ export default function ListaZamowienia({
               <dl className="mt-4 space-y-1 rounded-2xl bg-karta p-4 text-sm font-bold">
                 <div className="flex justify-between">
                   <dt className="text-tekst-2">Dania</dt>
-                  <dd>{zl(sumaGr)}</dd>
+                  <dd>{formatPln(sumaGr)}</dd>
                 </div>
-                {strefa && (
+                {zone && (
                   <div className="flex justify-between">
                     <dt className="text-tekst-2">Dostawa</dt>
-                    <dd>{strefa.cenaGr === null ? "zapytaj" : strefa.cenaGr ? zl(strefa.cenaGr) : "gratis"}</dd>
+                    <dd>{zone.cenaGr === null ? "zapytaj" : zone.cenaGr ? formatPln(zone.cenaGr) : "gratis"}</dd>
                   </div>
                 )}
                 <div className="flex justify-between pt-1 text-lg font-black">
                   <dt>Razem ok.</dt>
-                  <dd>{zl(razem)}</dd>
+                  <dd>{formatPln(total)}</dd>
                 </div>
                 {l.bezCeny && <p className="text-xs text-tekst-2">Część pozycji nie ma ceny — doliczy lokal.</p>}
               </dl>
@@ -494,15 +494,15 @@ export default function ListaZamowienia({
           {razemOtwarte ? (
             <button
               type="button"
-              onClick={() => wyslijRazem(imie.trim())}
-              disabled={!linkRazem}
+              onClick={() => sendGroupLink(imie.trim())}
+              disabled={!groupLink}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-akcent text-lg font-black text-na-akcencie transition active:scale-[0.98] disabled:opacity-40"
             >
               <Share2 className="size-5" aria-hidden /> {skopiowano ? "Link skopiowany" : "Wyślij link"}
             </button>
           ) : telefon ? (
             <a
-              href={linkTelefonu(telefon)}
+              href={phoneUrl(telefon)}
               onClick={() => setSciagawka(true)}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-akcent text-lg font-black text-na-akcencie transition active:scale-[0.98]"
             >
@@ -522,7 +522,7 @@ export default function ListaZamowienia({
               </button>
               <button
                 type="button"
-                onClick={udostepnij}
+                onClick={share}
                 className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full border-[1.5px] border-tekst text-sm font-extrabold"
               >
                 <Share2 className="size-4" aria-hidden /> {skopiowano ? "Skopiowano" : "Wyślij"}
@@ -531,7 +531,7 @@ export default function ListaZamowienia({
                 type="button"
                 onClick={() => {
                   l.wyczysc();
-                  zamknij();
+                  close();
                 }}
                 aria-label="Wyczyść listę"
                 className="flex size-11 items-center justify-center rounded-full border-[1.5px] border-obrys-2 text-tekst-2"

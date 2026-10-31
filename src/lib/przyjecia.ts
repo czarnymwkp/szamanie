@@ -2,11 +2,11 @@
 // Na razie ręcznie, ze stron i profili lokali (źródło przy każdym wpisie); później z panelu lokalu.
 // Klucz = slug lokalu.
 
-import type { Lokal } from "./lokale";
+import type { Venue } from "./lokale";
 
-export type RodzajPrzyjecia = "wesela" | "komunie" | "chrzciny" | "okolicznosciowe" | "firmowe" | "stypy";
+export type EventKind = "wesela" | "komunie" | "chrzciny" | "okolicznosciowe" | "firmowe" | "stypy";
 
-export const NAZWY_PRZYJEC: Record<RodzajPrzyjecia, string> = {
+export const EVENT_NAMES: Record<EventKind, string> = {
   wesela: "Wesela",
   komunie: "Komunie",
   chrzciny: "Chrzciny",
@@ -15,8 +15,8 @@ export const NAZWY_PRZYJEC: Record<RodzajPrzyjecia, string> = {
   stypy: "Stypy",
 };
 
-export type Przyjecia = {
-  rodzaje: RodzajPrzyjecia[];
+export type Events = {
+  rodzaje: EventKind[];
   doOsob?: number; // największa sala, tak jak podaje lokal
   noclegi?: boolean;
   // sala bez zwykłej kuchni na co dzień: nie pokazujemy jej w „Co dziś szamiesz?” ani na stronach „gdzie zjeść”
@@ -24,7 +24,7 @@ export type Przyjecia = {
   zrodlo: string;
 };
 
-export const PRZYJECIA: Record<string, Przyjecia> = {
+export const EVENTS: Record<string, Events> = {
   "zielony-dworek-krasnik": {
     rodzaje: ["wesela", "komunie", "chrzciny", "okolicznosciowe", "firmowe"],
     doOsob: 220,
@@ -58,15 +58,15 @@ export const PRZYJECIA: Record<string, Przyjecia> = {
   },
 };
 
-export const przyjeciaLokalu = (l: Pick<Lokal, "slug">): Przyjecia | undefined => PRZYJECIA[l.slug];
+export const venueEvents = (l: Pick<Venue, "slug">): Events | undefined => EVENTS[l.slug];
 
 /** Lokale do list „gdzie zjeść” — bez sal, które działają tylko na przyjęcia. */
-export const bezSamychSal = <T extends Pick<Lokal, "slug">>(lokale: T[]) =>
-  lokale.filter((l) => !PRZYJECIA[l.slug]?.tylkoPrzyjecia);
+export const excludeHallsOnly = <T extends Pick<Venue, "slug">>(venues: T[]) =>
+  venues.filter((l) => !EVENTS[l.slug]?.tylkoPrzyjecia);
 
 /** Sale z listy lokali: najpierw wyróżnione, potem alfabetycznie (jak na stronach fraz). */
-export const saleZListy = (lokale: Lokal[]) =>
-  lokale
-    .filter((l) => PRZYJECIA[l.slug])
+export const hallsFromList = (venues: Venue[]) =>
+  venues
+    .filter((l) => EVENTS[l.slug])
     .sort((a, b) => Number(b.promowany) - Number(a.promowany) || a.nazwa.localeCompare(b.nazwa, "pl"))
-    .map((l) => ({ lokal: l, przyjecia: PRZYJECIA[l.slug] }));
+    .map((l) => ({ lokal: l, przyjecia: EVENTS[l.slug] }));

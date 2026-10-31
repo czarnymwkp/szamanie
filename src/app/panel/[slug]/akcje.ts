@@ -1,31 +1,31 @@
 "use server";
 
 import { updateTag } from "next/cache";
-import { parsujGodziny } from "@/lib/godziny";
-import { autorZmian, poprawnyEmail, wymagajLokalu } from "@/lib/panel/konta";
+import { parseHours } from "@/lib/godziny";
+import { changeAuthor, validEmail, requireVenue } from "@/lib/panel/konta";
 import {
-  cenyDan,
-  DLUGOSCI,
-  grosze,
-  menuDoEdycji,
-  POLA_TAK_NIE,
-  POLA_TEKSTOWE,
-  sprawdzMenu,
-  sprawdzStrefy,
-  usunPromocje as usunZBazy,
-  zapiszDostawe as zapiszStrefy,
-  zapiszDaneLokalu,
-  zapiszMenuLokalu,
-  zapiszPromocje as zapiszWBazie,
-  type DaneLokalu,
-  type SekcjaEdycja,
+  dishPrices,
+  LENGTHS,
+  toGrosze,
+  menuDraft,
+  YES_NO_FIELDS,
+  TEXT_FIELDS,
+  validateMenu,
+  validateZones,
+  deletePromotion as usunZBazy,
+  saveDelivery as zapiszStrefy,
+  saveVenueDetails,
+  saveVenueMenu,
+  savePromotion as zapiszWBazie,
+  type VenueData,
+  type SectionDraft,
 } from "@/lib/panel/lokal";
 
 // Każda akcja sama sprawdza, czy zalogowane konto zarządza lokalem — dane z przeglądarki nie są zaufane.
 
-export type StanFormularza = { blad?: string; ok?: string };
+export type FormState = { blad?: string; ok?: string };
 
-const NAZWY_POL: Record<string, string> = {
+const FIELD_NAMES: Record<string, string> = {
   nazwa: "Nazwa",
   telefon: "Telefon",
   email: "E-mail",
@@ -36,87 +36,87 @@ const NAZWY_POL: Record<string, string> = {
   godziny: "Godziny",
 };
 
-export async function zapiszDane(slug: string, _: StanFormularza, formData: FormData): Promise<StanFormularza> {
-  const { konto, lokal } = await wymagajLokalu(slug);
-  const dane = {} as DaneLokalu;
-  for (const pole of POLA_TEKSTOWE) {
-    const wartosc = String(formData.get(pole) ?? "").trim();
-    if (wartosc.length > DLUGOSCI[pole]) return { blad: `${NAZWY_POL[pole]}: za długi tekst (najwyżej ${DLUGOSCI[pole]} znaków).` };
-    dane[pole] = wartosc || null;
+export async function saveDetails(slug: string, _: FormState, formData: FormData): Promise<FormState> {
+  const { konto, lokal } = await requireVenue(slug);
+  const date = {} as VenueData;
+  for (const field of TEXT_FIELDS) {
+    const value = String(formData.get(field) ?? "").trim();
+    if (value.length > LENGTHS[field]) return { blad: `${FIELD_NAMES[field]}: za długi tekst (najwyżej ${LENGTHS[field]} znaków).` };
+    date[field] = value || null;
   }
-  for (const pole of POLA_TAK_NIE) dane[pole] = formData.get(pole) === "tak";
+  for (const field of YES_NO_FIELDS) date[field] = formData.get(field) === "tak";
 
-  if (!dane.nazwa) return { blad: "Lokal musi mieć nazwę." };
-  if (dane.telefon && !/^[\d\s+()/-]{9,}$/.test(dane.telefon)) return { blad: "Telefon: wpisz sam numer, np. 81 825 00 00." };
-  if (dane.email && !poprawnyEmail(dane.email.toLowerCase())) return { blad: "E-mail: to nie wygląda na adres e-mail." };
-  if (dane.godziny && !parsujGodziny(dane.godziny)) return { blad: "Godziny: nie udało się ich odczytać. Ustaw je od nowa." };
+  if (!date.nazwa) return { blad: "Lokal musi mieć nazwę." };
+  if (date.telefon && !/^[\d\s+()/-]{9,}$/.test(date.telefon)) return { blad: "Telefon: wpisz sam numer, np. 81 825 00 00." };
+  if (date.email && !validEmail(date.email.toLowerCase())) return { blad: "E-mail: to nie wygląda na adres e-mail." };
+  if (date.godziny && !parseHours(date.godziny)) return { blad: "Godziny: nie udało się ich odczytać. Ustaw je od nowa." };
 
-  const zmian = zapiszDaneLokalu(lokal.id, dane, autorZmian(konto));
-  if (zmian) updateTag("lokale");
-  return { ok: zmian ? "Zapisano. Strona lokalu już pokazuje zmiany." : "Nic się nie zmieniło." };
+  const changes = saveVenueDetails(lokal.id, date, changeAuthor(konto));
+  if (changes) updateTag("lokale");
+  return { ok: changes ? "Zapisano. Strona lokalu już pokazuje zmiany." : "Nic się nie zmieniło." };
 }
 
-export type StanMenu = { blad?: string; ok?: string; menu?: SekcjaEdycja[] };
+export type MenuState = { blad?: string; ok?: string; menu?: SectionDraft[] };
 
-export async function zapiszMenu(slug: string, menu: unknown): Promise<StanMenu> {
-  const { lokal } = await wymagajLokalu(slug);
-  const sprawdzone = sprawdzMenu(menu);
-  if ("blad" in sprawdzone) return { blad: sprawdzone.blad };
-  zapiszMenuLokalu(lokal.id, sprawdzone.menu);
+export async function saveMenu(slug: string, menu: unknown): Promise<MenuState> {
+  const { lokal } = await requireVenue(slug);
+  const checked = validateMenu(menu);
+  if ("blad" in checked) return { blad: checked.blad };
+  saveVenueMenu(lokal.id, checked.menu);
   // kuchnie i „opcje wegetariańskie” lokalu liczą się z menu, więc odświeżamy też listę lokali
   updateTag("menu");
   updateTag("lokale");
   updateTag("promocje");
-  return { ok: "Zapisano. Strona lokalu już pokazuje nowe menu.", menu: menuDoEdycji(lokal.id) };
+  return { ok: "Zapisano. Strona lokalu już pokazuje nowe menu.", menu: menuDraft(lokal.id) };
 }
 
-const DATA = /^\d{4}-\d{2}-\d{2}$/;
-const GODZINA = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const HOUR = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-export async function zapiszPromocje(slug: string, _: StanFormularza, formData: FormData): Promise<StanFormularza> {
-  const { lokal } = await wymagajLokalu(slug);
-  const tekst = (n: string, max: number) => String(formData.get(n) ?? "").trim().slice(0, max);
+export async function savePromotionAction(slug: string, _: FormState, formData: FormData): Promise<FormState> {
+  const { lokal } = await requireVenue(slug);
+  const text = (n: string, max: number) => String(formData.get(n) ?? "").trim().slice(0, max);
   const id = Number(formData.get("id")) || null;
-  const tytul = tekst("tytul", 80);
-  const opis = tekst("opis", 300) || null;
-  const odDnia = tekst("odDnia", 10) || null;
-  const doDnia = tekst("doDnia", 10) || null;
-  const odGodz = tekst("odGodz", 5) || null;
-  const doGodz = tekst("doGodz", 5) || null;
-  const dni = [...new Set(formData.getAll("dni").map(Number))].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6).sort();
-  const danie = tekst("danie", 120) || null;
-  const wariant = tekst("wariant", 40) || null;
-  const cena = tekst("cena", 20);
+  const title = text("tytul", 80);
+  const description = text("opis", 300) || null;
+  const fromDay = text("odDnia", 10) || null;
+  const untilDay = text("doDnia", 10) || null;
+  const fromHour = text("odGodz", 5) || null;
+  const untilHour = text("doGodz", 5) || null;
+  const days = [...new Set(formData.getAll("dni").map(Number))].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6).sort();
+  const dish = text("danie", 120) || null;
+  const variant = text("wariant", 40) || null;
+  const price = text("cena", 20);
 
-  if (!tytul) return { blad: "Podaj tytuł promocji, np. „Druga pizza za pół ceny”." };
-  if ((odDnia && !DATA.test(odDnia)) || (doDnia && !DATA.test(doDnia))) return { blad: "Nieprawidłowa data." };
-  if (odDnia && doDnia && odDnia > doDnia) return { blad: "Promocja kończy się przed początkiem — popraw daty." };
-  if ((odGodz && !GODZINA.test(odGodz)) || (doGodz && !GODZINA.test(doGodz))) return { blad: "Nieprawidłowa godzina." };
-  if (odGodz && doGodz && odGodz >= doGodz) return { blad: "Godzina końca musi być po godzinie początku." };
+  if (!title) return { blad: "Podaj tytuł promocji, np. „Druga pizza za pół ceny”." };
+  if ((fromDay && !DATE.test(fromDay)) || (untilDay && !DATE.test(untilDay))) return { blad: "Nieprawidłowa data." };
+  if (fromDay && untilDay && fromDay > untilDay) return { blad: "Promocja kończy się przed początkiem — popraw daty." };
+  if ((fromHour && !HOUR.test(fromHour)) || (untilHour && !HOUR.test(untilHour))) return { blad: "Nieprawidłowa godzina." };
+  if (fromHour && untilHour && fromHour >= untilHour) return { blad: "Godzina końca musi być po godzinie początku." };
 
-  let cenaGr: number | null = null;
-  if (danie) {
-    const d = cenyDan(lokal.id).find((x) => x.nazwa === danie);
+  let priceGr: number | null = null;
+  if (dish) {
+    const d = dishPrices(lokal.id).find((x) => x.nazwa === dish);
     if (!d) return { blad: "Nie ma takiego dania w menu." };
-    const regularna = d.ceny.length === 1 && !wariant ? d.ceny[0] : d.ceny.find((c) => c.wariant === wariant);
-    if (!regularna) return { blad: "Wybierz wariant dania (np. rozmiar pizzy)." };
-    cenaGr = grosze(cena);
-    if (cenaGr === null || cenaGr <= 0) return { blad: "Podaj cenę promocyjną, np. 19,90." };
-    if (cenaGr >= regularna.gr) return { blad: "Cena promocyjna musi być niższa od ceny z menu." };
+    const regular = d.ceny.length === 1 && !variant ? d.ceny[0] : d.ceny.find((c) => c.wariant === variant);
+    if (!regular) return { blad: "Wybierz wariant dania (np. rozmiar pizzy)." };
+    priceGr = toGrosze(price);
+    if (priceGr === null || priceGr <= 0) return { blad: "Podaj cenę promocyjną, np. 19,90." };
+    if (priceGr >= regular.gr) return { blad: "Cena promocyjna musi być niższa od ceny z menu." };
   }
 
   zapiszWBazie(lokal.id, {
     id,
-    tytul,
-    opis,
-    danie,
-    wariant: danie ? wariant : null,
-    cenaGr,
-    odDnia,
-    doDnia,
-    dni: dni.length === 7 ? [] : dni,
-    odGodz,
-    doGodz,
+    tytul: title,
+    opis: description,
+    danie: dish,
+    wariant: dish ? variant : null,
+    cenaGr: priceGr,
+    odDnia: fromDay,
+    doDnia: untilDay,
+    dni: days.length === 7 ? [] : days,
+    odGodz: fromHour,
+    doGodz: untilHour,
     aktywna: formData.get("aktywna") === "tak",
   });
   updateTag("promocje");
@@ -124,18 +124,18 @@ export async function zapiszPromocje(slug: string, _: StanFormularza, formData: 
   return { ok: id ? "Zapisano zmiany promocji." : "Dodano promocję. Już widać ją na stronie lokalu." };
 }
 
-export async function usunPromocje(slug: string, id: number) {
-  const { lokal } = await wymagajLokalu(slug);
+export async function deletePromotionAction(slug: string, id: number) {
+  const { lokal } = await requireVenue(slug);
   usunZBazy(lokal.id, id);
   updateTag("promocje");
   updateTag("lokale");
 }
 
-export async function zapiszDostawe(slug: string, strefy: unknown, uwagi: string): Promise<StanFormularza> {
-  const { lokal } = await wymagajLokalu(slug);
-  const sprawdzone = sprawdzStrefy(strefy);
-  if ("blad" in sprawdzone) return { blad: sprawdzone.blad };
-  zapiszStrefy(lokal.id, sprawdzone.strefy, String(uwagi ?? "").trim().slice(0, 300) || null);
+export async function saveDeliveryAction(slug: string, zones: unknown, notes: string): Promise<FormState> {
+  const { lokal } = await requireVenue(slug);
+  const checked = validateZones(zones);
+  if ("blad" in checked) return { blad: checked.blad };
+  zapiszStrefy(lokal.id, checked.strefy, String(notes ?? "").trim().slice(0, 300) || null);
   // strefy pokazuje strona lokalu (tag „menu”), a lokal ze strefami dowozi (lista lokali)
   updateTag("menu");
   updateTag("lokale");

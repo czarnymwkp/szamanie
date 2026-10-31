@@ -1,15 +1,15 @@
 import { Navigation, Phone, PhoneOff, Truck } from "lucide-react";
-import type { Lokal } from "@/lib/lokale";
-import { linkTelefonu } from "@/lib/nazwy";
-import PrzyciskProwadz from "./PrzyciskProwadz";
+import type { Venue } from "@/lib/lokale";
+import { phoneUrl } from "@/lib/nazwy";
+import DirectionsButton from "./PrzyciskProwadz";
 
 /**
  * Dolny pasek karty lokalu w jednej linii: plakietka „Dowóz” z jadącym autkiem (rozciągnięta na wolne miejsce,
  * pomysł usera; dotknięcie przechodzi do karty — pointer-events-none), dojazd i telefon (zamówienie). Bez numeru
  * telefon jest wyszarzony, żeby było widać, że to brak danych, a nie błąd. `ciemne` — wersja na ciemne tło.
  */
-export default function SzybkieAkcje({ lokal, ciemne = false }: { lokal: Lokal; ciemne?: boolean }) {
-  const okragly = "flex size-10 items-center justify-center rounded-full transition hover:scale-110 active:scale-95";
+export default function QuickActions({ lokal, ciemne = false }: { lokal: Venue; ciemne?: boolean }) {
+  const round = "flex size-10 items-center justify-center rounded-full transition hover:scale-110 active:scale-95";
   return (
     <div className="relative z-10 flex items-center justify-end gap-1.5">
       {lokal.dostawa && (
@@ -26,18 +26,18 @@ export default function SzybkieAkcje({ lokal, ciemne = false }: { lokal: Lokal; 
         </span>
       )}
       <div className="flex shrink-0 gap-1.5">
-        <PrzyciskProwadz
+        <DirectionsButton
           lokal={lokal}
           aria-label={`Prowadź do: ${lokal.nazwa}`}
-          className={`${okragly} ${ciemne ? "bg-white text-tekst" : "bg-tekst text-white"}`}
+          className={`${round} ${ciemne ? "bg-white text-tekst" : "bg-tekst text-white"}`}
         >
           <Navigation className="size-[18px]" aria-hidden />
-        </PrzyciskProwadz>
+        </DirectionsButton>
         {lokal.telefon ? (
           <a
-            href={linkTelefonu(lokal.telefon)}
+            href={phoneUrl(lokal.telefon)}
             aria-label={`Zadzwoń: ${lokal.nazwa}`}
-            className={`${okragly} bg-akcent text-tekst`}
+            className={`${round} bg-akcent text-tekst`}
           >
             <Phone className="size-[18px]" aria-hidden />
           </a>

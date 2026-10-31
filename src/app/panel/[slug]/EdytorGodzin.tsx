@@ -2,62 +2,62 @@
 
 import { Copy, Plus, X } from "lucide-react";
 import { useState } from "react";
-import { DNI_PL, formatGodz, parsujGodziny, zapiszGodziny, type Tydzien } from "@/lib/godziny";
-import { pole, przyciskMaly } from "@/components/panel/style";
+import { POLISH_DAYS, formatHour, parseHours, saveHours, type Week } from "@/lib/godziny";
+import { field, smallButton } from "@/components/panel/style";
 
 // Godziny otwarcia jako 7 wierszy (dzień: zamknięte albo od–do, opcjonalnie druga zmiana, np. po przerwie).
 // Wynik idzie w ukrytym polu „godziny” w formacie OpenStreetMap, tak jak resztę danych czyta strona lokalu.
 
-type Zmiana = { od: string; do: string };
-type Dzien = Zmiana[];
+type Change = { od: string; do: string };
+type Day = Change[];
 
-const DOMYSLNIE: Zmiana = { od: "10:00", do: "22:00" };
+const DEFAULTS: Change = { od: "10:00", do: "22:00" };
 
-function naDni(godziny: string | null): Dzien[] | null {
-  const t = parsujGodziny(godziny);
+function toDays(hours: string | null): Day[] | null {
+  const t = parseHours(hours);
   if (!t) return null;
-  return t.map((przedzialy) => przedzialy.map(([s, k]) => ({ od: formatGodz(s), do: formatGodz(k) })));
+  return t.map((ranges) => ranges.map(([s, k]) => ({ od: formatHour(s), do: formatHour(k) })));
 }
 
-const minuty = (g: string) => {
+const minutes = (g: string) => {
   const [h, m] = g.split(":").map(Number);
   return h * 60 + m;
 };
 
-function naTekst(dni: Dzien[]) {
-  if (dni.every((d) => !d.length)) return "";
-  const tydzien: Tydzien = dni.map((d) =>
+function toText(days: Day[]) {
+  if (days.every((d) => !d.length)) return "";
+  const week: Week = days.map((d) =>
     d.map(({ od, do: doo }): [number, number] => {
-      const s = minuty(od);
-      const k = minuty(doo === "24:00" ? "00:00" : doo);
+      const s = minutes(od);
+      const k = minutes(doo === "24:00" ? "00:00" : doo);
       return [s, k <= s ? k + 24 * 60 : k]; // do 02:00 = po północy
     }),
   );
-  return zapiszGodziny(tydzien);
+  return saveHours(week);
 }
 
-export default function EdytorGodzin({ godziny }: { godziny: string | null }) {
-  const poczatkowe = naDni(godziny);
-  const [dni, setDni] = useState<Dzien[] | null>(poczatkowe);
-  const nietypowe = !!godziny && !poczatkowe;
+export default function HoursEditor({ godziny }: { godziny: string | null }) {
+  const initial = toDays(godziny);
+  const [dni, setDni] = useState<Day[] | null>(initial);
+  const unusual = !!godziny && !initial;
 
-  const zmienDzien = (i: number, dzien: Dzien) => setDni((d) => d && d.map((x, j) => (j === i ? dzien : x)));
+  const changeDay = (i: number, day: Day) => setDni((d) => d && d.map((x, j) => (j === i ? day : x)));
 
   if (!dni) {
     return (
       <div className="space-y-3">
-        {nietypowe && (
+        {unusual && (
           <p className="text-sm text-tekst-2">
             Obecny zapis godzin jest nietypowy (<code className="break-all">{godziny}</code>). Ustaw je od nowa.
           </p>
         )}
-        {!nietypowe && <p className="text-sm text-tekst-2">Godziny otwarcia nie są jeszcze podane.</p>}
+        {!unusual && <p className="text-sm text-tekst-2">Godziny otwarcia nie są jeszcze podane.</p>}
         {/* bez zmian zostaje to, co było */}
         <input type="hidden" name="godziny" value={godziny ?? ""} />
         <button
           type="button"
-          onClick={() => setDni(DNI_PL.map(() => [{ ...DOMYSLNIE }]))}
-          className={`${przyciskMaly} bg-krem`}
+          onClick={() => setDni(POLISH_DAYS.map(() => [{ ...DEFAULTS }]))}
+          className={`${smallButton} bg-krem`}
         >
           <Plus className="size-4" aria-hidden /> Ustaw godziny
         </button>
@@ -67,53 +67,53 @@ export default function EdytorGodzin({ godziny }: { godziny: string | null }) {
 
   return (
     <div className="space-y-2">
-      <input type="hidden" name="godziny" value={naTekst(dni)} />
-      {dni.map((dzien, i) => (
-        <div key={DNI_PL[i]} className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-obrys py-2 last:border-0">
+      <input type="hidden" name="godziny" value={toText(dni)} />
+      {dni.map((day, i) => (
+        <div key={POLISH_DAYS[i]} className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-obrys py-2 last:border-0">
           <label className="flex w-36 shrink-0 items-center gap-2.5 font-extrabold">
             <input
               type="checkbox"
-              checked={dzien.length > 0}
-              onChange={(e) => zmienDzien(i, e.target.checked ? [{ ...(dni.find((d) => d.length)?.[0] ?? DOMYSLNIE) }] : [])}
+              checked={day.length > 0}
+              onChange={(e) => changeDay(i, e.target.checked ? [{ ...(dni.find((d) => d.length)?.[0] ?? DEFAULTS) }] : [])}
               className="size-5 accent-akcent"
             />
-            {DNI_PL[i]}
+            {POLISH_DAYS[i]}
           </label>
-          {dzien.length ? (
+          {day.length ? (
             <div className="flex flex-1 flex-col gap-2">
-              {dzien.map((z, k) => (
+              {day.map((z, k) => (
                 <div key={k} className="flex items-center gap-2">
                   <input
                     type="time"
                     value={z.od}
-                    aria-label={`${DNI_PL[i]}: otwarcie`}
-                    onChange={(e) => zmienDzien(i, dzien.map((x, j) => (j === k ? { ...x, od: e.target.value } : x)))}
-                    className={`${pole} w-28 px-2.5 py-2`}
+                    aria-label={`${POLISH_DAYS[i]}: otwarcie`}
+                    onChange={(e) => changeDay(i, day.map((x, j) => (j === k ? { ...x, od: e.target.value } : x)))}
+                    className={`${field} w-28 px-2.5 py-2`}
                     required
                   />
                   <span aria-hidden>–</span>
                   <input
                     type="time"
                     value={z.do === "24:00" ? "00:00" : z.do}
-                    aria-label={`${DNI_PL[i]}: zamknięcie`}
-                    onChange={(e) => zmienDzien(i, dzien.map((x, j) => (j === k ? { ...x, do: e.target.value } : x)))}
-                    className={`${pole} w-28 px-2.5 py-2`}
+                    aria-label={`${POLISH_DAYS[i]}: zamknięcie`}
+                    onChange={(e) => changeDay(i, day.map((x, j) => (j === k ? { ...x, do: e.target.value } : x)))}
+                    className={`${field} w-28 px-2.5 py-2`}
                     required
                   />
                   {k > 0 ? (
                     <button
                       type="button"
-                      onClick={() => zmienDzien(i, dzien.filter((_, j) => j !== k))}
+                      onClick={() => changeDay(i, day.filter((_, j) => j !== k))}
                       aria-label="Usuń drugą zmianę"
                       className="flex size-9 items-center justify-center rounded-full hover:bg-krem"
                     >
                       <X className="size-4" aria-hidden />
                     </button>
                   ) : (
-                    dzien.length === 1 && (
+                    day.length === 1 && (
                       <button
                         type="button"
-                        onClick={() => zmienDzien(i, [...dzien, { od: "17:00", do: "22:00" }])}
+                        onClick={() => changeDay(i, [...day, { od: "17:00", do: "22:00" }])}
                         title="Dodaj drugą zmianę (np. po przerwie)"
                         aria-label="Dodaj drugą zmianę"
                         className="flex size-9 items-center justify-center rounded-full text-tekst-2 hover:bg-krem"
@@ -133,7 +133,7 @@ export default function EdytorGodzin({ godziny }: { godziny: string | null }) {
       <button
         type="button"
         onClick={() => setDni(dni.map(() => dni[0].map((z) => ({ ...z }))))}
-        className={`${przyciskMaly} mt-2 bg-krem`}
+        className={`${smallButton} mt-2 bg-krem`}
       >
         <Copy className="size-4" aria-hidden /> Wszystkie dni jak poniedziałek
       </button>

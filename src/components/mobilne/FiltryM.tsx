@@ -1,21 +1,21 @@
 "use client";
 
 import { Clock, Leaf, LoaderCircle, LocateFixed } from "lucide-react";
-import { PROMIENIE, type Katalog } from "../useKatalog";
+import { RADII, type Catalog } from "../useKatalog";
 
 /**
  * Filtry listy lokali we wszystkich propozycjach: listek „Wege”, otwarte teraz, blisko mnie / miejscowość,
  * promień. Wygląd pigułek daje propozycja (`chip`), listek ma swój zielony stan włączenia.
  */
-export default function FiltryM({
+export default function Filters({
   k,
   chip,
   miejscowosci,
   className = "",
   wegeWlaczone = "border-[#15803d] bg-[#15803d] text-white",
 }: {
-  k: Katalog;
-  chip: (aktywny: boolean) => string;
+  k: Catalog;
+  chip: (isActive: boolean) => string;
   miejscowosci: { nazwa: string }[];
   className?: string;
   wegeWlaczone?: string;
@@ -63,7 +63,7 @@ export default function FiltryM({
           ))}
         </select>
         {pozycja &&
-          PROMIENIE.map((p) => (
+          RADII.map((p) => (
             <button
               key={p}
               type="button"

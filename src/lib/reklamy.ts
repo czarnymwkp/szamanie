@@ -1,7 +1,7 @@
 // Banery w miejscu na reklamy na stronie głównej (pod wyszukiwarką, nad „Na co masz ochotę?”).
 // Dopóki nie ma reklamodawców, są tu banery samego serwisu. Reklama lokalu dostaje etykietę „Reklama”.
 
-export type Reklama = {
+export type Ad = {
   id: string;
   etykieta: "Reklama" | "szamanie.pl";
   tytul: string;
@@ -13,7 +13,7 @@ export type Reklama = {
   ikona: "megafon" | "menu" | "procent";
 };
 
-export const REKLAMY: Reklama[] = [
+export const ADS: Ad[] = [
   {
     id: "twoja-reklama",
     etykieta: "szamanie.pl",

@@ -10,9 +10,9 @@ import {
   UtensilsCrossed,
   Wine,
 } from "lucide-react";
-import type { KluczIkony } from "@/lib/motyw";
+import type { IconKey } from "@/lib/motyw";
 
-export default function IkonaTypu({ ikona, className }: { ikona: KluczIkony; className?: string }) {
+export default function TypeIcon({ ikona, className }: { ikona: IconKey; className?: string }) {
   const p = { className, "aria-hidden": true } as const;
   switch (ikona) {
     case "wszystko":

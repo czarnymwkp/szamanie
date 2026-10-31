@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChartColumn, Images, LayoutTemplate, LogIn, Mail, ShoppingCart, TrendingUp, UtensilsCrossed } from "lucide-react";
 import type { ReactNode } from "react";
-import SzamanM from "@/components/mobilne/SzamanM";
-import { Podkreslenie, reka } from "@/components/szkic/szkic";
+import StyledMascot from "@/components/mobilne/SzamanM";
+import { Underline, hand } from "@/components/szkic/szkic";
 import { CONTACT_EMAIL } from "@/lib/konfiguracja";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/dla-lokali" },
 };
 
-const PAKIETY: { ikona: ReactNode; nazwa: string; opis: string; wkrotce?: boolean }[] = [
+const PACKAGES: { ikona: ReactNode; nazwa: string; opis: string; wkrotce?: boolean }[] = [
   {
     ikona: <TrendingUp className="size-6 text-tekst" aria-hidden />,
     nazwa: "Wyróżnienie TOP",
@@ -50,21 +50,21 @@ const PAKIETY: { ikona: ReactNode; nazwa: string; opis: string; wkrotce?: boolea
   },
 ];
 
-const duzy =
+const bigButton =
   "m-reczna-ramka inline-flex h-14 items-center justify-center gap-2 border-[2.5px] border-tekst px-6 text-lg font-black shadow-[4px_4px_0_#1d1b19] transition active:translate-y-0.5 active:shadow-none";
 
 /** Oferta dla lokali w wyglądzie „Szkicownik”: karteczki z pakietami, notatki i odręczne dopiski. */
-export default function DlaLokali() {
+export default function ForVenues() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-6">
       <section className="relative pt-8">
-        <SzamanM styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
-        <p className={`${reka.className} ml-1 rotate-[-1.5deg] text-2xl text-tekst-2`}>dla restauracji, barów i kawiarni</p>
+        <StyledMascot styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
+        <p className={`${hand.className} ml-1 rotate-[-1.5deg] text-2xl text-tekst-2`}>dla restauracji, barów i kawiarni</p>
         <h1 className="mt-1 max-w-2xl animate-wjazd pr-24 text-[2.6rem] leading-[0.98] font-black tracking-tight lg:pr-0 lg:text-6xl">
           Twój lokal{" "}
-          <span className={`${reka.className} relative inline-block -rotate-2 text-[3.8rem] text-akcent-tekst lg:text-[5.5rem]`}>
+          <span className={`${hand.className} relative inline-block -rotate-2 text-[3.8rem] text-akcent-tekst lg:text-[5.5rem]`}>
             wyżej
-            <Podkreslenie className="absolute -bottom-2 left-0 h-4 w-full" />
+            <Underline className="absolute -bottom-2 left-0 h-4 w-full" />
           </span>{" "}
           w wynikach
         </h1>
@@ -72,14 +72,14 @@ export default function DlaLokali() {
           Podstawowy wpis na szamanie.pl jest bezpłatny. Za dodatki płacisz tylko wtedy, gdy chcesz się wyróżnić.
         </p>
         <div className="relative mt-10 flex flex-wrap gap-3">
-          <span className={`${reka.className} pointer-events-none absolute -top-8 left-6 rotate-[-8deg] text-xl text-akcent-tekst`}>
+          <span className={`${hand.className} pointer-events-none absolute -top-8 left-6 rotate-[-8deg] text-xl text-akcent-tekst`}>
             zacznij tu ↓
           </span>
-          <Link href="/panel" prefetch={false} className={`${duzy} bg-akcent text-na-akcencie`}>
+          <Link href="/panel" prefetch={false} className={`${bigButton} bg-akcent text-na-akcencie`}>
             <LogIn className="size-5" aria-hidden /> Panel lokalu
           </Link>
           {CONTACT_EMAIL && (
-            <a href={`mailto:${CONTACT_EMAIL}`} className={`${duzy} bg-white`}>
+            <a href={`mailto:${CONTACT_EMAIL}`} className={`${bigButton} bg-white`}>
               <Mail className="size-5" aria-hidden /> Napisz do nas
             </a>
           )}
@@ -87,11 +87,11 @@ export default function DlaLokali() {
       </section>
 
       <section aria-labelledby="pakiety" className="mt-12">
-        <h2 id="pakiety" className={`${reka.className} text-[2.1rem] leading-none`}>
+        <h2 id="pakiety" className={`${hand.className} text-[2.1rem] leading-none`}>
           Co możesz dostać
         </h2>
         <ul className="mt-6 grid gap-x-5 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
-          {PAKIETY.map((p, i) => (
+          {PACKAGES.map((p, i) => (
             <li
               key={p.nazwa}
               className="pojawianie m-reczna-ramka relative border-2 border-tekst bg-white p-5 shadow-[4px_4px_0_#1d1b19] transition hover:rotate-0"
@@ -101,7 +101,7 @@ export default function DlaLokali() {
                 {p.ikona}
               </span>
               {p.wkrotce && (
-                <span className={`${reka.className} absolute top-3 right-4 rotate-6 text-2xl text-akcent-tekst`}>wkrótce!</span>
+                <span className={`${hand.className} absolute top-3 right-4 rotate-6 text-2xl text-akcent-tekst`}>wkrótce!</span>
               )}
               <h3 className="mt-4 text-lg font-black">{p.nazwa}</h3>
               <p className="mt-1 text-sm leading-relaxed font-semibold text-tekst-2">{p.opis}</p>
@@ -116,7 +116,7 @@ export default function DlaLokali() {
           aria-labelledby="wpis-tytul"
           className="pojawianie scroll-mt-24 rotate-[-1.2deg] bg-[#fff3a8] p-6 shadow-[2px_8px_16px_rgba(0,0,0,0.12)]"
         >
-          <h2 id="wpis-tytul" className={`${reka.className} text-3xl`}>
+          <h2 id="wpis-tytul" className={`${hand.className} text-3xl`}>
             Bezpłatny wpis
           </h2>
           <p className="mt-2 leading-relaxed font-semibold">
@@ -129,7 +129,7 @@ export default function DlaLokali() {
           aria-labelledby="kolejnosc"
           className="pojawianie m-tasma relative rotate-[0.8deg] bg-white p-6 pt-7 shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
         >
-          <h2 id="kolejnosc" className={`${reka.className} text-3xl`}>
+          <h2 id="kolejnosc" className={`${hand.className} text-3xl`}>
             Jak ustalamy kolejność
           </h2>
           <p className="mt-2 leading-relaxed font-semibold text-tekst-2">

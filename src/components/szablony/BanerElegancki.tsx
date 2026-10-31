@@ -3,7 +3,7 @@
  * (<h1> strony, --ozdobny-lokalu), cienka kreska w kolorze akcent-tekst z rombem, `haslo` rozstrzelonymi
  * wersalikami i adres. Bez logo lokalu (tylko za jego zgodą).
  */
-export default function BanerElegancki({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
+export default function ElegantBanner({ nazwa, haslo, podpis }: { nazwa: string; haslo?: string; podpis: string }) {
   return (
     <div className="px-5 pt-20 pb-8 text-center sm:pt-24">
       <h1 className="animate-wjazd font-[family-name:var(--ozdobny-lokalu,var(--naglowek-lokalu))] text-6xl leading-none italic sm:text-8xl">

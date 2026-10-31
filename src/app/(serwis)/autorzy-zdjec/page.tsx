@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ZDJECIA_DAN } from "@/lib/zdjeciaDan";
-import { ZDJECIA_KATEGORII } from "@/lib/zdjeciaKategorii";
+import { DISH_PHOTOS } from "@/lib/zdjeciaDan";
+import { CATEGORY_PHOTOS } from "@/lib/zdjeciaKategorii";
 
 export const metadata: Metadata = {
   title: "Źródła danych i zdjęć",
@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/autorzy-zdjec" },
 };
 
-type Zdjecie = { plik: string; opis: string; autor: string; licencja: string; zrodlo: string };
+type Photo = { plik: string; opis: string; autor: string; licencja: string; zrodlo: string };
 
-function Lista({ zdjecia, kwadrat = false }: { zdjecia: Zdjecie[]; kwadrat?: boolean }) {
+function OrderList({ zdjecia, kwadrat = false }: { zdjecia: Photo[]; kwadrat?: boolean }) {
   return (
     <ul className="mt-5 grid gap-4 sm:grid-cols-2">
       {zdjecia.map((z) => (
@@ -38,8 +38,8 @@ function Lista({ zdjecia, kwadrat = false }: { zdjecia: Zdjecie[]; kwadrat?: boo
   );
 }
 
-export default function AutorzyZdjec() {
-  const dania = Object.values(ZDJECIA_DAN);
+export default function PhotoCredits() {
+  const dishes = Object.values(DISH_PHOTOS);
   return (
     <div className="mx-auto max-w-4xl px-5 py-10">
       <h1 className="animate-wjazd text-3xl font-black lg:text-4xl">Źródła danych i zdjęć</h1>
@@ -59,11 +59,11 @@ export default function AutorzyZdjec() {
         zostały przycięte i są udostępniane na tej samej licencji.
       </p>
       <h3 className="mt-8 text-lg font-black">Kategorie</h3>
-      <Lista zdjecia={Object.values(ZDJECIA_KATEGORII)} />
-      {dania.length > 0 && (
+      <OrderList zdjecia={Object.values(CATEGORY_PHOTOS)} />
+      {dishes.length > 0 && (
         <>
           <h3 className="mt-10 text-lg font-black">Dania w menu</h3>
-          <Lista zdjecia={dania} kwadrat />
+          <OrderList zdjecia={dishes} kwadrat />
         </>
       )}
     </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 
 /** Pole z kodem do wklejenia i przycisk „Kopiuj”. */
-export default function KopiujKod({ kod, etykieta }: { kod: string; etykieta: string }) {
+export default function CopyCode({ kod, etykieta }: { kod: string; etykieta: string }) {
   const [skopiowane, setSkopiowane] = useState(false);
   return (
     <div>

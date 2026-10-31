@@ -2,7 +2,7 @@
 // Pliki w public/zdjecia/kategorie/. Źródła i licencje są wypisane na stronie /autorzy-zdjec.
 // Kategoria bez wpisu tutaj pokazuje kolorowy baner z ikoną.
 
-export type KluczZdjecia =
+export type PhotoKey =
   | "pizza"
   | "kebab"
   | "burger"
@@ -17,7 +17,7 @@ export type KluczZdjecia =
   | "fastfood"
   | "restauracja";
 
-export type ZdjecieKategorii = {
+export type CategoryPhoto = {
   plik: string;
   opis: string; // co widać na zdjęciu (strona z autorami)
   pozycja: string; // object-position — co ma zostać widoczne przy wąskim kadrze
@@ -26,9 +26,9 @@ export type ZdjecieKategorii = {
   zrodlo: string;
 };
 
-const p = (plik: string) => `/zdjecia/kategorie/${plik}.jpg`;
+const p = (file: string) => `/zdjecia/kategorie/${file}.jpg`;
 
-export const ZDJECIA_KATEGORII: Partial<Record<KluczZdjecia, ZdjecieKategorii>> = {
+export const CATEGORY_PHOTOS: Partial<Record<PhotoKey, CategoryPhoto>> = {
   pizza: {
     plik: p("pizza"),
     opis: "Pizza z pieca opalanego drewnem",

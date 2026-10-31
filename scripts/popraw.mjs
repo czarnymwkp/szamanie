@@ -9,7 +9,7 @@
 //   npm run popraw -- lista
 import { openDatabase } from "../src/lib/db/otworz.mjs";
 
-const POLA = {
+const FIELDS = {
   nazwa: "tekst",
   kuchnie: "lista",
   adres: "tekst",
@@ -35,41 +35,41 @@ const [slug, pole, ...reszta] = process.argv.slice(2);
 const db = openDatabase();
 
 if (!slug || slug === "lista") {
-  const wiersze = db
+  const rows = db
     .prepare("SELECT l.slug, p.pole, p.wartosc FROM poprawki p JOIN lokale l ON l.id = p.lokal_id ORDER BY l.slug")
     .all();
-  if (!wiersze.length) console.log("Brak poprawek.");
-  for (const w of wiersze) console.log(`${w.slug}  ${w.pole} = ${w.wartosc}`);
+  if (!rows.length) console.log("Brak poprawek.");
+  for (const w of rows) console.log(`${w.slug}  ${w.pole} = ${w.wartosc}`);
   process.exit(0);
 }
 
-const lokal = db.prepare("SELECT id, nazwa FROM lokale WHERE slug = ?").get(slug);
-if (!lokal) {
+const venue = db.prepare("SELECT id, nazwa FROM lokale WHERE slug = ?").get(slug);
+if (!venue) {
   console.error(`Nie ma lokalu o slugu „${slug}”.`);
   process.exit(1);
 }
 
 if (pole === "usun") {
-  db.prepare("DELETE FROM poprawki WHERE lokal_id = ? AND pole = ?").run(lokal.id, reszta[0]);
-  console.log(`${lokal.nazwa}: usunięto poprawkę „${reszta[0]}”.`);
+  db.prepare("DELETE FROM poprawki WHERE lokal_id = ? AND pole = ?").run(venue.id, reszta[0]);
+  console.log(`${venue.nazwa}: usunięto poprawkę „${reszta[0]}”.`);
   process.exit(0);
 }
 
-const typ = POLA[pole];
-const tekst = reszta.join(" ").trim();
-if (!typ || !tekst) {
-  console.error(`Użycie: npm run popraw -- <slug> <pole> <wartość>. Pola: ${Object.keys(POLA).join(", ")}`);
+const type = FIELDS[pole];
+const text = reszta.join(" ").trim();
+if (!type || !text) {
+  console.error(`Użycie: npm run popraw -- <slug> <pole> <wartość>. Pola: ${Object.keys(FIELDS).join(", ")}`);
   process.exit(1);
 }
-const wartosc =
-  typ === "lista"
-    ? tekst.split(",").map((s) => s.trim()).filter(Boolean)
-    : typ === "takNie"
-      ? /^(tak|1|yes)$/i.test(tekst)
-      : tekst;
+const value =
+  type === "lista"
+    ? text.split(",").map((s) => s.trim()).filter(Boolean)
+    : type === "takNie"
+      ? /^(tak|1|yes)$/i.test(text)
+      : text;
 
 db.prepare(
   `INSERT INTO poprawki (lokal_id, pole, wartosc, autor) VALUES (?, ?, ?, 'admin')
    ON CONFLICT(lokal_id, pole) DO UPDATE SET wartosc = excluded.wartosc, utworzono = datetime('now')`,
-).run(lokal.id, pole, JSON.stringify(wartosc));
-console.log(`${lokal.nazwa}: ${pole} = ${JSON.stringify(wartosc)}. Strona pokaże zmianę w ciągu ok. minuty.`);
+).run(venue.id, pole, JSON.stringify(value));
+console.log(`${venue.nazwa}: ${pole} = ${JSON.stringify(value)}. Strona pokaże zmianę w ciągu ok. minuty.`);

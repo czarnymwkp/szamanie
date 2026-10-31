@@ -1,20 +1,20 @@
 "use client";
 
-import { DNI_PL, dzienTygodnia, opisDnia, type Tydzien } from "@/lib/godziny";
-import { useTeraz } from "./useTeraz";
+import { POLISH_DAYS, weekday, dayDescription, type Week } from "@/lib/godziny";
+import { useNow } from "./useTeraz";
 
-export default function TabelaGodzin({ tydzien }: { tydzien: Tydzien }) {
-  const teraz = useTeraz();
-  const dzis = teraz ? dzienTygodnia(teraz) : -1;
+export default function HoursTable({ tydzien }: { tydzien: Week }) {
+  const now = useNow();
+  const today = now ? weekday(now) : -1;
   return (
     <table className="w-full text-sm">
       <tbody>
-        {tydzien.map((przedzialy, d) => (
-          <tr key={DNI_PL[d]} className={d === dzis ? "font-bold" : ""}>
+        {tydzien.map((ranges, d) => (
+          <tr key={POLISH_DAYS[d]} className={d === today ? "font-bold" : ""}>
             <th scope="row" className="py-1 pr-4 text-left font-[inherit]">
-              {DNI_PL[d]}
+              {POLISH_DAYS[d]}
             </th>
-            <td className={`py-1 text-right ${przedzialy.length ? "" : "opacity-60"}`}>{opisDnia(przedzialy)}</td>
+            <td className={`py-1 text-right ${ranges.length ? "" : "opacity-60"}`}>{dayDescription(ranges)}</td>
           </tr>
         ))}
       </tbody>

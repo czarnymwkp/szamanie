@@ -6,22 +6,22 @@ import { SITE_URL } from "../konfiguracja";
 // klienta OAuth (aplikacja internetowa). Dozwolone adresy przekierowania:
 //   https://szamanie.pl/panel/logowanie/google/powrot  i lokalnie  http://localhost:3001/panel/logowanie/google/powrot
 
-export const CIASTECZKA_GOOGLE = ["google_stan", "google_weryfikator", "google_dalej"] as const;
-export const SCIEZKA_GOOGLE = "/panel/logowanie/google";
+export const GOOGLE_COOKIES = ["google_stan", "google_weryfikator", "google_dalej"] as const;
+export const GOOGLE_PATH = "/panel/logowanie/google";
 
-export function klientGoogle(zadanie: Request) {
+export function googleClient(task: Request) {
   const id = process.env.GOOGLE_CLIENT_ID;
-  const sekret = process.env.GOOGLE_CLIENT_SECRET;
-  if (!id || !sekret) return null;
+  const secret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!id || !secret) return null;
   // na serwerze za Caddy adres żądania to http://app:3000, więc stały adres serwisu
-  const baza = process.env.NODE_ENV === "production" ? SITE_URL : new URL(zadanie.url).origin;
-  return new Google(id, sekret, `${baza}${SCIEZKA_GOOGLE}/powrot`);
+  const database = process.env.NODE_ENV === "production" ? SITE_URL : new URL(task.url).origin;
+  return new Google(id, secret, `${database}${GOOGLE_PATH}/powrot`);
 }
 
-export const opcjeCiasteczka = {
+export const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
-  path: SCIEZKA_GOOGLE,
+  path: GOOGLE_PATH,
   maxAge: 10 * 60,
 };
