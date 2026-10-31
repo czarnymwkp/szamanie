@@ -12,3 +12,8 @@ export const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? "";
 // from Umami's settings. Both are public (they end up in the page). Empty = no statistics script.
 export const UMAMI_SRC = process.env.NEXT_PUBLIC_UMAMI_SRC ?? "";
 export const UMAMI_ID = process.env.NEXT_PUBLIC_UMAMI_ID ?? "";
+
+// Site verification codes (content of the <meta> tag) from Google Search Console ("HTML tag" method) and Bing
+// Webmaster Tools. Public by design — they end up in the page. Empty = no tag (DNS verification works without it).
+export const GOOGLE_WERYFIKACJA = process.env.NEXT_PUBLIC_GOOGLE_WERYFIKACJA ?? "";
+export const BING_WERYFIKACJA = process.env.NEXT_PUBLIC_BING_WERYFIKACJA ?? "";

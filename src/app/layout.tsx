@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Space_Grotesk } from "next/font/google";
-import { SITE_URL } from "@/lib/konfiguracja";
+import { BING_WERYFIKACJA, GOOGLE_WERYFIKACJA, SITE_URL } from "@/lib/konfiguracja";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description:
     "Restauracje, pizzerie, kebaby i kawiarnie w Kraśniku i powiecie kraśnickim. Godziny otwarcia, telefon i dojazd w jednym miejscu.",
   openGraph: { siteName: "szamanie.pl", locale: "pl_PL", type: "website" },
+  // potwierdzenie własności w Search Console i Bing Webmaster (kody w lib/konfiguracja.ts)
+  verification: {
+    google: GOOGLE_WERYFIKACJA || undefined,
+    other: BING_WERYFIKACJA ? { "msvalidate.01": BING_WERYFIKACJA } : undefined,
+  },
 };
 
 export const viewport: Viewport = {
