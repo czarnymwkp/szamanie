@@ -660,3 +660,9 @@ z menu, nie wszystkie mają podane aktualne”*.
 - **Od usera nadal:** Search Console; dane administratora i e-mail do polityki prywatności (na live jest
   „właściciel serwisu szamanie.pl”, bo build w CI nie ma ADMINISTRATOR/CONTACT_EMAIL — trzeba wpisać je jako
   domyślne w `lib/konfiguracja.ts`); www→apex u Kamila.
+- **Szybkość, ciąg dalszy (31.10 noc):** czarn-f9 po moich pomiarach: zdjęcia kart na głównej (304581a) i kafelków
+  działów menu (20816f3) dopiero przy przewijaniu; ja: jeden Space Grotesk zamiast dwóch deklaracji (6dd2073,
+  `propozycje/fonty.ts` → `grotesk = { className: "font-grotesk" }`). Lighthouse mobile na live: główna perf 87,
+  LCP 3,7 s, 549 KB (na początku dnia 72 / 9,2 s / 1,7 MB); /krasnik/pizza 84 / 4,1 s; Parkowa 83 / 4,1 s.
+  Uwaga na przyszłość: dwie deklaracje next/font tego samego kroju = dwie @font-face o tej samej nazwie = podwójne
+  pobieranie; na Parkowej dochodzi Playfair 900 z `mobilne/fonty.ts` (font-black w nagłówkach motywu).
