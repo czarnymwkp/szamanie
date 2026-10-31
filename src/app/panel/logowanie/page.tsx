@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { card, errorMessage } from "@/components/panel/style";
-import { safeTarget, loginEnabled, getAccount } from "@/lib/panel/konta";
-import LoginForm from "./FormularzLogowania";
+import { safeTarget, loginEnabled, getAccount } from "@/lib/panel/accounts";
+import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = { title: "Logowanie" };
 

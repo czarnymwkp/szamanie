@@ -1,6 +1,6 @@
 import "server-only";
 import { Google } from "arctic";
-import { SITE_URL } from "../konfiguracja";
+import { SITE_URL } from "../config";
 
 // Logowanie przez Google (OAuth 2.0 + PKCE). Klucze z Google Cloud Console → „Dane logowania” → identyfikator
 // klienta OAuth (aplikacja internetowa). Dozwolone adresy przekierowania:

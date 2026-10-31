@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { DISH_PHOTOS } from "@/lib/zdjeciaDan";
-import { CATEGORY_PHOTOS } from "@/lib/zdjeciaKategorii";
+import { DISH_PHOTOS } from "@/lib/dishPhotos";
+import { CATEGORY_PHOTOS } from "@/lib/categoryPhotos";
 
 export const metadata: Metadata = {
   title: "Źródła danych i zdjęć",

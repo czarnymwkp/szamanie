@@ -3,10 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import { MapPin, Phone } from "lucide-react";
 import { card } from "@/components/panel/style";
 import { db } from "@/lib/db";
-import { getVenue } from "@/lib/lokale";
-import { venueToClaim, getAccount } from "@/lib/panel/konta";
-import { claimVenue } from "../../akcje";
-import ClaimForm from "./FormularzZgloszenia";
+import { getVenue } from "@/lib/venues";
+import { venueToClaim, getAccount } from "@/lib/panel/accounts";
+import { claimVenue } from "../../actions";
+import ClaimForm from "./ClaimForm";
 
 export const metadata: Metadata = { title: "Poproś o dostęp do lokalu" };
 

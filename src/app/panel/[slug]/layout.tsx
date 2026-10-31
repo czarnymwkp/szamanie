@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { requireVenue } from "@/lib/panel/konta";
-import Tabs from "./Zakladki";
+import { requireVenue } from "@/lib/panel/accounts";
+import Tabs from "./Tabs";
 
 // jak cały panel: zależy od konta, więc czeka na serwer (bez tego Next ostrzega o odczycie adresu przy prerenderze)
 export const instant = false;

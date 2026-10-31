@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Pills } from "@/components/StronaFrazy";
-import SketchHome from "@/components/szkic/GlownaSzkic";
-import { SITE_URL } from "@/lib/konfiguracja";
-import { getVenues, getTowns, type Venue } from "@/lib/lokale";
-import { venueCount } from "@/lib/nazwy";
-import { excludeHallsOnly } from "@/lib/przyjecia";
+import { Pills } from "@/components/PhrasePage";
+import SketchHome from "@/components/sketch/SketchHome";
+import { SITE_URL } from "@/lib/config";
+import { getVenues, getTowns, type Venue } from "@/lib/venues";
+import { venueCount } from "@/lib/format";
+import { excludeHallsOnly } from "@/lib/events";
 import { toIndex, categoriesWithPage, AREAS, areasWithDelivery, areasWithPage } from "@/lib/seo";
 
 export const metadata: Metadata = {

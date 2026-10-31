@@ -1,8 +1,8 @@
-import { getVenue } from "@/lib/lokale";
+import { getVenue } from "@/lib/venues";
 import { getMenu } from "@/lib/menu";
-import { venueTheme } from "@/lib/motyw";
-import { venueDescription, fullAddress } from "@/lib/nazwy";
-import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { venueTheme } from "@/lib/categoryTheme";
+import { venueDescription, fullAddress } from "@/lib/format";
+import { SIZE, shareImage } from "@/lib/shareImage";
 
 export const alt = "Lokal na szamanie.pl — menu, godziny otwarcia, telefon i dojazd";
 export const size = SIZE;

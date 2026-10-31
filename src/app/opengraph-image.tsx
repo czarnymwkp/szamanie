@@ -1,4 +1,4 @@
-import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { SIZE, shareImage } from "@/lib/shareImage";
 
 // Domyślny obrazek przy linkach do szamanie.pl; strony fraz i lokali mają własne.
 

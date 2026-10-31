@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { venueData } from "@/lib/panel/lokal";
-import { requireVenue } from "@/lib/panel/konta";
-import { saveDetails } from "./akcje";
-import VenueAccess from "./DostepDoLokalu";
-import DetailsForm from "./FormularzDanych";
+import { venueData } from "@/lib/panel/venue";
+import { requireVenue } from "@/lib/panel/accounts";
+import { saveDetails } from "./actions";
+import VenueAccess from "./VenueAccess";
+import DetailsForm from "./DetailsForm";
 
 export const metadata: Metadata = { title: "Dane lokalu" };
 

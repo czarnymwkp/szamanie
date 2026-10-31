@@ -20,7 +20,7 @@ needed. Accounts, sessions, owner requests, promotions and paid packages are nev
 After changing data locally, refresh the file and commit it:
 
 ```bash
-npm run baza:eksport               # data/szamanie.db → dane/baza-startowa.json
+npm run seed:export               # data/szamanie.db → dane/baza-startowa.json
 ```
 
 The file only fills an empty database: a server that already has venues keeps its own data (edits from the owner panel).
@@ -28,7 +28,7 @@ To rebuild the catalog from scratch instead:
 
 ```bash
 npm run import:osm                 # venues from OSM (Overpass API)
-npm run dodaj                      # venues missing from OSM, from dane/lokale-spoza-osm.txt
+npm run add-venues                      # venues missing from OSM, from dane/lokale-spoza-osm.txt
 npm run menu -- <slug>             # menu from dane/lokale/<slug>.txt
 ```
 
@@ -39,12 +39,12 @@ npm run menu -- <slug>             # menu from dane/lokale/<slug>.txt
 | Command | What it does |
 | --- | --- |
 | `npm run import:osm` | fetches venues from OSM; leaves venues with `reczna_edycja` and the `ukryty` field untouched |
-| `npm run dodaj` | adds or updates venues from `dane/lokale-spoza-osm.txt` |
+| `npm run add-venues` | adds or updates venues from `dane/lokale-spoza-osm.txt` |
 | `npm run menu -- <slug>` | loads the menu from `dane/lokale/<slug>.txt` |
-| `npm run popraw -- <slug> <field> <value>` | manual correction of a venue (e.g. `telefon`, `dostawa`, `zwierzeta`) |
-| `npm run pakiet -- <slug> <top\|galeria> <days>` | manually grants a paid package (`npm run pakiet -- lista` shows active ones) |
-| `npm run konto -- admin <e-mail>` | admin role in the panel and an entry link (`lista`, `link <e-mail>`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
-| `npm run baza:eksport` | writes the catalog from the local database to `dane/baza-startowa.json` (commit it afterwards) |
+| `npm run override -- <slug> <field> <value>` | manual correction of a venue (e.g. `telefon`, `dostawa`, `zwierzeta`) |
+| `npm run package -- <slug> <top\|galeria> <days>` | manually grants a paid package (`npm run package -- lista` shows active ones) |
+| `npm run account -- admin <e-mail>` | admin role in the panel and an entry link (`lista`, `link <e-mail>`, `lokal <e-mail> <slug>`, `odbierz <e-mail> <slug>`) |
+| `npm run seed:export` | writes the catalog from the local database to `dane/baza-startowa.json` (commit it afterwards) |
 
 ## Venue panel (`/panel`)
 
@@ -52,8 +52,8 @@ No login for now. An owner asks for access to a venue ("To Twój lokal?" on the 
 phone on the venue's number in `/panel/admin` and texts them a private link `/panel/wejdz/<token>` that opens the panel
 (90-day session; the same link works on more devices until the admin creates a new one or revokes access). The admin can
 also grant access without a request: venue panel → Dane tab → "Dostęp do panelu".
-The admin gets their own link from `npm run konto -- admin <e-mail>` (Coolify → Terminal:
-`node scripts/konto.mjs admin <e-mail>`; own server: `docker compose exec app node scripts/konto.mjs admin <e-mail>`).
+The admin gets their own link from `npm run account -- admin <e-mail>` (Coolify → Terminal:
+`node scripts/account.mjs admin <e-mail>`; own server: `docker compose exec app node scripts/account.mjs admin <e-mail>`).
 In the panel: details and opening hours, menu with prices, delivery zones, promotions.
 Changes show on the venue page right away. Menus and zones edited in the panel are not overwritten by `npm run menu`.
 

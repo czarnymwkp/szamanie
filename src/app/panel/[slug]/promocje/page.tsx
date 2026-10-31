@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { dishPrices, promotionsDraft } from "@/lib/panel/lokal";
-import { requireVenue } from "@/lib/panel/konta";
-import { deletePromotionAction, savePromotionAction } from "../akcje";
-import Promotions from "./Promocje";
+import { dishPrices, promotionsDraft } from "@/lib/panel/venue";
+import { requireVenue } from "@/lib/panel/accounts";
+import { deletePromotionAction, savePromotionAction } from "../actions";
+import Promotions from "./Promotions";
 
 export const metadata: Metadata = { title: "Promocje" };
 

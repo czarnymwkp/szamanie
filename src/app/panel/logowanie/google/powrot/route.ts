@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 import { GOOGLE_COOKIES, googleClient, cookieOptions } from "@/lib/panel/google";
-import { safeTarget, externalAccount, loginEnabled, loginAccount } from "@/lib/panel/konta";
+import { safeTarget, externalAccount, loginEnabled, loginAccount } from "@/lib/panel/accounts";
 
 type Data = { iss?: string; aud?: string; sub?: string; email?: string; email_verified?: boolean; name?: string };
 

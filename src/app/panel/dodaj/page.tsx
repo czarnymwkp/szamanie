@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { CONTACT_EMAIL } from "@/lib/konfiguracja";
-import { selectableVenues } from "@/lib/panel/konta";
-import VenueList from "./ListaLokali";
+import { CONTACT_EMAIL } from "@/lib/config";
+import { selectableVenues } from "@/lib/panel/accounts";
+import VenueList from "./VenueList";
 
 export const metadata: Metadata = { title: "Dodaj swój lokal" };
 

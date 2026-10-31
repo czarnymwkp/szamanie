@@ -14,9 +14,9 @@ import {
   ileLokali,
   type Breadcrumb,
   type Question,
-} from "@/components/StronaFrazy";
-import { getVenues, type Venue } from "@/lib/lokale";
-import { venuesFound, cuisineName } from "@/lib/nazwy";
+} from "@/components/PhrasePage";
+import { getVenues, type Venue } from "@/lib/venues";
+import { venuesFound, cuisineName } from "@/lib/format";
 import {
   categoriesWithPage,
   categoryVenues,

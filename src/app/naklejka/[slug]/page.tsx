@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { renderSVG } from "uqr";
-import PrintButton from "@/components/Drukuj";
-import CopyCode from "@/components/KopiujKod";
-import { SITE_URL } from "@/lib/konfiguracja";
-import { getVenue, getVenues } from "@/lib/lokale";
+import PrintButton from "@/components/PrintButton";
+import CopyCode from "@/components/CopyCode";
+import { SITE_URL } from "@/lib/config";
+import { getVenue, getVenues } from "@/lib/venues";
 
 // Naklejka do druku z kodem QR do strony lokalu i odznaka na stronę www lokalu (link do nas — ważny dla Google).
 // Bez nagłówka i stopki serwisu, żeby wydruk był czysty; nie do indeksowania (robots.ts: Disallow /naklejka).

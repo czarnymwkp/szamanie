@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { deliveryDraft, townNames } from "@/lib/panel/lokal";
-import { requireVenue } from "@/lib/panel/konta";
-import { saveDeliveryAction } from "../akcje";
-import DeliveryEditor from "./EdytorDostawy";
+import { deliveryDraft, townNames } from "@/lib/panel/venue";
+import { requireVenue } from "@/lib/panel/accounts";
+import { saveDeliveryAction } from "../actions";
+import DeliveryEditor from "./DeliveryEditor";
 
 export const metadata: Metadata = { title: "Dostawa" };
 

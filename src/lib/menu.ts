@@ -1,8 +1,8 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "./db";
 import { stripPolish } from "./slug.mjs";
-import { dishPhoto } from "./zdjeciaDan";
-import { CATEGORY_PHOTOS, type PhotoKey } from "./zdjeciaKategorii";
+import { dishPhoto } from "./dishPhotos";
+import { CATEGORY_PHOTOS, type PhotoKey } from "./categoryPhotos";
 
 export type Price = { wariant: string | null; gr: number };
 export type DishFeature = "wege" | "ostre" | "polecane" | "sezonowe";

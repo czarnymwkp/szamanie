@@ -2,13 +2,13 @@
 // Obszar = gmina (miasto Kraśnik osobno), kategoria = jedna z KATEGORIE. Strona powstaje dopiero, gdy ma
 // dość lokali — prawie pusta podstrona szkodzi w Google bardziej, niż pomaga.
 
-import { dayDescription, parseHours } from "./godziny";
-import type { Venue } from "./lokale";
+import { dayDescription, parseHours } from "./hours";
+import type { Venue } from "./venues";
 import { getDelivery, getMenu, searchDishes, type Dish } from "./menu";
-import { CATEGORIES } from "./nazwy";
-import { excludeHallsOnly } from "./przyjecia";
+import { CATEGORIES } from "./format";
+import { excludeHallsOnly } from "./events";
 import { stripPolish } from "./slug.mjs";
-import type { PhotoKey } from "./zdjeciaKategorii";
+import type { PhotoKey } from "./categoryPhotos";
 
 export type Area = {
   slug: string;

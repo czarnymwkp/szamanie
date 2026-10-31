@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowRight, Clock, Plus, ShieldCheck, Store } from "lucide-react";
 import { card, errorMessage, okMessage } from "@/components/panel/style";
 import { db } from "@/lib/db";
-import { loginEnabled, selectableVenues, accountVenues, getAccount } from "@/lib/panel/konta";
-import VenueList from "./dodaj/ListaLokali";
+import { loginEnabled, selectableVenues, accountVenues, getAccount } from "@/lib/panel/accounts";
+import VenueList from "./dodaj/VenueList";
 
 export const metadata: Metadata = { title: { absolute: "Twoje lokale · Panel lokalu" } };
 

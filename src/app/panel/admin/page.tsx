@@ -3,12 +3,12 @@ import Link from "next/link";
 import { Check, Phone, X } from "lucide-react";
 import { card, framedCard, field, smallButton } from "@/components/panel/style";
 import { db } from "@/lib/db";
-import { getVenues } from "@/lib/lokale";
-import { phoneUrl } from "@/lib/nazwy";
-import { requireAdmin } from "@/lib/panel/konta";
-import VenueList from "../dodaj/ListaLokali";
-import PanelLink from "../LinkDoPanelu";
-import { newPanelLink, revokeAccess, reviewClaim } from "./akcje";
+import { getVenues } from "@/lib/venues";
+import { phoneUrl } from "@/lib/format";
+import { requireAdmin } from "@/lib/panel/accounts";
+import VenueList from "../dodaj/VenueList";
+import PanelLink from "../PanelLink";
+import { newPanelLink, revokeAccess, reviewClaim } from "./actions";
 
 export const metadata: Metadata = { title: "Administracja" };
 

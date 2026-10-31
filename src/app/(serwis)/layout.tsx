@@ -1,7 +1,7 @@
-import Header from "@/components/serwis/Naglowek";
-import Analytics from "@/components/serwis/Statystyki";
-import Footer from "@/components/serwis/Stopka";
-import { PAPER, SketchBackground } from "@/components/szkic/szkic";
+import Header from "@/components/site/Header";
+import Analytics from "@/components/site/Analytics";
+import Footer from "@/components/site/Footer";
+import { PAPER, SketchBackground } from "@/components/sketch/sketch";
 
 // Cały serwis w wyglądzie „Szkicownik” (wybrany 29.10): papier w kropki i rysowane ikony jedzenia w tle.
 export default function SiteLayout({ children }: LayoutProps<"/">) {

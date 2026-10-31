@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { menuDraft } from "@/lib/panel/lokal";
-import { requireVenue } from "@/lib/panel/konta";
-import { saveMenu } from "../akcje";
-import MenuEditor from "./EdytorMenu";
+import { menuDraft } from "@/lib/panel/venue";
+import { requireVenue } from "@/lib/panel/accounts";
+import { saveMenu } from "../actions";
+import MenuEditor from "./MenuEditor";
 
 export const metadata: Metadata = { title: "Menu i ceny" };
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ADMIN_EMAIL, CONTACT_EMAIL, UMAMI_ID } from "@/lib/konfiguracja";
+import { ADMIN_EMAIL, CONTACT_EMAIL, UMAMI_ID } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Polityka prywatności",

@@ -1,5 +1,5 @@
 # TODO: switch comments in this file to English.
-# Obraz aplikacji: build Next.js (output: standalone) + skrypty danych (npm run menu / dodaj / popraw / pakiet).
+# Obraz aplikacji: build Next.js (output: standalone) + skrypty danych (npm run menu / add-venues / override / package).
 # Na serwerze baza leży poza obrazem, w wolumenie /app/data (patrz deploy/docker-compose.yml).
 
 FROM node:24-slim AS budowa
@@ -26,7 +26,7 @@ ENV NODE_ENV=production \
     SZAMANIE_SERWER=1 \
     NEXT_TELEMETRY_DISABLED=1
 # SZAMANIE_SERWER=1: baza w wolumenie to serwer — menu przepisane z kart (dane/lokale) przychodzi tu z repozytorium
-# (src/lib/db/dane-startowe.mjs); lokalnie i przy buildzie tego nie ma, bo tam źródłem pliku jest baza.
+# (src/lib/db/seed.mjs); lokalnie i przy buildzie tego nie ma, bo tam źródłem pliku jest baza.
 COPY --from=budowa /app/.next/standalone ./
 COPY --from=budowa /app/.next/static ./.next/static
 COPY --from=budowa /app/public ./public

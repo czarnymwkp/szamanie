@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/konfiguracja";
-import { getVenues } from "@/lib/lokale";
+import { SITE_URL } from "@/lib/config";
+import { getVenues } from "@/lib/venues";
 import { toIndex, areasWithDelivery, allPages } from "@/lib/seo";
-import { venueChanges } from "@/lib/zmiany";
+import { venueChanges } from "@/lib/changes";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [lokale, zmiany] = await Promise.all([getVenues(), venueChanges()]);

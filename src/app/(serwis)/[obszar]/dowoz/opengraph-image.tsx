@@ -1,5 +1,5 @@
-import { getVenues } from "@/lib/lokale";
-import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { getVenues } from "@/lib/venues";
+import { SIZE, shareImage } from "@/lib/shareImage";
 import { venuesWithDelivery, areasWithDelivery } from "@/lib/seo";
 
 export const alt = "Jedzenie z dowozem — kto dowozi i za ile, na szamanie.pl";

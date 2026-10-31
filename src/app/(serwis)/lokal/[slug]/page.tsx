@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { EventDetails } from "@/components/Przyjecia";
-import { Pills, Section } from "@/components/StronaFrazy";
-import VenueTemplate from "@/components/szablony";
-import { schemaOrgHours, parseHours } from "@/lib/godziny";
-import { SITE_URL } from "@/lib/konfiguracja";
-import { getVenue, getVenues, type Venue } from "@/lib/lokale";
+import { EventDetails } from "@/components/Events";
+import { Pills, Section } from "@/components/PhrasePage";
+import VenueTemplate from "@/components/templates";
+import { schemaOrgHours, parseHours } from "@/lib/hours";
+import { SITE_URL } from "@/lib/config";
+import { getVenue, getVenues, type Venue } from "@/lib/venues";
 import { getMenu, type Menu } from "@/lib/menu";
-import { facebookUrl, websiteUrl, cuisineName, venueDescription, fullAddress } from "@/lib/nazwy";
-import { venueEvents } from "@/lib/przyjecia";
+import { facebookUrl, websiteUrl, cuisineName, venueDescription, fullAddress } from "@/lib/format";
+import { venueEvents } from "@/lib/events";
 import { toIndex, categoriesWithPage, categoryVenues, areasWithPage, pageTitle, type Area } from "@/lib/seo";
 
 // Cała strona statyczna: nieznany adres czeka na wynik zamiast szkieletu z kodem 200, więc dostaje prawdziwe 404.

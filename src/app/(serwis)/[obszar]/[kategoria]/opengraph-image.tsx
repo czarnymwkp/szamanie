@@ -1,9 +1,9 @@
-import { formatPln } from "@/lib/ceny";
-import { getVenues } from "@/lib/lokale";
-import { venueCount } from "@/lib/nazwy";
-import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { formatPln } from "@/lib/prices";
+import { getVenues } from "@/lib/venues";
+import { venueCount } from "@/lib/format";
+import { SIZE, shareImage } from "@/lib/shareImage";
 import { categoryDishes, categoryVenues, findPage } from "@/lib/seo";
-import { CATEGORY_PHOTOS } from "@/lib/zdjeciaKategorii";
+import { CATEGORY_PHOTOS } from "@/lib/categoryPhotos";
 
 export const alt = "Lokale z kategorii na szamanie.pl — godziny, telefon, ceny";
 export const size = SIZE;

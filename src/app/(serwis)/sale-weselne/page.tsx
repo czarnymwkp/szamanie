@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { HallCard } from "@/components/Przyjecia";
+import { HallCard } from "@/components/Events";
 import {
   PhraseBanner,
   StructuredData,
@@ -11,10 +11,10 @@ import {
   Section,
   type Breadcrumb,
   type Question,
-} from "@/components/StronaFrazy";
-import { getVenues, type Venue } from "@/lib/lokale";
-import { plural } from "@/lib/nazwy";
-import { hallsFromList, type Events, type EventKind } from "@/lib/przyjecia";
+} from "@/components/PhrasePage";
+import { getVenues, type Venue } from "@/lib/venues";
+import { plural } from "@/lib/format";
+import { hallsFromList, type Events, type EventKind } from "@/lib/events";
 
 // Strona pod wyszukiwania „sala weselna Kraśnik”, „komunia Kraśnik”, „chrzciny Kraśnik” — sale z całego powiatu,
 // bo na wesele jedzie się dalej niż na pizzę.

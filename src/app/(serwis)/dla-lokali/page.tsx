@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChartColumn, Images, LayoutTemplate, LogIn, Mail, ShoppingCart, TrendingUp, UtensilsCrossed } from "lucide-react";
 import type { ReactNode } from "react";
-import StyledMascot from "@/components/mobilne/SzamanM";
-import { Underline, hand } from "@/components/szkic/szkic";
-import { CONTACT_EMAIL } from "@/lib/konfiguracja";
+import StyledMascot from "@/components/StyledMascot";
+import { Underline, hand } from "@/components/sketch/sketch";
+import { CONTACT_EMAIL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Dla lokali — wyróżnij swój lokal",

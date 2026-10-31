@@ -16,7 +16,7 @@
 //   Nazwa | opis | cena („27”, „29,90” albo „32 cm: 27; 45 cm: 37”) | cechy: wege, ostre, polecane, sezonowe
 import { readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
-import { openDatabase } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/open.mjs";
 import { stripPolish } from "../src/lib/slug.mjs";
 
 const CATALOG = "dane/lokale";

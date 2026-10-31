@@ -1,6 +1,6 @@
-import { getVenues } from "@/lib/lokale";
-import { venueCount } from "@/lib/nazwy";
-import { SIZE, shareImage } from "@/lib/obrazekUdostepnien";
+import { getVenues } from "@/lib/venues";
+import { venueCount } from "@/lib/format";
+import { SIZE, shareImage } from "@/lib/shareImage";
 import { categoriesWithPage, areaVenues, findPage } from "@/lib/seo";
 
 export const alt = "Gdzie zjeść — lokale z godzinami, telefonem i dojazdem na szamanie.pl";

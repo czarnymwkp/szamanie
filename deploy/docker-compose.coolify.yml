@@ -11,7 +11,7 @@
 #   5. First deploy fills the empty database from dane/baza-startowa.json (catalog from the repository). To bring a
 #      fuller copy instead (e.g. with owner accounts), copy it into the volume (see bottom of this file).
 #
-# Data scripts run in the container (Coolify → Terminal): node scripts/menu.mjs, node scripts/popraw.mjs …
+# Data scripts run in the container (Coolify → Terminal): node scripts/menu.mjs, node scripts/override.mjs …
 
 services:
   app:

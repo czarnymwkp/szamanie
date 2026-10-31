@@ -14,10 +14,10 @@ import {
   ileLokali,
   type Breadcrumb,
   type Question,
-} from "@/components/StronaFrazy";
-import { getVenues, type Venue } from "@/lib/lokale";
+} from "@/components/PhrasePage";
+import { getVenues, type Venue } from "@/lib/venues";
 import { getMenu, type Menu } from "@/lib/menu";
-import { venuesFound, plural } from "@/lib/nazwy";
+import { venuesFound, plural } from "@/lib/format";
 import {
   categoryDishes,
   categoriesWithPage,

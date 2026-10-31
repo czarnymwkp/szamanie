@@ -1,7 +1,7 @@
 // Pobiera lokale gastronomiczne z OpenStreetMap (Overpass API) z powiatów z listy POWIATY
 // i zapisuje je do bazy. Lokale z reczna_edycja = 1 są pomijane, a lokali usuniętych z OSM nie kasujemy.
 // Użycie: npm run import:osm
-import { openDatabase } from "../src/lib/db/otworz.mjs";
+import { openDatabase } from "../src/lib/db/open.mjs";
 import { slugify } from "../src/lib/slug.mjs";
 
 // Obszar katalogu. Priorytet: powiat kraśnicki; kolejne powiaty dopisuj tutaj (nazwy jak w OSM).

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Space_Grotesk } from "next/font/google";
-import { BING_VERIFICATION, GOOGLE_VERIFICATION, SITE_URL } from "@/lib/konfiguracja";
+import { BING_VERIFICATION, GOOGLE_VERIFICATION, SITE_URL } from "@/lib/config";
 import "./globals.css";
 
 const nunito = Nunito({

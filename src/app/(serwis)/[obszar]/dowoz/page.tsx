@@ -15,9 +15,9 @@ import {
   ileLokali,
   type Breadcrumb,
   type Question,
-} from "@/components/StronaFrazy";
-import { formatPln } from "@/lib/ceny";
-import { getVenues, type Venue } from "@/lib/lokale";
+} from "@/components/PhrasePage";
+import { formatPln } from "@/lib/prices";
+import { getVenues, type Venue } from "@/lib/venues";
 import type { Delivery } from "@/lib/menu";
 import {
   deliveryPricing,

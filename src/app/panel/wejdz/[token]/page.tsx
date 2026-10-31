@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LogIn, Store } from "lucide-react";
 import { card, primaryButton } from "@/components/panel/style";
-import { accountByLink, accountVenues, getAccount } from "@/lib/panel/konta";
-import { enterWithLink } from "../../akcje";
+import { accountByLink, accountVenues, getAccount } from "@/lib/panel/accounts";
+import { enterWithLink } from "../../actions";
 
 export const metadata: Metadata = { title: "Wejście do panelu" };
 
