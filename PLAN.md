@@ -642,3 +642,21 @@ z menu, nie wszystkie mają podane aktualne”*.
   przy sprzedaży pakietów user zostawia naklejkę i prosi lokal z własną stroną o wklejenie odznaki. Lokale z własnym
   www (31.10): Dom Bar (dombarkrasnik.pl, robiło webkrasnik.pl), Golińska, BD Star, Rubio (hotelkraft.pl), Brunoo,
   U Górala, Parkowa, Zielony Dworek, Si!, MusiCaffe, Stolnik, Diamentowa, DajMi Sushi.
+
+### 31.10 (wieczór) — drugi pełny przegląd SEO (user: „jeszcze raz wszystko przeanalizuj i zmień, gdzie to coś poprawi”)
+- Audyt live 83 adresów: technicznie czysto (tytuły, opisy, canonical, h1, og, JSON-LD). Poprawione drobiazgi:
+  dwa za długie tytuły i opis /sale-weselne.
+- **Strona główna (7e5719e):** h1 „Co dziś szamiesz?” nie mówi Google, o czym jest serwis, a z głównej szło tylko
+  8 linków do ok. 25 stron fraz → pod listą sekcja „Gdzie zjeść w Kraśniku i okolicy” (Przewodnik w
+  `(serwis)/page.tsx`): opis + linki do wszystkich stron fraz, dowozu, sal i lokali z gmin bez własnej strony.
+  czarn-f9 (wygląd głównej) dostała info — sekcja ma zostać.
+- **Tytuły:** „Pizza Kraśnik — 10 pizzerii, ceny, dowóz”, „Kebab Kraśnik — 10 kebabów…”, „Lody Kraśnik —
+  7 lodziarni…” (`KategoriaSeo.liczba`), „dowóz” w tytule, gdy któryś lokal dowozi; obszar: „Gdzie zjeść
+  w Kraśniku? 43 lokale: pizza, burgery, kebab”; „Obiady domowe Kraśnik”, „Sushi i kuchnia azjatycka Kraśnik”.
+  `tytulStrony()` w seo.ts: tytuł > 50 znaków bez „| szamanie.pl”.
+- **sitemap:** `lastmod` stron lokali z ostatniej zmiany lokalu/poprawki/menu (`lib/zmiany.ts`).
+- **Weryfikacja tagiem meta (b04b4fe):** `GOOGLE_WERYFIKACJA` / `BING_WERYFIKACJA` w `lib/konfiguracja.ts` —
+  alternatywa dla rekordu TXT w OVH (Search Console → „Prefiks URL” → „Tag HTML” → wpisać sam kod content).
+- **Od usera nadal:** Search Console; dane administratora i e-mail do polityki prywatności (na live jest
+  „właściciel serwisu szamanie.pl”, bo build w CI nie ma ADMINISTRATOR/CONTACT_EMAIL — trzeba wpisać je jako
+  domyślne w `lib/konfiguracja.ts`); www→apex u Kamila.
