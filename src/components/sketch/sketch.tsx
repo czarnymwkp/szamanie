@@ -19,7 +19,7 @@ import {
   Soup,
   Wine,
 } from "lucide-react";
-import { seededRandom } from "../shared";
+import { seededRandom } from "@/lib/random";
 import "./sketch.css";
 
 // The „Sketchbook” look of the site (proposal 3, chosen 29.10): dotted paper, drawn food icons slowly drifting

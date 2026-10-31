@@ -1,14 +1,6 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-
-// Seeded random numbers (the same on the server and in the browser), so the fireflies do not jump after the page loads.
-function seededRandom(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return s / 2147483647;
-  };
-}
+import { seededRandom } from "@/lib/random";
 
 const rand = seededRandom(7);
 const FIREFLIES = Array.from({ length: 26 }, () => ({

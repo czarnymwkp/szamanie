@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChartColumn, Images, LayoutTemplate, LogIn, Mail, ShoppingCart, TrendingUp, UtensilsCrossed } from "lucide-react";
 import type { ReactNode } from "react";
-import StyledMascot from "@/components/StyledMascot";
+import SketchMascot from "@/components/SketchMascot";
 import { Underline, hand } from "@/components/sketch/sketch";
 import { CONTACT_EMAIL } from "@/lib/config";
 
@@ -58,7 +58,7 @@ export default function ForVenues() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-6">
       <section className="relative pt-8">
-        <StyledMascot styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
+        <SketchMascot className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
         <p className={`${hand.className} ml-1 rotate-[-1.5deg] text-2xl text-tekst-2`}>dla restauracji, barów i kawiarni</p>
         <h1 className="mt-1 max-w-2xl animate-wjazd pr-24 text-[2.6rem] leading-[0.98] font-black tracking-tight lg:pr-0 lg:text-6xl">
           Twój lokal{" "}

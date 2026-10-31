@@ -46,7 +46,7 @@ export type SeoCategory = {
   pasuje?: (l: Venue) => boolean; // category only for the phrase pages, no filter on the home page
 };
 
-const POLISH_CHARS = ["polish", "regional", "dumplings"];
+const POLISH_CUISINE = ["polish", "regional", "dumplings"];
 
 export const SEO_CATEGORIES: SeoCategory[] = [
   {
@@ -104,7 +104,7 @@ export const SEO_CATEGORIES: SeoCategory[] = [
     zdjecie: "polska",
     dowoz: true,
     opis: "Domowe obiady, zupy, pierogi i kuchnia polska — na miejscu, na wynos albo z dowozem.",
-    pasuje: (l) => l.kuchnie.some((k) => POLISH_CHARS.includes(k)),
+    pasuje: (l) => l.kuchnie.some((k) => POLISH_CUISINE.includes(k)),
   },
   {
     id: "pierogi",

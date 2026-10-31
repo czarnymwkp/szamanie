@@ -11,7 +11,7 @@ import TypeIcon from "../TypeIcon";
 import Thumbnail from "../Thumbnail";
 import OpeningStatus from "../OpeningStatus";
 import Filters from "../catalog/Filters";
-import StyledMascot from "../StyledMascot";
+import SketchMascot from "../SketchMascot";
 import { useCatalog } from "../useCatalog";
 import { Underline, chip, hand } from "./sketch";
 
@@ -22,7 +22,7 @@ export default function SketchHome({ lokale, miejscowosci }: { lokale: Venue[]; 
   return (
     <div className="mx-auto max-w-5xl px-5">
       <section className="relative pt-8">
-        <StyledMascot styl="szkic" className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
+        <SketchMascot className="pointer-events-none absolute top-0 -right-2 w-28 rotate-3 animate-wjazd [animation-delay:300ms] lg:right-6 lg:w-40" />
         <h1 className="animate-wjazd text-[2.9rem] leading-[0.95] font-black tracking-tight lg:text-6xl">
           Co dziś
           <span className={`${hand.className} relative ml-1 inline-block -rotate-2 text-[4.2rem] text-akcent-tekst lg:text-[5.5rem]`}>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, ArrowUp, Store } from "lucide-react";
-import StyledMascot, { type MascotStyle } from "../StyledMascot";
+import SketchMascot from "../SketchMascot";
 
 export type FooterLink = { nazwa: string; adres: string };
 
@@ -15,7 +15,7 @@ const DISHES = "PIZZA ✦ KEBAB ✦ BURGERY ✦ PIEROGI ✦ KAWA ✦ LODY ✦ ZA
  * on the „Źródła danych i zdjęć” page, linked from the footer. Colors come from tokens (background = page text color),
  * so it works on light and dark themes.
  */
-export default function FooterContent({ linki, szaman, className = "" }: { linki: FooterLink[]; szaman: MascotStyle; className?: string }) {
+export default function FooterContent({ linki, className = "" }: { linki: FooterLink[]; className?: string }) {
   const [skok, setSkok] = useState(0);
   return (
     <footer className={`relative mt-16 overflow-hidden rounded-t-[2.5rem] bg-tekst text-tlo ${className}`}>
@@ -35,7 +35,7 @@ export default function FooterContent({ linki, szaman, className = "" }: { linki
             className="w-28 shrink-0"
           >
             <span key={skok} className={`block ${skok ? "animate-[m-skok_0.9s_cubic-bezier(0.3,1.5,0.5,1)]" : ""}`}>
-              <StyledMascot styl={szaman} className="w-full" />
+              <SketchMascot className="w-full" />
             </span>
           </button>
           <div>
