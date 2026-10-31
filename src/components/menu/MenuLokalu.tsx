@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDown, Flame, Leaf, Plus, Search, Star, Sun, X } from "lucide-react";
 import { dataPl, zl } from "@/lib/ceny";
 import type { CechaDania, Dostawa, Menu, PozycjaMenu, SekcjaMenu } from "@/lib/menu";
@@ -240,6 +240,24 @@ function Dzial({
   const klasy = (zwiniety: string, rozwiniety: string, domyslny: string) =>
     stan === undefined ? domyslny : stan ? rozwiniety : zwiniety;
   const ref = useRef<HTMLElement>(null);
+  // Zdjęcie kafelka działu: pierwszy od razu, dalsze dopiero ok. 300 px przed ekranem — leniwe ładowanie przeglądarki
+  // pobierało wszystkie naraz (Parkowa: 12 zdjęć przy wejściu). Do tego czasu ciemne tło kafelka.
+  const [zdjecie, setZdjecie] = useState(pierwszy);
+  useEffect(() => {
+    const el = ref.current;
+    if (zdjecie || !el) return;
+    const obserwator = new IntersectionObserver(
+      ([wpis]) => {
+        if (wpis.isIntersecting) {
+          setZdjecie(true);
+          obserwator.disconnect();
+        }
+      },
+      { rootMargin: "300px 0px" },
+    );
+    obserwator.observe(el);
+    return () => obserwator.disconnect();
+  }, [zdjecie]);
   const idTresci = `menu-${slugify(s.nazwa)}`;
   const ceny = s.pozycje.flatMap((p) => p.ceny.map((c) => c.gr));
   const od = ceny.length ? Math.min(...ceny) : null;
@@ -284,7 +302,7 @@ function Dzial({
                   : `rounded-2xl shadow-sm ${klasy("h-20", "h-14", "h-20 lg:h-14")} ${s.okladka ? "bg-noc text-white" : "bg-krem text-tekst"}`
           }`}
         >
-          {s.okladka && !belki && !karty && !spis && (
+          {s.okladka && zdjecie && !belki && !karty && !spis && (
             <>
               <Image
                 src={s.okladka.plik}
