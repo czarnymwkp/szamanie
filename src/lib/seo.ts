@@ -183,6 +183,29 @@ export const KATEGORIE_SEO: KategoriaSeo[] = [
     dowoz: false,
     opis: "Puby i bary na piwo, mecz albo wieczór ze znajomymi.",
   },
+  // Strony pod pytania o porę: „co otwarte w niedzielę Kraśnik”, „jedzenie w nocy Kraśnik” — z godzin lokali.
+  {
+    id: "niedziela",
+    slug: "otwarte-w-niedziele",
+    nazwa: "Otwarte w niedzielę",
+    fraza: "Otwarte w niedzielę",
+    gdzie: "Gdzie zjeść w niedzielę",
+    zdjecie: "polska",
+    dowoz: true,
+    opis: "Lokale, które według podanych godzin są otwarte w niedzielę — na rodzinny obiad, pizzę albo kawę.",
+    pasuje: (l) => (parsujGodziny(l.godziny)?.[6].length ?? 0) > 0,
+  },
+  {
+    id: "dopozna",
+    slug: "do-pozna",
+    nazwa: "Otwarte do późna",
+    fraza: "Jedzenie do późna",
+    gdzie: "Gdzie zjeść późnym wieczorem",
+    zdjecie: "fastfood",
+    dowoz: true,
+    opis: "Lokale otwarte po 22:00 przynajmniej w niektóre dni — kiedy głód przychodzi wieczorem albo w nocy.",
+    pasuje: (l) => parsujGodziny(l.godziny)?.some((dzien) => dzien.some(([, koniec]) => koniec > 22 * 60)) ?? false,
+  },
 ];
 
 const DODATKI = /dodat|\bsos|\bdip/;
