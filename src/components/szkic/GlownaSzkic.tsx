@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { Leaf, Search, Truck } from "lucide-react";
 import type { Lokal, Miejscowosc } from "@/lib/lokale";
+import { motywLokalu } from "@/lib/motyw";
 import { odmiana, opisLokalu } from "@/lib/nazwy";
 import BaneryReklamowe from "../BaneryReklamowe";
 import IkonaTypu from "../IkonaTypu";
@@ -130,7 +132,8 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
                 style={{ rotate: `${[-1.6, 1.2, -0.6, 1.8][i % 4]}deg` }}
               >
                 <div className="relative">
-                  <Miniatura lokal={l} className="aspect-square" sizes="(min-width: 1024px) 240px, 50vw" dopisek={false} />
+                  {/* pierwsze dwa rzędy od razu, reszta dopiero przy przewijaniu */}
+                  <ZdjecieKarty lokal={l} odRazu={i < 4} />
                   {l.dostawa && (
                     // jak plakietka „Dowóz” ze starej karty: autko podskakuje, za nim smużki (.dowoz-auto w globals.css)
                     <span
@@ -165,5 +168,35 @@ export default function GlownaSzkic({ lokale, miejscowosci }: { lokale: Lokal[];
         )}
       </section>
     </div>
+  );
+}
+
+/**
+ * Zdjęcie karty lokalu. Każdy lokal ma inne zdjęcie, więc przeglądarka nie bierze ich z pamięci — a leniwe ładowanie
+ * przeglądarki i tak pobiera kilkanaście kart naprzód (Lighthouse: 22 zdjęcia i ok. 570 KB przy wejściu). Dlatego
+ * zdjęcie dalszych kart wstawiamy dopiero, gdy karta jest ok. 300 px od ekranu; do tego czasu kolor kategorii.
+ */
+function ZdjecieKarty({ lokal, odRazu }: { lokal: Lokal; odRazu: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [widoczne, setWidoczne] = useState(odRazu);
+  useEffect(() => {
+    const el = ref.current;
+    if (widoczne || !el) return;
+    const obserwator = new IntersectionObserver(
+      ([wpis]) => {
+        if (wpis.isIntersecting) {
+          setWidoczne(true);
+          obserwator.disconnect();
+        }
+      },
+      { rootMargin: "300px 0px" },
+    );
+    obserwator.observe(el);
+    return () => obserwator.disconnect();
+  }, [widoczne]);
+  return widoczne ? (
+    <Miniatura lokal={lokal} className="aspect-square" sizes="(min-width: 1024px) 240px, (min-width: 640px) 30vw, 45vw" dopisek={false} />
+  ) : (
+    <div ref={ref} className="aspect-square" style={{ backgroundColor: motywLokalu(lokal).kolor }} />
   );
 }
